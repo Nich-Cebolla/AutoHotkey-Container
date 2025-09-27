@@ -272,7 +272,7 @@ The following is a list of methods that are analagous to `Map` instance methods.
 - `Map.Prototype.Set` - Use `Container.Prototype.DateInsert`, `Container.Prototype.DateInsertSparse`,
   `Container.Prototype.Insert`, or `Container.Prototype.InsertSparse`.
 
-### Use the object - the `Value` parameter
+## Use the object - the `Value` parameter
 
 You will notice that the first parameter of any method that implements a [binary search](#binary-search)
 is `Value` - the value to find.
