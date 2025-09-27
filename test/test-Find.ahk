@@ -107,7 +107,7 @@ class test_Find {
         }
     }
     static FindCbMisc() {
-        c := Container_Test(CONTAINER_SORTTYPE_CB_MISC, this.Len, true)
+        c := Container_Test(CONTAINER_SORTTYPE_MISC, this.Len, true)
         index := []
         loop this.Len / 10 {
             index.Push(Random(1, this.Len))

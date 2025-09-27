@@ -1,4 +1,20 @@
 ﻿
+/*
+List of sort types
+CONTAINER_SORTTYPE_CB_DATE
+CONTAINER_SORTTYPE_CB_DATESTR
+CONTAINER_SORTTYPE_CB_NUMBER
+CONTAINER_SORTTYPE_CB_STRING
+CONTAINER_SORTTYPE_CB_STRINGPTR
+CONTAINER_SORTTYPE_DATE
+CONTAINER_SORTTYPE_DATESTR
+CONTAINER_SORTTYPE_DATEVALUE
+CONTAINER_SORTTYPE_MISC
+CONTAINER_SORTTYPE_NUMBER
+CONTAINER_SORTTYPE_STRING
+CONTAINER_SORTTYPE_STRINGPTR
+*/
+
 Container_SetConstants() {
     global
     g_proc_kernel32_CompareStringEx := 0
@@ -14,45 +30,17 @@ Container_SetConstants() {
     local i := 0
     CONTAINER_SORTTYPE_CB_DATE         := ++i
     CONTAINER_SORTTYPE_CB_DATESTR      := ++i
-    CONTAINER_SORTTYPE_CB_MISC         := ++i
     CONTAINER_SORTTYPE_CB_NUMBER       := ++i
     CONTAINER_SORTTYPE_CB_STRING       := ++i
     CONTAINER_SORTTYPE_CB_STRINGPTR    := ++i
     CONTAINER_SORTTYPE_DATE            := ++i
     CONTAINER_SORTTYPE_DATESTR         := ++i
+    CONTAINER_SORTTYPE_DATEVALUE       := ++i
+    CONTAINER_SORTTYPE_MISC            := ++i
     CONTAINER_SORTTYPE_NUMBER          := ++i
     CONTAINER_SORTTYPE_STRING          := ++i
     CONTAINER_SORTTYPE_STRINGPTR       := ++i
-/*
-Template for writing switch statements
-switch SortType, 0 {
-    case CONTAINER_SORTTYPE_CB_DATE:
-    case CONTAINER_SORTTYPE_CB_DATESTR:
-    case CONTAINER_SORTTYPE_CB_MISC:
-    case CONTAINER_SORTTYPE_CB_NUMBER:
-    case CONTAINER_SORTTYPE_CB_STRING:
-    case CONTAINER_SORTTYPE_CB_STRINGPTR:
-    case CONTAINER_SORTTYPE_DATE:
-    case CONTAINER_SORTTYPE_DATESTR:
-    case CONTAINER_SORTTYPE_NUMBER:
-    case CONTAINER_SORTTYPE_STRING:
-    case CONTAINER_SORTTYPE_STRINGPTR:
-}
-*/
-/*
-List of sort types
-CONTAINER_SORTTYPE_CB_DATE
-CONTAINER_SORTTYPE_CB_DATESTR
-CONTAINER_SORTTYPE_CB_MISC
-CONTAINER_SORTTYPE_CB_NUMBER
-CONTAINER_SORTTYPE_CB_STRING
-CONTAINER_SORTTYPE_CB_STRINGPTR
-CONTAINER_SORTTYPE_DATE
-CONTAINER_SORTTYPE_DATESTR
-CONTAINER_SORTTYPE_NUMBER
-CONTAINER_SORTTYPE_STRING
-CONTAINER_SORTTYPE_STRINGPTR
-*/
+    CONTAINER_SORTTYPE_END             := i ; indicates the final value in the group
 
     CONTAINER_DEFAULT_ENCODING          := 'cp1200'
     CONTAINER_INSERTIONSORT_THRESHOLD   := 16
@@ -96,6 +84,10 @@ Container_CompareDate(date1, date2) {
     return DateDiff(date1, date2, 'S')
 }
 
+Container_CompareDateEx(date1, date2) {
+    return Container_DateObj.FromTimestamp(date1).TotalSeconds - Container_DateObj.FromTimestamp(date2).TotalSeconds
+}
+
 Container_CompareDateStr(DateParserObj, dateStr1, dateStr2) {
     return DateParserObj(dateStr1).Diff('S', DateParserObj(dateStr2).Timestamp)
 }
@@ -107,4 +99,41 @@ Container_CompareDateStr_CompareValue(DateParserObj, date1, dateStr2) {
 }
 Container_CompareDateStr_Century_CompareValue(DateParserObj, Century, date1, dateStr2) {
     return date1.Diff('S', DateParserObj(dateStr2, Century).Timestamp)
+}
+
+Container_CompareDateStrEx(DateParserObj, dateStr1, dateStr2) {
+    return DateParserObj(dateStr1).TotalSeconds - DateParserObj(dateStr2).TotalSeconds
+}
+Container_CompareDateStr_CenturyEx(DateParserObj, Century, dateStr1, dateStr2) {
+    return DateParserObj(dateStr1, Century).TotalSeconds - DateParserObj(dateStr2, Century).TotalSeconds
+}
+Container_CompareDateStr_CompareValueEx(DateParserObj, date1, dateStr2) {
+    return date1.TotalSeconds - DateParserObj(dateStr2).TotalSeconds
+}
+Container_CompareDateStr_Century_CompareValueEx(DateParserObj, Century, date1, dateStr2) {
+    return date1.TotalSeconds - DateParserObj(dateStr2, Century).TotalSeconds
+}
+
+Container_CallbackValue_DateValue(Value) {
+    return Value.__Container_DateValue
+}
+Container_CallbackValue_DateValueCustom(PropertyName, Value) {
+    return Value.%PropertyName%
+}
+Container_CallbackDateInsert(PropertyName, DateObjFunc, CallbackValue, Value) {
+    Value.DefineProp(PropertyName, { Value: DateObjFunc(CallbackValue(Value)).TotalSeconds })
+}
+
+Container_ConvertDate(DateObjFunc, Self, Value) {
+    return DateObjFunc(Value).TotalSeconds
+}
+Container_ConvertDateCb(DateObjFunc, CallbackValue, Self, Value) {
+    return DateObjFunc(CallbackValue(Value)).TotalSeconds
+}
+
+SortDateConstructorCall(Self, linkedidList) {
+    contactExtObj := { list: linkedidList }
+    ObjSetBase(contactExtObj, Self.Prototype)
+    contactExtObj.Process()
+    return contactExtObj
 }

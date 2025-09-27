@@ -29,6 +29,14 @@ class test_FindInequalitySparse {
     static Debug := true
     , DebugCallback := ''
 
+    static TestAll() {
+        loop CONTAINER_SORTTYPE_END {
+            this.SetSortType(A_Index)
+            if result := this() {
+                throw Error('FindInequalitySparse encountered a problem.', -1, 'Problem count: ' result)
+            }
+        }
+    }
     /**
      * @description - Initiates the test. The test is designed to validate
      * {@link Container.Prototype.FindInequalitySparse}.

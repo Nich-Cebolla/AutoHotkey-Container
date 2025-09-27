@@ -10,14 +10,14 @@ This file explains the purpose and usage of the parameter named `ThisArg`.
 
 The following {@link Container} methods have a parameter `ThisArg`:
 - {@link Container.Prototype.Every}
-- {@link Container.Prototype.ForEach}
+- {@link Container.Prototype.ForEachSparse}
 - {@link Container.Prototype.Map}
 
 To use these effectively, you should understand AutoHokey's implementation of `this`, when `ThisArg`
 should be used with these methods, and when it should be excluded. Here is the main considerations,
 and some examples.
 
-The following examples use {@link Container.Prototype.ForEach} for demonstration, but the same
+The following examples use {@link Container.Prototype.ForEachSparse} for demonstration, but the same
 principles apply to {@link Container.Prototype.Map} and {@link Container.Prototype.Every}.
 
 When to leave `ThisArg` unset:
@@ -40,98 +40,84 @@ are some considerations when deciding what value your code should pass to `ThisA
 
 ; We leave `ThisArg` unset because function objects do not have a "this" parameter.
 
-MyFunc(Item, *) {
-    OutputDebug(A_LineNumber ': Item: ' Item '`n')
+MyFunc(Item?, *) {
+    OutputDebug(A_LineNumber ': Item: ' (Item ?? 'No item!') '`n')
 }
 c := Container(1,2,,4,,6,,,9)
 Callback := MyFunc
-c.ForEach(Callback) ; Leave `ThisArg` unset.
+c.ForEachSparse(Callback) ; Leave `ThisArg` unset.
 
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-; Exampe 2: Using a default value.
-
-; Container.Prototype.ForEach has a parameter `Default` which allows you to specify a value to
-; use in place of unset indices.
-
-MyFunc2(Item, *) {
-    OutputDebug(A_LineNumber ': Item: ' Item '`n')
-}
-c := Container(1,2,,4,,6,,,9)
-Callback := MyFunc2
-c.ForEach(Callback, 'Not found!') ; Set a default value to be used for unset indices. Leave `ThisArg` unset.
-
-; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-; Example 3: Using an anonymous function.
+; Example 2: Using an anonymous function.
 
 ; For anonymous functions, also leave `ThisArg` unset.
 
 c := Container(1,2,,4,,6,,,9)
-c.ForEach((Item, Index, *) => OutputDebug(A_LineNumber ': Index: ' Index '; Item: ' Item '`n'))
+c.ForEachSparse((Item?, index?, *) => OutputDebug(A_LineNumber ': Index: ' index '; Item: ' (Item ?? 'No item!') '`n'))
 
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-; Example 4: Using `ObjBindMethod` on a class object.
+; Example 3: Using `ObjBindMethod` on a class object.
 
 ; `ObjBindMethod` is a function that just binds the object to its own hidden `this` parameter.
-; If we pass the return value from `ObjBindMethod` to `Container.Prototype.ForEach`, we must leave
+; If we pass the return value from `ObjBindMethod` to `Container.Prototype.ForEachSparse`, we must leave
 ; `ThisArg` unset because that parameter is consumed by the bound value.
 
-class Test4 {
-    static Call(Item, *) {
-        OutputDebug(A_LineNumber ': Item * 2: ' Item * 2 '`n')
+class Test3 {
+    static Call(Item?, *) {
+        OutputDebug(A_LineNumber ': Item * 2: ' (IsSet(Item) ? Item * 2 : 'No item!') '`n')
     }
 }
 
 c := Container(1,2,,4,,6,,,9)
-Callback := ObjBindMethod(Test4, 'Call')
-c.ForEach(Callback) ; Leave `ThisArg` unset because it is already bound to the function object.
+Callback := ObjBindMethod(Test3, 'Call')
+c.ForEachSparse(Callback) ; Leave `ThisArg` unset because it is already bound to the function object.
 
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-; Example 5: Using a class method that is not bound, and the method does not refer to `this`.
+; Example 4: Using a class method that is not bound, and the method does not refer to `this`.
 
 ; `ThisArg` requires a value because the first parameter in a class method is the hidden `this`, so
-; when `Container.Prototype.ForEach` calls the function object, the first parameter which it passes
+; when `Container.Prototype.ForEachSparse` calls the function object, the first parameter which it passes
 ; to the callback is going to be consumed by `this`. A good way to visualize this is to open this
 ; in a debugger and see which values are passed to `Test.Call`. Try one without the 0 in the
 ; `ThisArg` parameter, and see how it works. What you will see is that the first parameter
 ; is consumed by `this`, which in a typical function call, you wouldn't notice this, but within an
 ; external function call, it becomes apparent.
 
-class Test5 {
-    static Call(Item, Index, ContainerObj?) {
-        OutputDebug(A_LineNumber ': Item: ' Item '; Index: ' Index '; ``this``: ' this '`n')
+class Test4 {
+    static Call(Item?, Index?, ContainerObj?) {
+        OutputDebug(A_LineNumber ': Item: ' (Item ?? 'No item!') '; Index: ' Index '; ``this``: ' this '`n')
     }
 }
 
 c := Container('a', 'b', 'c', 'd', 'e')
-Callback := Test5.Call
-c.ForEach(Callback,, 0)
+Callback := Test4.Call
+c.ForEachSparse(Callback, 0)
 
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-; Example 6: Using a class method that is not bound, and the method refers to `this`, and `this`
+; Example 5: Using a class method that is not bound, and the method refers to `this`, and `this`
 ; refers to the class.
 
 ; We must pass the object `Test6` because `this` is referenced within the function, and that
 ; reference is intended to refer to `Test6`.
 
-class Test6 {
-    static Call(Item, *) {
-        OutputDebug(A_LineNumber ': Item * this.factor: ' Item * this.factor '`n')
+class Test5 {
+    static Call(Item?, *) {
+        OutputDebug(A_LineNumber ': Item * this.factor: ' (IsSet(Item) ? Item * this.factor : 'No item!') '`n')
     }
     static factor := 2
 }
 
 c := Container(1,2,,4,,6,,,9)
-Callback := Test6.Call
-c.ForEach(Callback,, Test6)
+Callback := Test5.Call
+c.ForEachSparse(Callback, Test5)
 
 ; ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-; Example 7: Using a class method with a value that we want to override within our callback function.
+; Example 6: Using a class method with a value that we want to override within our callback function.
 
 ; The below example demonstrates how to use `ThisArg` to override the value referenced by `this`.
 ; Even though the `this` parameter is normally hidden from us, you should think about it just like
@@ -145,17 +131,20 @@ c.ForEach(Callback,, Test6)
 ; Note how the value we pass to `ThisArg` must also have a property "factor", or else we would see
 ; a PropertyError.
 
-class Test7 {
-    static Call(Item, *) {
-        OutputDebug(A_LineNumber ': Item * this.factor: ' Item * this.factor '`n')
+class Test6 {
+    static Call(Item?, *) {
+        OutputDebug(A_LineNumber ': Item * this.factor: ' (IsSet(Item) ? Item * this.factor : 'No item!') '`n')
     }
     static factor := 2
 }
 
 Multiplier := { factor: 3 }
 c := Container(1,2,,4,,6,,,9)
-Callback  := Test7.Call
-c.ForEach(Callback,, Multiplier)
+Callback  := Test6.Call
+c.ForEachSparse(Callback, Multiplier)
+
+
+; Further explanation:
 
 ; It can be helpful to see how this plays out from the opposite direction. Let's say I want to define
 ; a method on an object dynamically. If one set of conditions is true I want to define function A,

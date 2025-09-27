@@ -2,7 +2,7 @@
 #include ..\src\Container.ahk
 
 
-class SomeStruct {
+class SomeStruct2 {
     static __New() {
         this.DeleteProp('__New')
         proto := this.Prototype
@@ -30,14 +30,12 @@ class SomeStruct {
     Size => this.Buffer.Size
 }
 
-test()
-
-test() {
+test_SetCallbackValue() {
     c1 := Container(
-        SomeStruct("obj4")
-      , SomeStruct("obj1")
-      , SomeStruct("obj3")
-      , SomeStruct("obj2")
+        SomeStruct2("obj4")
+      , SomeStruct2("obj1")
+      , SomeStruct2("obj3")
+      , SomeStruct2("obj2")
     )
     c1.SetCompareStringEx()
     c1.SetCallbackValue((value) => value.__pszText.Ptr)
@@ -55,7 +53,7 @@ test() {
     c2.SortType := CONTAINER_SORTTYPE_CB_STRING
     c2.Sort()
 
-    SomeStruct.Prototype.DefineProp('Name', { Get: (Self) => StrGet(Self.__pszText, 'cp1200') })
+    SomeStruct2.Prototype.DefineProp('Name', { Get: (Self) => StrGet(Self.__pszText, 'cp1200') })
     i := 0
     for c in [ c1, c2 ] {
         ++i

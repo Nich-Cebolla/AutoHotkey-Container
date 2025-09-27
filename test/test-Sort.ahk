@@ -15,6 +15,7 @@ class test_Sort {
         this.SortCbString()
         this.SortCbStringPtr()
         this.SortCbMisc()
+        this.SortDate()
 
         this.SortNumber(1)
         this.SortString(1)
@@ -23,6 +24,31 @@ class test_Sort {
         this.SortCbString(1)
         this.SortCbStringPtr(1)
         this.SortCbMisc(1)
+    }
+    static SortDate(Quick := false) {
+        c := Container_Test(CONTAINER_SORTTYPE_DATE, this.Len, false)
+        clone := c.Clone()
+        if Quick {
+            c := c.QuickSort()
+        } else {
+            c.Sort()
+        }
+        if c.Length != clone.Length {
+            throw Error('Mismatched lengths.', -1, 'c.Length = ' c.Length '; clone.Length = ' clone.Length)
+        }
+        CallbackCompare := c.CallbackCompare
+        loop c.Length - 1 {
+            if CallbackCompare(c[A_Index], c[A_Index + 1]) > 0 {
+                throw Error('Out of order values.', -1, 'Index1: ' A_Index '; value1: ' c[A_Index].Timestamp '; index2: ' A_Index + 1 '; value2: ' c[A_Index + 1].Timestamp)
+            }
+        }
+        ; Check independently from CallbackCompare in case the error is propagated by CallbackCompare itself
+        loop c.Length - 1 {
+            if Container_DateObj.FromTimestamp(c[A_Index]).TotalSeconds > Container_DateObj.FromTimestamp(c[A_Index + 1]).TotalSeconds {
+                throw Error('Out of order values.', -1, 'Index1: ' A_Index '; value1: ' c[A_Index].TotalSeconds '; index2: ' A_Index + 1 '; value2: ' c[A_Index + 1].TotalSeconds)
+            }
+        }
+        Container_Test.ValidateValues(c, clone)
     }
     static SortNumber(Quick := false) {
         c := Container_Test(CONTAINER_SORTTYPE_NUMBER, this.Len, false)
@@ -158,7 +184,7 @@ class test_Sort {
         Container_Test.ValidateValues(c, clone, (item) => StrGet(CallbackValue(item), CONTAINER_DEFAULT_ENCODING))
     }
     static SortCbMisc(Quick := false) {
-        c := Container_Test(CONTAINER_SORTTYPE_CB_MISC, this.Len, false)
+        c := Container_Test(CONTAINER_SORTTYPE_MISC, this.Len, false)
         clone := c.Clone()
         if Quick {
             c := c.QuickSort()

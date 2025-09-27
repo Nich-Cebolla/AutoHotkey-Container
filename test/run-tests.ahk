@@ -1,20 +1,25 @@
 ﻿
-#include test-FindInequalitySparse.ahk
-#include test-Sort.ahk
+#include test-DatePreprocess.ahk
+#include test-example-HasValue.ahk
+#include test-example-SetCallbackValue.ahk
 #include test-Find.ahk
+#include test-FindInequalitySparse.ahk
 #include test-Misc.ahk
+#include test-readme-examples.ahk
+#include test-SetSortType-examples.ahk
+#include test-Sort.ahk
 
 
 test()
 
 test() {
-    loop CONTAINER_SORTTYPE_STRINGPTR {
-        test_FindInequalitySparse.SetSortType(A_Index)
-        if result := test_FindInequalitySparse() {
-            throw Error('FindInequalitySparse encountered a problem.', -1, 'Problem count: ' result)
-        }
-    }
-    test_Sort()
+    test_DatePreprocess()
+    test_HasValue()
+    test_SetCallbackValue()
     test_Find()
+    test_FindInequalitySparse.TestAll()
     test_Misc()
+    test_ReadmeExamples()
+    test_SetSortTypeExamples()
+    test_Sort()
 }

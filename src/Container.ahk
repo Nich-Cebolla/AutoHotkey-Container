@@ -1,16 +1,20 @@
-﻿
+﻿/*
+    Github: https://github.com/Nich-Cebolla/AutoHotkey-Container/blob/main/src/Container.ahk
+    Author: Nich-Cebolla
+    Version: 1.0.0
+    License: MIT
+*/
+
 ; https://github.com/Nich-Cebolla/AutoHotkey-LibV2/blob/main/LibraryManager.ahk
 #include <LibraryManager>
 
-; https://github.com/Nich-Cebolla/AutoHotkey-DateObj/blob/main/DateObj.ahk
 ; Only needed if using sort type CONTAINER_SORTTYPE_DATESTR or CONTAINER_SORTTYPE_CB_DATESTR
-#include *i <DateObj>
+#include *i Container_DateObj.ahk
 
-; Only needed if using the class.
+; Only needed if using the NlsVersionInfo class.
 #include *i NlsVersionInfo.ahk
 
 #include lib.ahk
-
 
 class Container extends Array {
     static __New() {
@@ -18,7 +22,7 @@ class Container extends Array {
         proto := this.Prototype
         proto.CallbackCompare := proto.CallbackValue := proto.CompareDateCentury :=
         proto.CallbackCompareValue := proto.CompareStringVersionInformation :=
-        proto.CompareStringLocaleName := proto.__DateParser :=
+        proto.CompareStringLocaleName := proto.__DateParser := proto.__CallbackDateInsert :=
         ''
         proto.SortType := 0
         if !IsSet(CONTAINER_SORTTYPE_NUMBER) {
@@ -26,7 +30,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
      *
@@ -67,7 +71,7 @@ class Container extends Array {
                 return this.CallbackCompare.Call(Value, this[Index])
             case CONTAINER_SORTTYPE_DATESTR:
                 if IsNumber(Value) {
-                    return this.CallbackCompareValue.Call(DateObj.FromTimestamp(Value), this[Index])
+                    return this.CallbackCompareValue.Call(Container_DateObj.FromTimestamp(Value), this[Index])
                 } else {
                     return this.CallbackCompare.Call(Value, this[Index])
                 }
@@ -103,7 +107,7 @@ class Container extends Array {
                 date1 := ''
                 if !IsObject(Value) {
                     if IsNumber(Value) {
-                        date1 := DateObj.FromTimestamp(Value)
+                        date1 := Container_DateObj.FromTimestamp(Value)
                     } else {
                         date1 := this.DateParser.Call(
                             Value
@@ -116,17 +120,47 @@ class Container extends Array {
                 } else {
                     return this.CallbackCompare.Call(this.CallbackValue.Call(Value), this.CallbackValue.Call(this[Index]))
                 }
-            case CONTAINER_SORTTYPE_CB_MISC:
+            case CONTAINER_SORTTYPE_MISC:
                 return this.CallbackCompare.Call(Value, this[Index])
+            case CONTAINER_SORTTYPE_DATEVALUE:
+                if IsObject(Value) {
+                    return Value.__Container_DateValue - this[Index].__Container_DateValue
+                } else {
+                    return Value - this[Index].__Container_DateValue
+                }
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
+     *
+     * Allows unset indices: yes.
+     *
+     * Removes all unset indices, shifting the values to the left.
+     */
+    Condense(IndexStart := 1, IndexEnd := this.Length) {
+        IndexStart--
+        loop IndexEnd - IndexStart {
+            if !this.Has(++IndexStart) {
+                this.RemoveAt(IndexStart--)
+            }
+        }
+    }
+    /**
+     * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
      *
      * Creates a new {@link Container}, copying the values of any own properties of this object.
+     * The new container is empty. The purpose of this method is to use one container as a template
+     * for new containers. To also fill the container with the same values, use the built-in
+     * `Array.Prototype.Clone` method, e.g.
+     * @example
+     *  c := Container(1, 5, 2, 4, 3)
+     *  c.SortTye := CONTAINER_SORTTYPE_NUMBER
+     *  c2 := c.Clone()
+     *  c2.Sort() ; no error is thrown because c2 inherited c.SortType
+     * @
      */
     Copy() {
         c := Container()
@@ -136,7 +170,233 @@ class Container extends Array {
         return c
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: no.
+     *
+     * Allows unset indices: yes.
+     *
+     * {@link Container#DateConvert} is defined from the body of {@link Container.Prototype.DatePreprocess}.
+     * This converts a string value to a value that can be passed to any of the binary search methods.
+     *
+     * @example
+     *  c := Container(
+     *      { Date: "3/1/25 12:01" }
+     *    , { Date: "3/1/25 12:15" }
+     *    , { Date: "3/1/25 9:17" }
+     *    , { Date: "3/1/25 14:25" }
+     *  )
+     *  c.SetDateCompareDateStr("M/d/yy H:mm")
+     *  c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
+     *  c.SetCallbackValue((value) => value.Date)
+     *  c.DatePreprocess()
+     *  ; After calling c.DatePreprocess, I can no longer search for values using strings
+     *  ; like "3/1/25 9:17", so I have to convert the date string to a date value
+     *  dateValue := c.DateConvert("3/1/25 9:17")
+     *  index := c.Find(dateValue)
+     *  OutputDebug(index "`n") ; 1
+     * @
+     *
+     * @param {*} Value - The value to convert to an integer.
+     */
+    DateConvert(Value) {
+        ; this is overridden
+    }
+    /**
+     * Requires a sorted container: no.
+     *
+     * Allows unset indices: yes.
+     *
+     * {@link Container#DateConvertCb} is defined from the body of {@link Container.Prototype.DatePreprocess}.
+     * This converts an object value to a value that can be passed to any of the binary search methods.
+     *
+     * @example
+     *  c := Container(
+     *      { Date: "3/1/25 12:01" }
+     *    , { Date: "3/1/25 12:15" }
+     *    , { Date: "3/1/25 9:17" }
+     *    , { Date: "3/1/25 14:25" }
+     *  )
+     *  c.SetDateCompareDateStr("M/d/yy H:mm")
+     *  c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
+     *  c.SetCallbackValue((value) => value.Date)
+     *  c.DatePreprocess()
+     *  ; After calling c.DatePreprocess, I can no longer search for values using strings
+     *  ; like "3/1/25 9:17", so I have to convert the date string to a date value
+     *  dateValue := c.DateConvert({ Date: "3/1/25 9:17" })
+     *  index := c.Find(dateValue)
+     *  OutputDebug(index "`n") ; 1
+     *  ; This is unnecessary for values taken directly from the container
+     *  ; because the values in the container are processed and can be
+     *  ; used directly.
+     *  valueToFind := c[2]
+     *  index := c.Find(valueToFind)
+     *  OutputDebug(index "`n") ; 2
+     * @
+     *
+     * @param {*} Value - The value to convert to an integer.
+     */
+    DateConvertCb(Value) {
+        ; this is overridden
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: no.
+     *
+     * Inserts a value in order. See {@link Container.Prototype.DatePreprocess} for more
+     * information.
+     *
+     * @param {*} Value - The value.
+     *
+     * @returns {Integer} - The index at which it was inserted.
+     */
+    DateInsert(Value) {
+        this.__CallbackDateInsert.Call(Value)
+        return this.Insert(Value)
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: yes.
+     *
+     * Inserts a value in order. See {@link Container.Prototype.DatePreprocess} for more
+     * information.
+     *
+     * @param {*} Value - The value.
+     *
+     * @returns {Integer} - The index at which it was inserted.
+     */
+    DateInsertSparse(Value) {
+        this.__CallbackDateInsert.Call(Value)
+        return this.InsertSparse(Value)
+    }
+    /**
+     * Requires a sorted container: no.
+     *
+     * Allows unset indices: yes.
+     *
+     * {@link Container.Prototype.DatePreprocess} iterates the values in the container and sets
+     * a property with an integer representing the number of seconds between 01/01/0001 00:00:00 and
+     * the date associated with that value. This allows sorting operations to be performed with
+     * simple arithmetic, significantly improving performance.
+     *
+     * Note that
+     *
+     * There are two options for adding values to the container after
+     * {@link Container.Prototype.DatePreprocess} has been called:
+     * - Call {@link Container.Prototype.DateInsert} or {@link Container.Prototype.DateInsertSparse}
+     *   to add one value to an already-sorted container.
+     * - Add one or more values to the end of the container, then call
+     *   {@link Container.Prototype.DateUpdate} specifying the range.
+     *
+     * To use {@link Container.Prototype.DatePreprocess}, the following must be true:
+     * - The values in the container are objects.
+     * - Property {@link Container#SortType} is CONTAINER_SORTTYPE_CB_DATE or CONTAINER_SORTTYPE_CB_DATESTR.
+     * - Property {@link Container#CallbackValue} is set with a function that will return the date
+     *   string, or your code passes a function to parameter `CallbackValue`.
+     *
+     * If {@link Container#SortType} is CONTAINER_SORTTYPE_CB_DATESTR, then there is one additional
+     * requirement:
+     * - Your code has previously called {@link Container.Prototype.SetCompareDateStr}, or your
+     *   code passes a {@link Container_DateParser} to parameter `DateParserObj`.
+     *
+     * After calling {@link Container.Prototype.DatePreprocess}, your code can no longer pass string
+     * values to any of the methods that implement a binary search. For example, if your date
+     * format is "M/d/yy H:mm", before calling {@link Container.Prototype.DatePreprocess} you can
+     * search for values with `ContainerObj.Find("3/1/25 12:01")`. After calling
+     * {@link Container.Prototype.DatePreprocess}, you must convert the string to a number first
+     * by calling {@link Container#DateConvert} or {@link Container#DateConvertCb},
+     * e.g. `ContainerObj.Find(ContainerObj.DateConvert("3/1/25 12:01"))`.
+     *
+     * The following are some additional actions taken by {@link Container.Prototype.DatePreprocess}:
+     * - Sets property {@link Container#__CallbackDateInsert} with a function that sets the property
+     *   the property with the date value.
+     * - Sets property {@link Container#DateConvert} with a function that returns the date
+     *   value from an input string.
+     * - Sets property {@link Container#DateConvertCb} with a function that returns the date
+     *   value from an input object.
+     * - Deletes property {@link Container#CallbackCompare} if it exists.
+     * - If the sort type is `CONTAINER_SORTTYPE_CB_DATESTR ` and if a value is passed to
+     *   `DateParserObj`, property {@link Container#__DateParser} is set with that value.
+     *
+     * If the value of `PropertyName` is the default "__Container_DateValue":
+     * - Sets the value of property {@link Container#SortType} to CONTAINER_SORTTYPE_DATEVALUE.
+     * - Sets the value of property {@link Container#CallbackValue} to{@link Container_CallbackValue_DateValue}.
+     *
+     * If the value of `PropertyName` is something other than the default:
+     * - Sets the value of property {@link Container#SortType} to CONTAINER_SORTTYPE_CB_NUMBER.
+     * - Sets the value of property {@link Container#CallbackValue} to {@link Container_CallbackValue_DateValueCustom}.
+     *
+     * @param {*} [CallbackValue] - The `Func` or callable object that is called to get the date
+     * string associated with each object. This is required if property {@link Container#CallbackValue}
+     * is not set.
+     *
+     * @param {Container_DateParser} [DateParserObj] - The {@link Container_DateParser} that will
+     * be used to produce the date value. This is required if property {@link Container#__DateParser}
+     * is not set. This value is set to property {@link Container#__DateParser}.
+     *
+     * This is ignored if {@link Container#SortType} is not CONTAINER_SORTTYPE_CB_DATESTR.
+     *
+     * @param {String} [PropertyName = "__Container_DateValue"] - The name of the property that
+     * is set with the date value. {@link Container} is optimized to use the default name. Changing
+     * the name is valid but reduces performance.
+     */
+    DatePreprocess(CallbackValue?, DateParserObj?, PropertyName := '__Container_DateValue') {
+        if !IsSet(CallbackValue) {
+            CallbackValue := this.CallbackValue
+        }
+        if this.SortType = CONTAINER_SORTTYPE_CB_DATE {
+            Fn := ObjBindMethod(Container_DateObj, 'FromTimestamp')
+        } else if this.SortType = CONTAINER_SORTTYPE_CB_DATESTR {
+            Fn := DateParserObj ?? this.__DateParser
+        } else {
+            throw PropertyError('Property "SortType" must be either CONTAINER_SORTTYPE_CB_DATE or CONTAINER_SORTTYPE_CB_DATESTR.')
+        }
+        this.__CallbackDateInsert := Container_CallbackDateInsert.Bind(PropertyName, Fn, CallbackValue)
+        this.DefineProp('DateConvert', { Call: Container_ConvertDate.Bind(Fn) })
+        this.DefineProp('DateConvertCb', { Call: Container_ConvertDateCb.Bind(Fn, CallbackValue) })
+        i := 0
+        loop this.Length {
+            if this.Has(++i) {
+                this[i].DefineProp(PropertyName, { Value: Fn(CallbackValue(this[i])).TotalSeconds })
+            }
+        }
+        if this.HasOwnProp('CallbackCompare') {
+            this.DeleteProp('CallbackCompare')
+        }
+        if PropertyName = '__Container_DateValue' {
+            this.SortType := CONTAINER_SORTTYPE_DATEVALUE
+            this.CallbackValue := Container_CallbackValue_DateValue
+        } else {
+            this.SortType := CONTAINER_SORTTYPE_CB_NUMBER
+            this.CallbackValue := Container_CallbackValue_DateValueCustom.Bind(PropertyName)
+        }
+    }
+    /**
+     * Requires a sorted container: no.
+     *
+     * Allows unset indices: yes.
+     *
+     * For each value in the indicated range, sets a property with an integer representing the number
+     * of seconds between 01/01/0001 00:00:00 and the date associated with that value.
+     *
+     * {@link Container.Prototype.DateUpdate} can only be called after
+     * {@link Container.Prototype.DatePreprocess} has been called at least once.
+     *
+     * @param {Integer} [IndexStart = 1] - The start index.
+     *
+     * @param {Integer} [IndexEnd = this.Length] - The end index.
+     */
+    DateUpdate(IndexStart := 1, IndexEnd := this.Length) {
+        Fn := this.__CallbackDateInsert
+        IndexStart--
+        loop IndexEnd - IndexStart {
+            if this.Has(++IndexStart) {
+                Fn(this[IndexStart])
+            }
+        }
+    }
+    /**
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
      *
@@ -160,7 +420,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
      *
@@ -182,7 +442,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
      *
@@ -204,7 +464,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
      *
@@ -228,7 +488,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
@@ -277,7 +537,7 @@ class Container extends Array {
         return 0
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
      *
@@ -336,7 +596,7 @@ class Container extends Array {
         return 0
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
      *
@@ -354,8 +614,7 @@ class Container extends Array {
      */
     Find(Value, &OutValue?, IndexStart := 1, IndexEnd := this.Length) {
         if IndexEnd < IndexStart {
-            throw Error('The end index is less than the start index.'
-            , -1, 'IndexEnd: ' IndexEnd '; IndexStart: ' IndexStart)
+            return 0
         }
         switch this.SortType, 0 {
             case CONTAINER_SORTTYPE_NUMBER:
@@ -378,7 +637,7 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := DateObj.FromTimestamp(Value)
+                    Value := Container_DateObj.FromTimestamp(Value)
                 } else {
                     Value := this.DateParser.Call(
                         Value
@@ -410,7 +669,7 @@ class Container extends Array {
             case CONTAINER_SORTTYPE_CB_STRINGPTR:
                 CallbackCompare := this.CallbackCompare
                 CallbackValue := this.CallbackValue
-                Compare := _CompareCbStringPtr
+                Compare := _CompareCbValue
                 if !IsNumber(Value) {
                     if IsObject(Value) {
                         Value := CallbackValue(Value)
@@ -423,41 +682,42 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := DateObj.FromTimestamp(Value)
+                    Value := Container_DateObj.FromTimestamp(Value)
                 } else {
-                    Value := DateObj.FromTimestamp(this.CallbackValue.Call(Value))
+                    Value := Container_DateObj.FromTimestamp(this.CallbackValue.Call(Value))
                 }
             case CONTAINER_SORTTYPE_CB_DATESTR:
                 CallbackCompare := this.CallbackCompareValue
-                Compare := _CompareValue
-                date := ''
-                if !IsObject(Value) {
-                    if IsNumber(Value) {
-                        date := DateObj.FromTimestamp(Value)
-                    } else {
-                        date := this.DateParser.Call(
-                            Value
-                          , StrLen(this.CompareDateCentury) ? this.CompareDateCentury : unset
-                        )
-                    }
+                CallbackValue := this.CallbackValue
+                Compare := _CompareCbValue
+                if IsObject(Value) {
+                    Value := CallbackValue(Value)
                 }
-                if date {
-                    Value := date
+                if IsNumber(Value) {
+                    Value := Container_DateObj.FromTimestamp(Value)
                 } else {
-                    Value := this.CallbackValue.Call(Value)
+                    Value := this.__DateParser.Call(
+                        Value
+                      , StrLen(this.CompareDateCentury) ? this.CompareDateCentury : unset
+                    )
                 }
                 if !Value {
                     throw Error('Failed to parse ``Value``.', , Value)
                 }
-            case CONTAINER_SORTTYPE_CB_MISC
+            case CONTAINER_SORTTYPE_MISC
             , CONTAINER_SORTTYPE_DATE:
                 CallbackCompare := this.CallbackCompare
                 Compare := _CompareValue
+            case CONTAINER_SORTTYPE_DATEVALUE:
+                if IsObject(Value) {
+                    Value := Value.__Container_DateValue
+                }
+                Compare := _CompareDateValue
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
-        stop := 0
-        R := IndexEnd - IndexStart + 1
-        while R * 0.5 ** (stop + 1) * 14 > 27 {
+        stop := -1
+        rng := IndexEnd - IndexStart + 1
+        while rng * 0.5 ** stop > 4 {
             stop++
             i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)
             if x := Compare() {
@@ -489,15 +749,16 @@ class Container extends Array {
 
         return 0
 
+        _CompareDateValue() => Value - this[i].__Container_DateValue
         _CompareNumber() => Value - this[i]
         _CompareString() => CallbackCompare(Value, StrPtr(this[i]))
         _CompareCbNumber() => Value - CallbackValue(this[i])
         _CompareCbString() => CallbackCompare(Value, StrPtr(CallbackValue(this[i])))
-        _CompareCbStringPtr() => CallbackCompare(Value, CallbackValue(this[i]))
+        _CompareCbValue() => CallbackCompare(Value, CallbackValue(this[i]))
         _CompareValue() => CallbackCompare(Value, this[i])
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
      *
@@ -521,8 +782,7 @@ class Container extends Array {
      */
     FindAll(Value, &OutLastIndex?, IndexStart := 1, IndexEnd := this.Length) {
         if IndexEnd < IndexStart {
-            throw Error('The end index is less than the start index.'
-            , -1, 'IndexEnd: ' IndexEnd '; IndexStart: ' IndexStart)
+            return 0
         }
         switch this.SortType, 0 {
             case CONTAINER_SORTTYPE_NUMBER:
@@ -545,7 +805,7 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := DateObj.FromTimestamp(Value)
+                    Value := Container_DateObj.FromTimestamp(Value)
                 } else {
                     Value := this.DateParser.Call(
                         Value
@@ -577,7 +837,7 @@ class Container extends Array {
             case CONTAINER_SORTTYPE_CB_STRINGPTR:
                 CallbackCompare := this.CallbackCompare
                 CallbackValue := this.CallbackValue
-                Compare := _CompareCbStringPtr
+                Compare := _CompareCbValue
                 if !IsNumber(Value) {
                     if IsObject(Value) {
                         Value := CallbackValue(Value)
@@ -590,17 +850,18 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := DateObj.FromTimestamp(Value)
+                    Value := Container_DateObj.FromTimestamp(Value)
                 } else {
-                    Value := DateObj.FromTimestamp(this.CallbackValue.Call(Value))
+                    Value := Container_DateObj.FromTimestamp(this.CallbackValue.Call(Value))
                 }
             case CONTAINER_SORTTYPE_CB_DATESTR:
                 CallbackCompare := this.CallbackCompareValue
-                Compare := _CompareValue
+                CallbackValue := this.CallbackValue
+                Compare := _CompareCbValue
                 date := ''
                 if !IsObject(Value) {
                     if IsNumber(Value) {
-                        date := DateObj.FromTimestamp(Value)
+                        date := Container_DateObj.FromTimestamp(Value)
                     } else {
                         date := this.DateParser.Call(
                             Value
@@ -616,15 +877,20 @@ class Container extends Array {
                 if !Value {
                     throw Error('Failed to parse ``Value``.', , Value)
                 }
-            case CONTAINER_SORTTYPE_CB_MISC
+            case CONTAINER_SORTTYPE_MISC
             , CONTAINER_SORTTYPE_DATE:
                 CallbackCompare := this.CallbackCompare
                 Compare := _CompareValue
+            case CONTAINER_SORTTYPE_DATEVALUE:
+                if IsObject(Value) {
+                    Value := Value.__Container_DateValue
+                }
+                Compare := _CompareDateValue
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
-        stop := 0
-        R := IndexEnd - IndexStart + 1
-        while R * 0.5 ** (stop + 1) * 14 > 27 {
+        stop := -1
+        rng := IndexEnd - IndexStart + 1
+        while rng * 0.5 ** stop > 4 {
             stop++
             i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)
             if x := Compare() {
@@ -680,15 +946,16 @@ class Container extends Array {
         OutLastIndex := i - 1
         return Result
 
+        _CompareDateValue() => Value - this[i].__Container_DateValue
         _CompareNumber() => Value - this[i]
         _CompareString() => CallbackCompare(Value, StrPtr(this[i]))
         _CompareCbNumber() => Value - CallbackValue(this[i])
         _CompareCbString() => CallbackCompare(Value, StrPtr(CallbackValue(this[i])))
-        _CompareCbStringPtr() => CallbackCompare(Value, CallbackValue(this[i]))
+        _CompareCbValue() => CallbackCompare(Value, CallbackValue(this[i]))
         _CompareValue() => CallbackCompare(Value, this[i])
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
      *
@@ -711,8 +978,7 @@ class Container extends Array {
      */
     FindAllSparse(Value, &OutLastIndex?, IndexStart := 1, IndexEnd := this.Length) {
         if IndexEnd < IndexStart {
-            throw Error('The end index is less than the start index.'
-            , -1, 'IndexEnd: ' IndexEnd '; IndexStart: ' IndexStart)
+            return 0
         }
         switch this.SortType, 0 {
             case CONTAINER_SORTTYPE_NUMBER:
@@ -735,7 +1001,7 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := DateObj.FromTimestamp(Value)
+                    Value := Container_DateObj.FromTimestamp(Value)
                 } else {
                     Value := this.DateParser.Call(
                         Value
@@ -767,7 +1033,7 @@ class Container extends Array {
             case CONTAINER_SORTTYPE_CB_STRINGPTR:
                 CallbackCompare := this.CallbackCompare
                 CallbackValue := this.CallbackValue
-                Compare := _CompareCbStringPtr
+                Compare := _CompareCbValue
                 if !IsNumber(Value) {
                     if IsObject(Value) {
                         Value := CallbackValue(Value)
@@ -780,17 +1046,18 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := DateObj.FromTimestamp(Value)
+                    Value := Container_DateObj.FromTimestamp(Value)
                 } else {
-                    Value := DateObj.FromTimestamp(this.CallbackValue.Call(Value))
+                    Value := Container_DateObj.FromTimestamp(this.CallbackValue.Call(Value))
                 }
             case CONTAINER_SORTTYPE_CB_DATESTR:
                 CallbackCompare := this.CallbackCompareValue
-                Compare := _CompareValue
+                CallbackValue := this.CallbackValue
+                Compare := _CompareCbValue
                 date := ''
                 if !IsObject(Value) {
                     if IsNumber(Value) {
-                        date := DateObj.FromTimestamp(Value)
+                        date := Container_DateObj.FromTimestamp(Value)
                     } else {
                         date := this.DateParser.Call(
                             Value
@@ -806,15 +1073,20 @@ class Container extends Array {
                 if !Value {
                     throw Error('Failed to parse ``Value``.', , Value)
                 }
-            case CONTAINER_SORTTYPE_CB_MISC
+            case CONTAINER_SORTTYPE_MISC
             , CONTAINER_SORTTYPE_DATE:
                 CallbackCompare := this.CallbackCompare
                 Compare := _CompareValue
+            case CONTAINER_SORTTYPE_DATEVALUE:
+                if IsObject(Value) {
+                    Value := Value.__Container_DateValue
+                }
+                Compare := _CompareDateValue
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
-        stop := 0
-        R := IndexEnd - IndexStart + 1
-        while R * 0.5 ** (stop + 1) * 14 > 27 {
+        stop := -1
+        rng := IndexEnd - IndexStart + 1
+        while rng * 0.5 ** stop > 4 {
             stop++
             if !this.Has(i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)) {
                 if !_GetNearest() {
@@ -876,11 +1148,12 @@ class Container extends Array {
         }
         return Result
 
+        _CompareDateValue() => Value - this[i].__Container_DateValue
         _CompareNumber() => Value - this[i]
         _CompareString() => CallbackCompare(Value, StrPtr(this[i]))
         _CompareCbNumber() => Value - CallbackValue(this[i])
         _CompareCbString() => CallbackCompare(Value, StrPtr(CallbackValue(this[i])))
-        _CompareCbStringPtr() => CallbackCompare(Value, CallbackValue(this[i]))
+        _CompareCbValue() => CallbackCompare(Value, CallbackValue(this[i]))
         _CompareValue() => CallbackCompare(Value, this[i])
         _GetNearest() {
             Start := i
@@ -898,7 +1171,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
      *
@@ -924,8 +1197,7 @@ class Container extends Array {
      */
     FindInequality(Value, &OutValue?, Condition := '>=', IndexStart := 1, IndexEnd := this.Length) {
         if IndexEnd < IndexStart {
-            throw Error('The end index is less than the start index.'
-            , -1, 'IndexEnd: ' IndexEnd '`tIndexStart: ' IndexStart)
+            return 0
         }
         switch this.SortType, 0 {
             case CONTAINER_SORTTYPE_NUMBER:
@@ -953,7 +1225,7 @@ class Container extends Array {
                 Compare1 := _CompareDate1
                 Compare2 := _CompareValue2
                 if IsNumber(Value) {
-                    Value := DateObj.FromTimestamp(Value)
+                    Value := Container_DateObj.FromTimestamp(Value)
                 } else {
                     Value := this.DateParser.Call(
                         Value
@@ -1017,7 +1289,7 @@ class Container extends Array {
                 }
                 if !IsObject(Value) {
                     if IsNumber(Value) {
-                        date := DateObj.FromTimestamp(Value)
+                        date := Container_DateObj.FromTimestamp(Value)
                     } else {
                         date := this.DateParser.Call(
                             Value
@@ -1031,11 +1303,17 @@ class Container extends Array {
                 if !Value {
                     throw Error('Failed to parse ``Value``.', , Value)
                 }
-            case CONTAINER_SORTTYPE_CB_MISC
+            case CONTAINER_SORTTYPE_MISC
             , CONTAINER_SORTTYPE_DATE:
                 CallbackCompare := this.CallbackCompare
                 Compare1 := _CompareValue1
                 Compare2 := _CompareValue2
+            case CONTAINER_SORTTYPE_DATEVALUE:
+                if IsObject(Value) {
+                    Value := Value.__Container_DateValue
+                }
+                Compare1 := _CompareDateValue1
+                Compare2 := _CompareDateValue2
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
 
@@ -1230,10 +1508,10 @@ class Container extends Array {
         }
         ;@endregion
 
-        stop := 0
-        R := IndexEnd - IndexStart + 1
+        stop := -1
+        rng := IndexEnd - IndexStart + 1
         ;@region Process
-        while R * 0.5 ** (stop + 1) * 14 > 27 {
+        while rng * 0.5 ** stop > 4 {
             stop++
             i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)
             x := Compare1()
@@ -1270,6 +1548,7 @@ class Container extends Array {
         _CompareSimple_LTE() => x >= 0
         _CompareSimple_EQ() => x = 0
 
+        _CompareDateValue1() => Value - this[i].__Container_DateValue
         _CompareNumber1() => Value - this[i]
         _CompareString1() => CallbackCompare(Value, StrPtr(this[i]))
         _CompareCbNumber1() => Value - CallbackValue(this[i])
@@ -1279,6 +1558,7 @@ class Container extends Array {
         _CompareDate1() => CallbackCompareValue(Value, this[i])
         _CompareCbDate1() => CallbackCompareValue(Value, CallbackValue(this[i]))
 
+        _CompareDateValue2(a, b) => this[a].__Container_DateValue - this[b].__Container_DateValue
         _CompareNumber2(a, b) => this[a] - this[b]
         _CompareString2(a, b) => CallbackCompare(StrPtr(this[a]), StrPtr(this[b]))
         _CompareCbNumber2(a, b) => CallbackValue(this[a]) - CallbackValue(this[b])
@@ -1553,7 +1833,7 @@ class Container extends Array {
         ;@endregion
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
      *
@@ -1579,8 +1859,7 @@ class Container extends Array {
      */
     FindInequalitySparse(Value, &OutValue?, Condition := '>=', IndexStart := 1, IndexEnd := this.Length) {
         if IndexEnd < IndexStart {
-            throw Error('The end index is less than the start index.'
-            , -1, 'IndexEnd: ' IndexEnd '`tIndexStart: ' IndexStart)
+            return 0
         }
         switch this.SortType, 0 {
             case CONTAINER_SORTTYPE_NUMBER:
@@ -1608,7 +1887,7 @@ class Container extends Array {
                 Compare1 := _CompareDate1
                 Compare2 := _CompareValue2
                 if IsNumber(Value) {
-                    Value := DateObj.FromTimestamp(Value)
+                    Value := Container_DateObj.FromTimestamp(Value)
                 } else {
                     Value := this.DateParser.Call(
                         Value
@@ -1672,7 +1951,7 @@ class Container extends Array {
                 }
                 if !IsObject(Value) {
                     if IsNumber(Value) {
-                        date := DateObj.FromTimestamp(Value)
+                        date := Container_DateObj.FromTimestamp(Value)
                     } else {
                         date := this.DateParser.Call(
                             Value
@@ -1686,11 +1965,17 @@ class Container extends Array {
                 if !Value {
                     throw Error('Failed to parse ``Value``.', , Value)
                 }
-            case CONTAINER_SORTTYPE_CB_MISC
+            case CONTAINER_SORTTYPE_MISC
             , CONTAINER_SORTTYPE_DATE:
                 CallbackCompare := this.CallbackCompare
                 Compare1 := _CompareValue1
                 Compare2 := _CompareValue2
+            case CONTAINER_SORTTYPE_DATEVALUE:
+                if IsObject(Value) {
+                    Value := Value.__Container_DateValue
+                }
+                Compare1 := _CompareDateValue1
+                Compare2 := _CompareDateValue2
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
 
@@ -1898,10 +2183,10 @@ class Container extends Array {
         }
         ;@endregion
 
-        stop := 0
-        R := IndexEnd - IndexStart + 1
+        stop := -1
+        rng := IndexEnd - IndexStart + 1
         ;@region Process
-        while R * 0.5 ** (stop + 1) * 14 > 27 {
+        while rng * 0.5 ** stop > 4 {
             stop++
             i := right - Ceil((right - left) * 0.5)
             while !this.Has(i) {
@@ -1952,6 +2237,7 @@ class Container extends Array {
         _CompareSimple_LTE() => x >= 0
         _CompareSimple_EQ() => x = 0
 
+        _CompareDateValue1() => Value - this[i].__Container_DateValue
         _CompareNumber1() => Value - this[i]
         _CompareString1() => CallbackCompare(Value, StrPtr(this[i]))
         _CompareCbNumber1() => Value - CallbackValue(this[i])
@@ -1961,6 +2247,7 @@ class Container extends Array {
         _CompareDate1() => CallbackCompareValue(Value, this[i])
         _CompareCbDate1() => CallbackCompareValue(Value, CallbackValue(this[i]))
 
+        _CompareDateValue2(a, b) => this[a].__Container_DateValue - this[b].__Container_DateValue
         _CompareNumber2(a, b) => this[a] - this[b]
         _CompareString2(a, b) => CallbackCompare(StrPtr(this[a]), StrPtr(this[b]))
         _CompareCbNumber2(a, b) => CallbackValue(this[a]) - CallbackValue(this[b])
@@ -2265,7 +2552,7 @@ class Container extends Array {
         ;@endregion
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
      *
@@ -2283,8 +2570,7 @@ class Container extends Array {
      */
     FindSparse(Value, &OutValue?, IndexStart := 1, IndexEnd := this.Length) {
         if IndexEnd < IndexStart {
-            throw Error('The end index is less than the start index.'
-            , -1, 'IndexEnd: ' IndexEnd '; IndexStart: ' IndexStart)
+            return 0
         }
         switch this.SortType, 0 {
             case CONTAINER_SORTTYPE_NUMBER:
@@ -2307,7 +2593,7 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := DateObj.FromTimestamp(Value)
+                    Value := Container_DateObj.FromTimestamp(Value)
                 } else {
                     Value := this.DateParser.Call(
                         Value
@@ -2339,7 +2625,7 @@ class Container extends Array {
             case CONTAINER_SORTTYPE_CB_STRINGPTR:
                 CallbackCompare := this.CallbackCompare
                 CallbackValue := this.CallbackValue
-                Compare := _CompareCbStringPtr
+                Compare := _CompareCbValue
                 if !IsNumber(Value) {
                     if IsObject(Value) {
                         Value := CallbackValue(Value)
@@ -2352,17 +2638,18 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := DateObj.FromTimestamp(Value)
+                    Value := Container_DateObj.FromTimestamp(Value)
                 } else {
-                    Value := DateObj.FromTimestamp(this.CallbackValue.Call(Value))
+                    Value := Container_DateObj.FromTimestamp(this.CallbackValue.Call(Value))
                 }
             case CONTAINER_SORTTYPE_CB_DATESTR:
                 CallbackCompare := this.CallbackCompareValue
-                Compare := _CompareValue
+                CallbackValue := this.CallbackValue
+                Compare := _CompareCbValue
                 date := ''
                 if !IsObject(Value) {
                     if IsNumber(Value) {
-                        date := DateObj.FromTimestamp(Value)
+                        date := Container_DateObj.FromTimestamp(Value)
                     } else {
                         date := this.DateParser.Call(
                             Value
@@ -2378,15 +2665,20 @@ class Container extends Array {
                 if !Value {
                     throw Error('Failed to parse ``Value``.', , Value)
                 }
-            case CONTAINER_SORTTYPE_CB_MISC
+            case CONTAINER_SORTTYPE_MISC
             , CONTAINER_SORTTYPE_DATE:
                 CallbackCompare := this.CallbackCompare
                 Compare := _CompareValue
+            case CONTAINER_SORTTYPE_DATEVALUE:
+                if IsObject(Value) {
+                    Value := Value.__Container_DateValue
+                }
+                Compare := _CompareDateValue
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
-        stop := 0
-        R := IndexEnd - IndexStart + 1
-        while R * 0.5 ** (stop + 1) * 14 > 27 {
+        stop := -1
+        rng := IndexEnd - IndexStart + 1
+        while rng * 0.5 ** stop > 4 {
             stop++
             if !this.Has(i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)) {
                 if !_GetNearest() {
@@ -2410,11 +2702,9 @@ class Container extends Array {
                 return i
             }
         }
-        i := IndexStart
+        i := IndexStart - 1
         loop IndexEnd - i + 1 {
-            if Compare() {
-                ++i
-            } else {
+            if this.Has(++i) && !Compare() {
                 OutValue := this[i]
                 return i
             }
@@ -2422,11 +2712,12 @@ class Container extends Array {
 
         return 0
 
+        _CompareDateValue() => Value - this[i].__Container_DateValue
         _CompareNumber() => Value - this[i]
         _CompareString() => CallbackCompare(Value, StrPtr(this[i]))
         _CompareCbNumber() => Value - CallbackValue(this[i])
         _CompareCbString() => CallbackCompare(Value, StrPtr(CallbackValue(this[i])))
-        _CompareCbStringPtr() => CallbackCompare(Value, CallbackValue(this[i]))
+        _CompareCbValue() => CallbackCompare(Value, CallbackValue(this[i]))
         _CompareValue() => CallbackCompare(Value, this[i])
         _GetNearest() {
             Start := i
@@ -2444,7 +2735,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no. Unset indices are skipped; all indices in the output container are
      * set.
@@ -2516,7 +2807,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
@@ -2553,7 +2844,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
      *
@@ -2600,83 +2891,187 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
-     * Inserts an value in order.
+     * Iterates the values in the container and compares the values to `Value`. If found, the function returns the index.
+     *
+     * @example
+     *  c := Container(
+     *      { Name: "obj4" }
+     *    , { Name: "obj1" }
+     *    , { Name: "obj3" }
+     *    , { Name: "obj2" }
+     *  )
+     *  OutputDebug(c.HasValue("obj1", (value) => value.Name) '`n') ; 2
+     *  OutputDebug(c.HasValue("obj5", (value) => value.Name) '`n') ; 0
+     * @
+     *
+     * @param {*} Value - The value to find.
+     *
+     * @param {*} [Callback] - A `Func` or callable object that is called for each value in the container.
+     *
+     * Parameters:
+     * 1. The current value.
+     *
+     * Returns the value to compare with `Value`.
+     *
+     * @returns {Integer} - If `Value` is found, the index. Else, 0.
+     */
+    HasValue(Value, Callback?) {
+        if IsSet(Callback) {
+            loop this.Length {
+                if Callback(this[A_Index]) = Value {
+                    return A_Index
+                }
+            }
+        } else {
+            loop this.Length {
+                if this[A_Index] = Value {
+                    return A_Index
+                }
+            }
+        }
+        return 0
+    }
+    /**
+     * Requires a sorted container: no.
+     *
+     * Allows unset indices: yes.
+     *
+     * Iterates the values in the container and compares the values to `Value`. If found, the function returns the index.
+     *
+     * @example
+     *  c := Container(
+     *      { Name: "obj4" }
+     *    ,
+     *    ,
+     *    , { Name: "obj2" }
+     *  )
+     *  OutputDebug(c.HasValueSparse("obj1", (value) => value.Name) '`n') ; 0
+     *  OutputDebug(c.HasValueSparse("obj2", (value) => value.Name) '`n') ; 4
+     * @
+     *
+     * @param {*} Value - The value to find.
+     *
+     * @param {*} Callback - A `Func` or callable object that is called for each value in the container.
+     *
+     * Parameters:
+     * 1. The current value.
+     *
+     * Returns the value to compare with `Value`.
+     *
+     * @returns {Integer} - If `Value` is found, the index. Else, 0.
+     */
+    HasValueSparse(Value, Callback?) {
+        if IsSet(Callback) {
+            loop this.Length {
+                if this.Has(A_Index) && Callback(this[A_Index]) = Value {
+                    return A_Index
+                }
+            }
+        } else {
+            loop this.Length {
+                if this.Has(A_Index) && this[A_Index] = Value {
+                    return A_Index
+                }
+            }
+        }
+        return 0
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: no.
+     *
+     * Inserts a value in order.
+     *
+     * @param {*} Value - The value.
      *
      * @returns {Integer} - The index at which it was inserted.
      */
     Insert(Value) {
-        if index := this.FindInequality(Value, , '>') {
-            this.InsertAt(index, Value)
-            return index
-        } else if this.Compare(Value, 1) < 0 {
-            this.InsertAt(1, Value)
-            return 1
+        if this.Length {
+            if index := this.FindInequality(Value, , '>') {
+                this.InsertAt(index, Value)
+                return index
+            } else if this.Compare(Value, 1) < 0 {
+                this.InsertAt(1, Value)
+                return 1
+            } else {
+                this.Push(Value)
+                return this.Length
+            }
         } else {
             this.Push(Value)
-            return this.Length
+            return 1
         }
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
      *
-     * Inserts an value in order.
+     * Inserts a value in order.
+     *
+     * @param {*} Value - The value.
      *
      * @returns {Integer} - The index at which it was inserted.
      */
     InsertSparse(Value) {
-        if index := this.FindInequalitySparse(Value, , '>') {
-            i := index
-            ; Fill in an unset index if there are any nearby
-            while !this.Has(--i) && i > 0 {
-                continue
-            }
-            i++
-            if i = index {
-                this.InsertAt(index, Value)
-                return index
+        if this.Length {
+            if index := this.FindInequalitySparse(Value, , '>') {
+                i := index
+                ; Fill in an unset index if there are any nearby
+                while !this.Has(--i) && i > 0 {
+                    continue
+                }
+                i++
+                if i = index {
+                    this.InsertAt(index, Value)
+                    return index
+                } else {
+                    this[i] := Value
+                    return i
+                }
             } else {
-                this[i] := Value
-                return i
+                i := 1
+                while !this.Has(i) && i < this.Length {
+                    ++i
+                }
+                if !this.Has(i) {
+                    throw UnsetItemError('The container is empty.', -1)
+                }
+                if this.Compare(Value, i) < 0 {
+                    if i > 1 {
+                        this[i - 1] := Value
+                        return i - 1
+                    } else {
+                        this.InsertAt(1, Value)
+                        return 1
+                    }
+                } else {
+                    i := this.Length
+                    while !this.Has(i) && i > 0 {
+                        --i
+                    }
+                    if i < this.Length {
+                        this[i + 1] := Value
+                        return i + 1
+                    } else {
+                        this.Push(Value)
+                        return this.Length
+                    }
+                }
             }
         } else {
-            i := 1
-            while !this.Has(i) && i < this.Length {
-                ++i
-            }
-            if !this.Has(i) {
-                throw UnsetItemError('The container is empty.', -1)
-            }
-            if this.Compare(Value, i) < 0 {
-                if i > 1 {
-                    this[i - 1] := Value
-                    return i - 1
-                } else {
-                    this.InsertAt(1, Value)
-                    return 1
-                }
-            } else {
-                i := this.Length
-                while !this.Has(i) && i > 0 {
-                    --i
-                }
-                if i < this.Length {
-                    this[i + 1] := Value
-                    return i + 1
-                } else {
-                    this.Push(Value)
-                    return this.Length
-                }
-            }
+            this.Push(Value)
+            return 1
         }
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
@@ -2718,12 +3113,15 @@ class Container extends Array {
                 CallbackValue := this.CallbackValue
                 Compare1 := _CompareCbValue1
                 Compare2 := _CompareCbValue2
-            case CONTAINER_SORTTYPE_CB_MISC
+            case CONTAINER_SORTTYPE_MISC
             , CONTAINER_SORTTYPE_DATE
             , CONTAINER_SORTTYPE_DATESTR:
                 CallbackCompare := this.CallbackCompare
                 Compare1 := _CompareValue1
                 Compare2 := _CompareValue2
+            case CONTAINER_SORTTYPE_DATEVALUE:
+                Compare1 := _CompareDateValue1
+                Compare2 := _CompareDateValue2
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
         if this.Length == 2 {
@@ -2750,12 +3148,14 @@ class Container extends Array {
 
         return this
 
+        _CompareDateValue1(a, b) => a.__Container_DateValue - b.__Container_DateValue
         _CompareNumber1(a, b) => a - b
         _CompareString1(a, b) => CallbackCompare(StrPtr(a), StrPtr(b))
         _CompareCbNumber1(a, b) => CallbackValue(a) - CallbackValue(b)
         _CompareCbString1(a, b) => CallbackCompare(StrPtr(CallbackValue(a)), StrPtr(CallbackValue(b)))
         _CompareCbValue1(a, b) => CallbackCompare(CallbackValue(a), CallbackValue(b))
         _CompareValue1(a, b) => Callbackcompare(a, b)
+        _CompareDateValue2(a) => a.__Container_DateValue - b.__Container_DateValue
         _CompareNumber2(a) => a - b
         _CompareString2(a) => CallbackCompare(StrPtr(a), StrPtr(b))
         _CompareCbNumber2(a) => CallbackValue(a) - CallbackValue(b)
@@ -2764,7 +3164,7 @@ class Container extends Array {
         _CompareValue2(a) => Callbackcompare(a, b)
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
@@ -2789,7 +3189,7 @@ class Container extends Array {
         return s ? SubStr(s, 1, -1 * StrLen(Delimiter)) : ''
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
      *
@@ -2837,7 +3237,7 @@ class Container extends Array {
         return s ? SubStr(s, 1, -1 * StrLen(Delimiter)) : ''
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
@@ -2882,7 +3282,7 @@ class Container extends Array {
         return Result
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
      *
@@ -2932,7 +3332,7 @@ class Container extends Array {
         return Result
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
@@ -2968,7 +3368,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
      *
@@ -3016,7 +3416,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
      *
@@ -3030,7 +3430,7 @@ class Container extends Array {
         return this
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
@@ -3089,12 +3489,15 @@ class Container extends Array {
                 CallbackValue := this.CallbackValue
                 Compare1 := _CompareCbValue1
                 Compare2 := _CompareCbValue2
-            case CONTAINER_SORTTYPE_CB_MISC
+            case CONTAINER_SORTTYPE_MISC
             , CONTAINER_SORTTYPE_DATE
             , CONTAINER_SORTTYPE_DATESTR:
                 CallbackCompare := this.CallbackCompare
                 Compare1 := _CompareValue1
                 Compare2 := _CompareValue2
+            case CONTAINER_SORTTYPE_DATEVALUE:
+                Compare1 := _CompareDateValue1
+                Compare2 := _CompareDateValue2
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
         n := this.Length
@@ -3253,12 +3656,14 @@ class Container extends Array {
             c := stack[-1][2]
         }
 
+        _CompareDateValue1(a, b) => a.__Container_DateValue - b.__Container_DateValue
         _CompareNumber1(a, b) => a - b
         _CompareString1(a, b) => CallbackCompare(StrPtr(a), StrPtr(b))
         _CompareCbNumber1(a, b) => CallbackValue(a) - CallbackValue(b)
         _CompareCbString1(a, b) => CallbackCompare(StrPtr(CallbackValue(a)), StrPtr(CallbackValue(b)))
         _CompareCbValue1(a, b) => CallbackCompare(CallbackValue(a), CallbackValue(b))
         _CompareValue1(a, b) => Callbackcompare(a, b)
+        _CompareDateValue2(a) => a.__Container_DateValue - b.__Container_DateValue
         _CompareNumber2(a) => a - b
         _CompareString2(a) => CallbackCompare(StrPtr(a), StrPtr(b))
         _CompareCbNumber2(a) => CallbackValue(a) - CallbackValue(b)
@@ -3267,18 +3672,14 @@ class Container extends Array {
         _CompareValue2(a) => Callbackcompare(a, b)
         _MakeResult(c) {
             ObjSetBase(c, Container.Prototype)
-            c.SortType := this.SortType
-            if IsObject(this.CallbackValue) {
-                c.CallbackValue := this.CallbackValue
-            }
-            if IsObject(this.CallbackCompare) {
-                c.CallbackCompare := this.CallbackCompare
+            for prop, val in this.OwnProps() {
+                c.DefineProp(prop, { Value: val })
             }
             return c
         }
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
@@ -3309,7 +3710,7 @@ class Container extends Array {
         return Accumulator
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
      *
@@ -3345,7 +3746,7 @@ class Container extends Array {
         return Accumulator
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
      *
@@ -3369,7 +3770,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
      *
@@ -3391,7 +3792,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
      *
@@ -3413,7 +3814,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
      *
@@ -3437,7 +3838,7 @@ class Container extends Array {
         }
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
@@ -3455,7 +3856,7 @@ class Container extends Array {
         return Result
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
      *
@@ -3475,7 +3876,7 @@ class Container extends Array {
         return Result
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
@@ -3510,7 +3911,7 @@ class Container extends Array {
         return 0
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
@@ -3559,7 +3960,7 @@ class Container extends Array {
         return result
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: yes. Unset indices are skipped.
      *
@@ -3608,7 +4009,7 @@ class Container extends Array {
         return result
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: yes. Unset indices are skipped.
      *
@@ -3679,51 +4080,6 @@ class Container extends Array {
      *  c.Sort()
      * @
      *
-     * If you are designing a class around the usage of {@link Container}, or designing a class that
-     * works with a windows API structure that has a name-like member you want to use for sorting,
-     * you may as well incorporate the string pointer directly into the class.
-     *
-     * @example
-     *  class SomeStruct {
-     *      static __New() {
-     *          this.DeleteProp('__New')
-     *          proto := this.Prototype
-     *          proto.CbSize := 16 ; arbitrary size for example
-     *          proto.__pszText_offset := 8 ; arbitrary offset for example
-     *      }
-     *      __New(pszText) {
-     *          this.Buffer := Buffer(this.cbSize)
-     *          this.__pszText := Buffer(StrPut(pszText, 'cp1200'))
-     *          StrPut(pszText, this.__pszText, 'cp1200')
-     *          NumPut('ptr', this.__pszText.Ptr, this, this.__pszText_offset)
-     *      }
-     *      pszText {
-     *          Get => StrGet(this.__pszText, 'cp1200')
-     *          Set {
-     *              bytes := StrPut(Value, 'cp1200')
-     *              if bytes > this.__pszText.Size {
-     *                  this.__pszText.Size := bytes
-     *                  NumPut('ptr', this.__pszText.Ptr, this, this.__pszText_offset)
-     *              }
-     *              StrPut(Value, this.__pszText, 'cp1200')
-     *          }
-     *      }
-     *      Ptr => this.Buffer.Ptr
-     *      Size => this.Buffer.Size
-     *  }
-     *
-     *  c := Container(
-     *      SomeStruct("obj4")
-     *    , SomeStruct("obj1")
-     *    , SomeStruct("obj3")
-     *    , SomeStruct("obj2")
-     *  )
-     *  c.SetCompareStringEx()
-     *  c.SetCallbackValue((value) => value.__pszText.Ptr)
-     *  c.SortType := CONTAINER_SORTTYPE_CB_STRINGPTR
-     *  c.Sort()
-     * @
-     *
      * @param {*} Callback - The callback to use as a comparator for sorting operations.
      *
      * Parameters:
@@ -3783,26 +4139,36 @@ class Container extends Array {
     /**
      * Defines the comparator for string date operations. This is only valid when dates are formatted
      * as yyyyMMddHHmmss time strings. The entire time string is not necessary, the minimum is
-     * just the year, but the values must be in that order. Sets the property
-     * {@link Containe#CallbackCompare} with the value {@link Container_CompareDate}.
+     * just the year, but the values must be in that order and values cannot be skipped.
+     *
+     * This sets the property {@link Container#CallbackCompare} with the comparator.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateEx} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
      */
-    SetCompareDate() {
-        this.CallbackCompare := Container_CompareDate
+    SetCompareDate(UseCompareDateEx := false) {
+        this.CallbackCompare := UseCompareDateEx ? Container_CompareDateEx : Container_CompareDate
     }
     /**
      * Defines the comparator for date sort operations. This permits sorting dates with any format
-     * of date string that can be interpeted using {@link DateObj}. This requires that the file
-     * DateObj.ahk is included with an `#include` statement, which is already included at the top
-     * of Container.ahk as `#include *i <DateObj>`. Just copy DateObj.ahk into your
-     * {@link https://www.autohotkey.com/docs/v2/Scripts.htm#lib lib folder}.
+     * of date string that can be interpeted using {@link Container_DateObj}. This requires that the
+     * file Container_DateObj.ahk is included with an `#include` statement, which is already
+     * included at the top of Container.ahk.
      *
-     * For details about {@link DateObj}, see the file itself, or in the repo
-     * {@link https://github.com/Nich-Cebolla/AutoHotkey-DateObj/blob/main/DateObj.ahk}.
+     * For details about {@link Container_DateObj}, see Container_DateObj.ahk.
      *
      * {@link Container.Prototype.SetCompareDateStr} calls {@link Container.Prototype.SetDateParser}.
      *
-     * @param {String} DateFormat - The format string that {@link DateObj} uses to parse date strings
-     * into usable date values.
+     * @param {String} DateFormat - The format string that {@link Container_DateObj} uses to parse
+     * date strings into usable date values.
      *
      * @param {String} [RegExOptions = ""] - The RegEx options to add to the beginning of the pattern.
      * Include the close parenthesis, e.g. "i)".
@@ -3810,18 +4176,33 @@ class Container extends Array {
      * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
      * the current century is used. If the date strings have 4-digit years, this option is ignored.
      * Sets property {@link Container#CompareDateCentury}.
+     *
+     * Note that you must call {@link Container.Prototype.SetDateParser} or {@link Container.Prototype.SetCompareDateStr}
+     * to change the value of property {@link Container#CompareDateCentury}; changing the value directly
+     * will cause unexpected behavior.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with a function that compares dates using a custom operation which will perform more slowly
+     * but is not subject to the same limitation as {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container#CallbackCompare} is set with a function that uses
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff} which will perform more
+     * quickly but cannot handle dates prior to year 1601.
      */
-    SetCompareDateStr(DateFormat, RegExOptions := '', Century?) {
-        this.SetDateParser(DateParser(DateFormat, RegExOptions), Century ?? unset)
+    SetCompareDateStr(DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false) {
+        this.SetDateParser(Container_DateParser(DateFormat, RegExOptions), Century ?? unset)
     }
     /**
-     * This function is called by {@link Container.Prototype.SetCompareDateStr}, but if you already
-     * have an instance of {@link DateParser} to use, you can call
+     * This method is called by {@link Container.Prototype.SetCompareDateStr}, but if you already
+     * have an instance of {@link Container_DateParser} to use, you can call
      * {@link Container.Prototype.SetDateParser} directly.
      *
      * Defines the comparator for date sort operations. This permits sorting dates with any format
-     * of date string that can be interpeted using {@link DateObj}. See the description above
-     * {@link Container.Prototype.SetCompareDateStr} for more info.
+     * of date string that can be interpeted using {@link Container_DateObj}. See the description
+     * above {@link Container.Prototype.SetCompareDateStr} for more info.
      *
      * Sets three properties, {@link Container#__DateParser}, {@link Container#CallbackCompare}
      * and {@link Container#CallbackCompareValue}.
@@ -3830,41 +4211,301 @@ class Container extends Array {
      * {@link Container#CallbackCompareValue}; all other sort types use only
      * {@link Container#CallbackCompare}.
      *
-     * For details about {@link DateObj}, see the file itself, or in the repo
-     * {@link https://github.com/Nich-Cebolla/AutoHotkey-DateObj/blob/main/DateObj.ahk}.
+     * For details about {@link Container_DateObj}, see the Container_DateObj.ahk.
      *
-     * @param {DateParser} DateParserObj - The {@link DateParser}.
+     * @param {Container_DateParser} DateParserObj - The {@link Container_DateParser}.
      *
      * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
      * the current century is used. If the date strings have 4-digit years, this option is ignored.
      * Sets property {@link Container#CompareDateCentury}.
+     *
+     * Note that you must call {@link Container.Prototype.SetDateParser} or {@link Container.Prototype.SetCompareDateStr}
+     * to change the value of property {@link Container#CompareDateCentury}; changing the value directly
+     * will cause unexpected behavior.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with a function that compares dates using a custom operation which will perform more slowly
+     * but is not subject to the same limitation as {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container#CallbackCompare} is set with a function that uses
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff} which will perform more
+     * quickly but cannot handle dates prior to year 1601.
      */
-    SetDateParser(DateParserObj, Century?) {
+    SetDateParser(DateParserObj, Century?, UseCompareDateEx := false) {
         this.__DateParser := DateParserObj
         if IsSet(Century) {
-            this.CallbackCompare := Container_CompareDateStr_Century.Bind(DateParserObj, Century)
-            this.CallbackCompareValue := Container_CompareDateStr_Century_CompareValue.Bind(DateParserObj, Century)
+            if UseCompareDateEx {
+                this.CallbackCompare := Container_CompareDateStr_CenturyEx.Bind(DateParserObj, Century)
+                this.CallbackCompareValue := Container_CompareDateStr_Century_CompareValueEx.Bind(DateParserObj, Century)
+            } else {
+                this.CallbackCompare := Container_CompareDateStr_Century.Bind(DateParserObj, Century)
+                this.CallbackCompareValue := Container_CompareDateStr_Century_CompareValue.Bind(DateParserObj, Century)
+            }
             this.CompareDateCentury := Century
         } else {
-            this.CallbackCompare := Container_CompareDateStr.Bind(DateParserObj)
-            this.CallbackCompareValue := Container_CompareDateStr_CompareValue.Bind(DateParserObj)
+            if UseCompareDateEx {
+                this.CallbackCompare := Container_CompareDateStrEx.Bind(DateParserObj)
+                this.CallbackCompareValue := Container_CompareDateStr_CompareValueEx.Bind(DateParserObj)
+            } else {
+                this.CallbackCompare := Container_CompareDateStr.Bind(DateParserObj)
+                this.CallbackCompareValue := Container_CompareDateStr_CompareValue.Bind(DateParserObj)
+            }
         }
     }
     /**
      * Sets the sort type.
      *
-     * @param {Integer} Value - One of the following:
-     * - CONTAINER_SORTTYPE_CB_DATE
-     * - CONTAINER_SORTTYPE_CB_DATESTR
-     * - CONTAINER_SORTTYPE_CB_MISC
-     * - CONTAINER_SORTTYPE_CB_NUMBER
-     * - CONTAINER_SORTTYPE_CB_STRING
-     * - CONTAINER_SORTTYPE_CB_STRINGPTR
-     * - CONTAINER_SORTTYPE_DATE
-     * - CONTAINER_SORTTYPE_DATESTR
-     * - CONTAINER_SORTTYPE_NUMBER
-     * - CONTAINER_SORTTYPE_STRING
-     * - CONTAINER_SORTTYPE_STRINGPTR
+     * ### CONTAINER_SORTTYPE_CB_DATE
+     *
+     * CallbackValue is provided by your code and returns a string in the format yyyyMMddHHmmss.
+     *
+     * Set CallbackCompare by calling {@link Container.Prototype.SetCompareDate}.
+     *
+     * @example
+     *  c := Container(
+     *      { timestamp: '20250312122930' }
+     *    , { timestamp: '20250411122900' }
+     *    , { timestamp: '20251015091805' }
+     *  )
+     *  c.SetSortType(CONTAINER_SORTTYPE_CB_DATE)
+     *  c.SetCallbackValue((value) => value.timestamp)
+     *  c.SetCompareDate()
+     *  c.Sort()
+     * @
+     *
+     * ### CONTAINER_SORTTYPE_CB_DATESTR
+     *
+     * CallbackValue is provided by your code and returns a date string in any format recognized
+     * by {@link Container_DateParser}.
+     *
+     * Set CallbackCompare by calling {@link Container.Prototype.SetCompareDateStr} or
+     * {@link Container.Prototype.SetDateParser}.
+     *
+     * @example
+     *  c := Container(
+     *      { date: '2025-03-12 12:29:30' }
+     *    , { date: '2025-04-11 12:29:00' }
+     *    , { date: '2025-10-15 09:18:05' }
+     *  )
+     *  c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
+     *  c.SetCallbackValue((value) => value.date)
+     *  c.SetCompareDateStr('yyyy-MM-dd HH:mm:ss')
+     *  c.Sort()
+     * @
+     *
+     * ### CONTAINER_SORTTYPE_CB_NUMBER
+     *
+     * CallbackValue is provided by your code and returns a number.
+     *
+     * CallbackCompare is not used.
+     *
+     * @example
+     *  c := Container(
+     *      { value: 298581 }
+     *    , { value: 195801 }
+     *    , { value: 585929 }
+     *  )
+     *  c.SetSortType(CONTAINER_SORTTYPE_CB_NUMBER)
+     *  c.SetCallbackValue((value) => value.value)
+     *  c.Sort()
+     * @
+     *
+     * ### CONTAINER_SORTTYPE_CB_STRING
+     *
+     * CallbackValue is provided by your code and returns a string.
+     *
+     * Set CallbackCompare by calling {@link Container.Prototype.SetCompareStringEx}.
+     *
+     * @example
+     *  c := Container(
+     *      { name: 'obj4' }
+     *    , { name: 'obj3' }
+     *    , { name: 'obj1' }
+     *  )
+     *  c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
+     *  c.SetCallbackValue((value) => value.name)
+     *  c.SetCompareStringEx()
+     *  c.Sort()
+     * @
+     *
+     * ### CONTAINER_SORTTYPE_CB_STRINGPTR
+     *
+     * CallbackValue is provided by your code and returns a pointer to a null-terminated string.
+     *
+     * Set CallbackCompare by calling {@link Container.Prototype.SetCompareStringEx}.
+     *
+     * @example
+     *  class SomeStruct {
+     *      static __New() {
+     *          this.DeleteProp('__New')
+     *          proto := this.Prototype
+     *          proto.CbSize := 16 ; arbitrary size for example
+     *          proto.__pszText_offset := 8 ; arbitrary offset for example
+     *      }
+     *      __New(pszText) {
+     *          this.Buffer := Buffer(this.cbSize)
+     *          this.__pszText := Buffer(StrPut(pszText, 'cp1200'))
+     *          StrPut(pszText, this.__pszText, 'cp1200')
+     *          NumPut('ptr', this.__pszText.Ptr, this, this.__pszText_offset)
+     *      }
+     *      pszText {
+     *          Get => StrGet(this.__pszText, 'cp1200')
+     *          Set {
+     *              bytes := StrPut(Value, 'cp1200')
+     *              if bytes > this.__pszText.Size {
+     *                  this.__pszText.Size := bytes
+     *                  NumPut('ptr', this.__pszText.Ptr, this, this.__pszText_offset)
+     *              }
+     *              StrPut(Value, this.__pszText, 'cp1200')
+     *          }
+     *      }
+     *      Ptr => this.Buffer.Ptr
+     *      Size => this.Buffer.Size
+     *  }
+     *
+     *  c := Container(
+     *      SomeStruct("obj4")
+     *    , SomeStruct("obj3")
+     *    , SomeStruct("obj1")
+     *  )
+     *  c.SetSortType(CONTAINER_SORTTYPE_CB_STRINGPTR)
+     *  c.SetCallbackValue((value) => value.__pszText.Ptr)
+     *  c.SetCompareStringEx()
+     *  c.Sort()
+     * @
+     *
+     * ### CONTAINER_SORTTYPE_DATE
+     *
+     * CallbackValue is not used.
+     *
+     * Values in the container are date strings in the format yyyyMMddHHmmss.
+     *
+     * Set CallbackCompare by calling {@link Container.Prototype.SetCompareDate}.
+     *
+     * @example
+     *  c := Container(
+     *      '20250312122930'
+     *    , '20250411122900'
+     *    , '20251015091805'
+     *  )
+     *  c.SetSortType(CONTAINER_SORTTYPE_DATE)
+     *  c.SetCompareDate()
+     *  c.Sort()
+     * @
+     *
+     * ### CONTAINER_SORTTYPE_DATESTR
+     *
+     * CallbackValue is not used.
+     *
+     * Values in the container are date string in any format recognized by {@link Container_DateParser}.
+     *
+     * Set CallbackCompare by calling {@link Container.Prototype.SetCompareDateStr} or
+     * {@link Container.Prototype.SetDateParser}.
+     *
+     * @example
+     *  c := Container(
+     *      '2025-03-12 12:29:30'
+     *    , '2025-04-11 12:29:00'
+     *    , '2025-10-15 09:18:05'
+     *  )
+     *  c.SetSortType(CONTAINER_SORTTYPE_DATESTR)
+     *  c.SetCompareDateStr('yyyy-MM-dd HH:mm:ss')
+     *  c.Sort()
+     * @
+     *
+     * ### CONTAINER_SORTTYPE_DATEVALUE
+     *
+     * Your code does not assign this sort type directly. See {@link Container.Prototype.DatePreprocess}
+     * for details about this sort type.
+     *
+     * ### CONTAINER_SORTTYPE_MISC
+     *
+     * CallbackValue is not used.
+     *
+     * CallbackCompare is provided by your code and implements custom logic to return the comparison
+     * value.
+     *
+     * @example
+     *  c := Container(
+     *      { id: 'CFikHajB' }
+     *    , { id: 'zhLAlxeK' }
+     *    , { id: 'RwaedOSw' }
+     *  )
+     *  c.SetSortType(CONTAINER_SORTTYPE_MISC)
+     *  c.SetCallbackCompare(MyCallbackCompare)
+     *  MyCallbackCompare(value1, value2) {
+     *      ; Implements some logic and returns a number indicating the relationship of the two values
+     *  }
+     *  c.Sort()
+     * @
+     *
+     * ### CONTAINER_SORTTYPE_NUMBER
+     *
+     * CallbackValue is not used.
+     *
+     * Values in the container are numbers.
+     *
+     * CallbackCompare is not used.
+     *
+     * @example
+     *  c := Container(
+     *      298581
+     *    , 195801
+     *    , 585929
+     *  )
+     *  c.SetSortType(CONTAINER_SORTTYPE_NUMBER)
+     *  c.Sort()
+     * @
+     *
+     * ### CONTAINER_SORTTYPE_STRING
+     *
+     * CallbackValue is not used.
+     *
+     * Values in the container are strings.
+     *
+     * Set CallbackCompare by calling {@link Container.Prototype.SetCompareStringEx}.
+     *
+     * @example
+     *  c := Container(
+     *      'string4'
+     *    , 'string3'
+     *    , 'string1'
+     *  )
+     *  c.SetSortType(CONTAINER_SORTTYPE_STRING)
+     *  c.SetCompareStringEx()
+     *  c.Sort()
+     * @
+     *
+     * ### CONTAINER_SORTTYPE_STRINGPTR
+     *
+     * CallbackValue is not used.
+     *
+     * Values in the container are pointers to null-terminated strings.
+     *
+     * Set CallbackCompare by calling {@link Container.Prototype.SetCompareStringEx}.
+     *
+     * @example
+     *  buf1 := StrBuf('string4')
+     *  buf2 := StrBuf('string3')
+     *  buf3 := StrBuf('string1')
+     *  c := Container(
+     *      buf1.Ptr
+     *    , buf2.Ptr
+     *    , buf3.Ptr
+     *  )
+     *  c.SetSortType(CONTAINER_SORTTYPE_STRINGPTR)
+     *  c.SetCompareStringEx()
+     *  c.Sort()
+     *
+     *  StrBuf(str) {
+     *      buf := Buffer(StrPut(str, 'cp1200'))
+     *      StrPut(str, buf, 'cp1200')
+     *      return buf
+     *  }
+     * @
      *
      * @throws {ValueError} - "Invalid SortType."
      */
@@ -3872,7 +4513,7 @@ class Container extends Array {
         switch Value, 0 {
             case CONTAINER_SORTTYPE_CB_DATE
               , CONTAINER_SORTTYPE_CB_DATESTR
-              , CONTAINER_SORTTYPE_CB_MISC
+              , CONTAINER_SORTTYPE_MISC
               , CONTAINER_SORTTYPE_CB_NUMBER
               , CONTAINER_SORTTYPE_CB_STRING
               , CONTAINER_SORTTYPE_CB_STRINGPTR
@@ -3880,13 +4521,14 @@ class Container extends Array {
               , CONTAINER_SORTTYPE_DATESTR
               , CONTAINER_SORTTYPE_NUMBER
               , CONTAINER_SORTTYPE_STRING
-              , CONTAINER_SORTTYPE_STRINGPTR:
+              , CONTAINER_SORTTYPE_STRINGPTR
+              , CONTAINER_SORTTYPE_DATEVALUE:
                 this.SortType := Value
             default: throw ValueError('Invalid SortType.', -1, Value)
         }
     }
     /**
-     * Requires sort type: no.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
      *
@@ -3910,7 +4552,7 @@ class Container extends Array {
         return result
     }
     /**
-     * Requires sort type: yes.
+     * Requires a sorted container: no.
      *
      * Allows unset indices: no.
      *
@@ -3959,12 +4601,15 @@ class Container extends Array {
                 CallbackValue := this.CallbackValue
                 Compare1 := _CompareCbValue1
                 Compare2 := _CompareCbValue2
-            case CONTAINER_SORTTYPE_CB_MISC
+            case CONTAINER_SORTTYPE_MISC
             , CONTAINER_SORTTYPE_DATE
             , CONTAINER_SORTTYPE_DATESTR:
                 CallbackCompare := this.CallbackCompare
                 Compare1 := _CompareValue1
                 Compare2 := _CompareValue2
+            case CONTAINER_SORTTYPE_DATEVALUE:
+                Compare1 := _CompareDateValue1
+                Compare2 := _CompareDateValue2
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
         n := this.Length
@@ -4076,12 +4721,14 @@ class Container extends Array {
         }
         return this
 
+        _CompareDateValue1(a, b) => a.__Container_DateValue - b.__Container_DateValue
         _CompareNumber1(a, b) => a - b
         _CompareString1(a, b) => CallbackCompare(StrPtr(a), StrPtr(b))
         _CompareCbNumber1(a, b) => CallbackValue(a) - CallbackValue(b)
         _CompareCbString1(a, b) => CallbackCompare(StrPtr(CallbackValue(a)), StrPtr(CallbackValue(b)))
         _CompareCbValue1(a, b) => CallbackCompare(CallbackValue(a), CallbackValue(b))
         _CompareValue1(a, b) => Callbackcompare(a, b)
+        _CompareDateValue2(a) => a.__Container_DateValue - b.__Container_DateValue
         _CompareNumber2(a) => a - b
         _CompareString2(a) => CallbackCompare(StrPtr(a), StrPtr(b))
         _CompareCbNumber2(a) => CallbackValue(a) - CallbackValue(b)
@@ -4093,7 +4740,7 @@ class Container extends Array {
     /**
      * @memberof Container
      * @instance
-     * @type {DateParser}
+     * @type {Container_DateParser}
      */
     DateParser {
         Get => this.__DateParser
