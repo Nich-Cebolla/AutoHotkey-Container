@@ -176,14 +176,6 @@ There are three sort methods available:
   memory is not an issue. You can return the value to the same variable:
     ```
     c := c.QuickSort()
-    ; Test to ensure it does what it's supposed to
-    previous := c[1]
-    loop c.Length - 1 {
-        if SubStr(previous.Name, -1, 1) > SubStr(c[A_Index + 1].Name, -1, 1) {
-            throw Error("Out of order.")
-        }
-        previous := c[A_Index + 1]
-    }
     ```
 
 To find the index where a value is located, you can use the "Find" methods.
