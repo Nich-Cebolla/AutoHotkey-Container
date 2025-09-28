@@ -53,8 +53,7 @@ search methods. Note you can run the examples in this section from file test\tes
 
 `Container` stands above all other classes of its kind for its sorting and [binary search](#binary-search)
 methods. Using these methods requires the caller to set the property `ContainerObj.SortType` with a
-valid integer. The purpose of method `Container.Prototype.SetSortType` is to give the code author a
-means for bringing up information about each sort type from within their editor†.
+valid integer. Set the sort type by calling `Container.Prototype.SetSortType`.
 
 ```
 c := Container(
@@ -66,20 +65,19 @@ c := Container(
 c.SetSortType(
 ```
 
-After the open parentheses, press your keyboard shortcut for parameter hints (the action is called
-"Trigger Parameter Hints" in VS Code).
+If your editor supports jsdoc-style parameter hints†, press your keyboard shortcut for parameter hints††
+after the open parenthesis to view detailed information about the sort types.
 
-† Assuming the editor supports jsdoc-style parameter hints. If your editor does not support this,
-and if you are interested in trying a new editor, you should download
-[Visual Studio Code](https://apps.microsoft.com/detail/xp9khm4bk9fz7q) and install thqby's
+† If your editor does not support this, and if you are interested in trying a new editor, you should
+download [Visual Studio Code](https://apps.microsoft.com/detail/xp9khm4bk9fz7q) and install thqby's
 [AutoHotkey v2 Language Support](https://marketplace.visualstudio.com/items?itemName=thqby.vscode-autohotkey2-lsp)
 extension.
+†† The action is called "Trigger Parameter Hints" in VS Code.
 
 ## Set the sort type
 
 Finish the method call using the global variable. I would recommend not to use hardcoded numbers as
-it is less readable and the values are subject to change. If your editor has intellisense, you should
-be able to leverage that by just typing some of the letters of the symbol name.
+it is less readable and the values are subject to change.
 
 ```
 ; ... continuing with our example
@@ -93,7 +91,7 @@ that returns the value that will be used for sort and find operations. If your c
 contain references to objects, you can still define a callback to convert the values into something
 else more useful for sorting (if the values are not inherently sortable).
 
-Skip this step if the values in the container are to be sorted as-is.
+Skip this step if the values in the container are to be sorted as they are.
 
 In our example above we set the sort type to `CONTAINER_SORTTYPE_CB_STRING`. The "CB" stands for
 "callback", which tells the relevant methods to call the callback function for the items in the container.
