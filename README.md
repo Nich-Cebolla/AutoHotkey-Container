@@ -82,6 +82,7 @@ it is less readable and the values are subject to change.
 
 ```
 ; ... continuing with our example
+
 c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
 ```
 
@@ -99,6 +100,7 @@ In our example above we set the sort type to `CONTAINER_SORTTYPE_CB_STRING`. The
 
 ```
 ; ... continuing with our example
+
 c.SetCallbackValue(ContainerCallbackValue)
 
 ContainerCallbackValue(value) {
@@ -117,6 +119,7 @@ Your code can call it without any parameters if the default values are acceptabl
 you might want to use is `LINGUISTIC_IGNORECASE`, which you can pass as the global variable.
     ```
     ; ... continuing with our example
+
     c.SetCompareStringEx(, LINGUISTIC_IGNORECASE)
     ```
 2. If the values will be compared as date strings, call one of `Container.Prototype.SetCompareDate`,
@@ -131,7 +134,13 @@ for more information.
     - A number less than zero to indicate the first parameter is less than the second parameter.
     - Zero to indicate the two parameters are equal.
     - A number greater than zero to indicate the first parameter is greater than the second parameter.
+  - Example:
     ```
+    c := Container(
+        { id: 'CFikHajB' }
+      , { id: 'zhLAlxeK' }
+      , { id: 'RwaedOSw' }
+    )
     c.SetCallbackCompare(Comparator)
 
     Comparator(Value1, Value2) {
