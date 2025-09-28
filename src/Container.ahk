@@ -28,6 +28,96 @@ class Container extends Array {
             Container_SetConstants()
         }
     }
+    static CbDate(CallbackValue, UseCompareDateEx := false, Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_CB_DATE)
+        c.SetCallbackValue(CallbackValue)
+        c.SetCompareDate(UseCompareDateEx)
+        return c
+    }
+    static CbDateStr(CallbackValue, DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false, Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
+        c.SetCallbackValue(CallbackValue)
+        c.SetCompareDateStr(DateFormat, RegExOptions, Century ?? unset, UseCompareDateEx)
+        return c
+    }
+    static CbDateStrFromParser(CallbackValue, DateParser, Century?, UseCompareDateEx := false, Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
+        c.SetCallbackValue(CallbackValue)
+        c.SetDateParser(DateParser, Century ?? unset, UseCompareDateEx)
+        return c
+    }
+    static CbNumber(CallbackValue, Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_CB_NUMBER)
+        c.SetCallbackValue(CallbackValue)
+        return c
+    }
+    static CbString(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
+        c.SetCallbackValue(CallbackValue)
+        c.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        return c
+    }
+    static CbStringPtr(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_CB_STRINGPTR)
+        c.SetCallbackValue(CallbackValue)
+        c.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        return c
+    }
+    static Date(UseCompareDateEx := false, Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_DATE)
+        c.SetCompareDate(UseCompareDateEx)
+        return c
+    }
+    static DateStr(DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false, Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_DATESTR)
+        c.SetCompareDateStr(DateFormat, RegExOptions, Century ?? unset, UseCompareDateEx)
+        return c
+    }
+    static DateStrFromParser(DateParser, Century?, UseCompareDateEx := false, Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_DATESTR)
+        c.SetDateParser(DateParser, Century ?? unset, UseCompareDateEx)
+        return c
+    }
+    static DateValue(CallbackValue, DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false, PropertyName := '__Container_DateValue', Values*) {
+        c := this.CbDateStr(CallbackValue, DateFormat, RegExOptions, Century ?? unset, UseCompareDateEx)
+        if Values.Length {
+            c.Push(Values*)
+        }
+        c.DatePreprocess(, , PropertyName)
+        return c
+    }
+    static Misc(CallbackCompare, Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_MISC)
+        c.SetCallbackCompare(CallbackCompare)
+        return c
+    }
+    static Number(Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_NUMBER)
+        return c
+    }
+    static String(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_STRING)
+        c.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        return c
+    }
+    static StringPtr(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+        c := Container(Values*)
+        c.SetSortType(CONTAINER_SORTTYPE_STRINGPTR)
+        c.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        return c
+    }
     /**
      * Requires a sorted container: yes.
      *
@@ -4238,12 +4328,7 @@ class Container extends Array {
      * NLSVERSIONINFO structure. If `VersionInformation` is an object, the object is set to
      * property {@link Container#CompareStringVersionInformation}.
      */
-    SetCompareStringEx(
-        LocaleName := LOCALE_NAME_USER_DEFAULT
-      , Flags := 0
-      , VersionInformation := 0
-      , Encoding := CONTAINER_DEFAULT_ENCODING
-    ) {
+    SetCompareStringEx(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING) {
         if !IsNumber(LocaleName) {
             buf := this.CompareStringLocaleName := Buffer(StrPut(LocaleName, Encoding))
             StrPut(LocaleName, Buf, Encoding)
