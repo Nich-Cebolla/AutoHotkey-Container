@@ -1,5 +1,5 @@
 ﻿/*
-    Github: https://github.com/Nich-Cebolla/AutoHotkey-Container/blob/main/src/Container.ahk
+    Github: https://github.com/Nich-Cebolla/AutoHotkey-Container/tree/main
     Author: Nich-Cebolla
     Version: 1.0.0
     License: MIT
@@ -251,6 +251,38 @@ class Container extends Array {
     DateInsert(Value) {
         this.__CallbackDateInsert.Call(Value)
         return this.Insert(Value)
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: no.
+     *
+     * Inserts a value in order if the value does not exist in the container. See
+     * {@link Container.Prototype.DatePreprocess} for more information.
+     *
+     * @param {*} Value - The value.
+     *
+     * @returns {Integer} - The index at which it was inserted.
+     */
+    DateInsertIfAbsent(Value) {
+        this.__CallbackDateInsert.Call(Value)
+        return this.InsertIfAbsent(Value)
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: yes.
+     *
+     * Inserts a value in order if the value does not exist in the container. See
+     * {@link Container.Prototype.DatePreprocess} for more information.
+     *
+     * @param {*} Value - The value.
+     *
+     * @returns {Integer} - The index at which it was inserted.
+     */
+    DateInsertSparseIfAbsent(Value) {
+        this.__CallbackDateInsert.Call(Value)
+        return this.InsertIfAbsentSparse(Value)
     }
     /**
      * Requires a sorted container: yes.
@@ -3008,6 +3040,104 @@ class Container extends Array {
     /**
      * Requires a sorted container: yes.
      *
+     * Allows unset indices: no.
+     *
+     * Inserts a value in order if the value does not exist in the container.
+     *
+     * @param {*} Value - The value.
+     *
+     * @returns {Integer} - The index at which it was inserted.
+     */
+    InsertIfAbsent(Value) {
+        if this.Length {
+            if index := this.FindInequality(Value, , '>=') {
+                ; If `Value` is not equivalent with the value at `index`
+                if this.Compare(Value, index) {
+                    this.InsertAt(index, Value)
+                    return index
+                }
+            } else if this.Compare(Value, 1) < 0 {
+                this.InsertAt(1, Value)
+                return 1
+            } else {
+                this.Push(Value)
+                return this.Length
+            }
+        } else {
+            this.Push(Value)
+            return 1
+        }
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: yes.
+     *
+     * Inserts a value in order if the value does not exist in the container.
+     *
+     * @param {*} Value - The value.
+     *
+     * @returns {Integer} - The index at which it was inserted.
+     */
+    InsertIfAbsentSparse(Value) {
+        if this.Length {
+            if index := this.FindInequalitySparse(Value, , '>=') {
+                ; If `Value` is not equivalent with the value at `index`
+                if this.Compare(Value, index) {
+                    i := index
+                    ; Fill in an unset index if there are any nearby
+                    while !this.Has(--i) && i > 0 {
+                        continue
+                    }
+                    i++
+                    if i = index {
+                        this.InsertAt(index, Value)
+                        return index
+                    } else {
+                        this[i] := Value
+                        return i
+                    }
+                }
+            } else {
+                i := 1
+                while !this.Has(i) && i < this.Length {
+                    ++i
+                }
+                ; If all indices are unset
+                if !this.Has(i) {
+                    this[1] := Value
+                    return
+                }
+                if this.Compare(Value, i) < 0 {
+                    if i > 1 {
+                        this[i - 1] := Value
+                        return i - 1
+                    } else {
+                        this.InsertAt(1, Value)
+                        return 1
+                    }
+                } else {
+                    i := this.Length
+                    while !this.Has(i) && i > 0 {
+                        --i
+                    }
+                    if i < this.Length {
+                        this[i + 1] := Value
+                        return i + 1
+                    } else {
+                        this.Push(Value)
+                        return this.Length
+                    }
+                }
+            }
+        } else {
+            this.Push(Value)
+            return 1
+        }
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
      * Allows unset indices: yes.
      *
      * Inserts a value in order.
@@ -3037,8 +3167,10 @@ class Container extends Array {
                 while !this.Has(i) && i < this.Length {
                     ++i
                 }
+                ; If all indices are unset
                 if !this.Has(i) {
-                    throw UnsetItemError('The container is empty.', -1)
+                    this[1] := Value
+                    return
                 }
                 if this.Compare(Value, i) < 0 {
                     if i > 1 {
