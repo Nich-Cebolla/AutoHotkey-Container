@@ -277,8 +277,6 @@ class Container extends Array {
      * the date associated with that value. This allows sorting operations to be performed with
      * simple arithmetic, significantly improving performance.
      *
-     * Note that
-     *
      * There are two options for adding values to the container after
      * {@link Container.Prototype.DatePreprocess} has been called:
      * - Call {@link Container.Prototype.DateInsert} or {@link Container.Prototype.DateInsertSparse}
