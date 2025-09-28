@@ -72,6 +72,7 @@ after the open parenthesis to view detailed information about the sort types.
 download [Visual Studio Code](https://apps.microsoft.com/detail/xp9khm4bk9fz7q) and install thqby's
 [AutoHotkey v2 Language Support](https://marketplace.visualstudio.com/items?itemName=thqby.vscode-autohotkey2-lsp)
 extension.
+
 †† The action is called "Trigger Parameter Hints" in VS Code.
 
 ## Set the sort type
