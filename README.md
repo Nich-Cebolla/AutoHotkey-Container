@@ -11,8 +11,8 @@ The last AutoHotkey (AHK) array class you will ever need.
   <ol type="A">
     <li><a href="#decide-which-sort-type-to-use">Decide which sort type to use</a></li>
     <li><a href="#set-the-sort-type">Set the sort type</a></li>
-    <li><a href="#set-containerobjcallbackvalue-optional">Set `ContainerObj.CallbackValue` (optional)</a></li>
-    <li><a href="#set-containerobjcallbackcompare-optional">Set `ContainerObj.CallbackCompare` (optional)</a></li>
+    <li><a href="#set-containerobjcallbackvalue">Set `ContainerObj.CallbackValue`</a></li>
+    <li><a href="#set-containerobjcallbackcompare">Set `ContainerObj.CallbackCompare`</a></li>
     <li><a href="#use-the-object---part-1">Use the object - part 1</a></li>
     <li><a href="#use-the-object---part-2">Use the object - part 2</a></li>
     <li><a href="#use-the-object---the-value-parameter">Use the object - the `Value` parameter</a></li>
@@ -86,7 +86,7 @@ be able to leverage that by just typing some of the letters of the symbol name.
 c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
 ```
 
-## Set `ContainerObj.CallbackValue` (optional)
+## Set `ContainerObj.CallbackValue`
 
 If your container contains references to objects, then you will need to define the callback function
 that returns the value that will be used for sort and find operations. If your container does not
@@ -107,7 +107,7 @@ ContainerCallbackValue(value) {
 }
 ```
 
-## Set `ContainerObj.CallbackCompare` (optional)
+## Set `ContainerObj.CallbackCompare`
 
 In most cases your code will need to set property `ContainerObj.CallbackCompare`. The three exceptions
 are `CONTAINER_SORTTYPE_CB_NUMBER`, `CONTAINER_SORTTYPE_DATEVALUE`, and `CONTAINER_SORTTYPE_NUMBER`,
@@ -216,8 +216,8 @@ OutputDebug(c.Has(4) "`n") ; 1
 
 ## Use the object - part 2
 
-Reading this section is not necessary to use the class, but provides a more advanced use case that
-I believe many programmers will be interested in.
+You now know everything you need to know to work with `Container`. However, I included these last
+two sections to promote a more advanced use case that I believe many programmers will be interested in.
 
 Internally, AutoHotkey's `Map` class and object property tables implement a [binary search](#binary-search).
 This allows us to associate values with string names.
@@ -228,7 +228,7 @@ and use operations that are dependent on the values being serialized. I wrote `C
 use case.
 
 Our example container is already set up to be used as an associative array, but let's recreate it
-real quick:
+for demonstration:
 ```
 ; Items must have a property that can be used as the name / key.
 c := Container(
@@ -238,11 +238,12 @@ c := Container(
   , { Name: "obj5" }
 )
 
-; Set sort type to `CONTAINER_SORTTYPE_CB_STRING`.
+; Set the sort type to `CONTAINER_SORTTYPE_CB_STRING`.
 c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
 
 ; Set CallbackValue with a function that returns the name / key.
 c.SetCallbackValue(ContainerCallbackValue)
+
 ContainerCallbackValue(value) {
     return value.Name
 }
