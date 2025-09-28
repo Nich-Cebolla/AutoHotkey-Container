@@ -35,17 +35,17 @@ class Container extends Array {
      *
      * Compares the input value with a value in the container.
      * @example
-     *  if index := c.Find(MyValue) {
-     *      ; do something
-     *  } else {
-     *      ; Since it didn't return an index, we know `MyValue` is outside of the range of the container.
-     *      ; To place the value in order, we must know if it should be placed at the beginning or end.
-     *      if c.Compare(MyValue, 1) < 0 {
-     *          c.InsertAt(1, MyValue)
-     *      } else {
-     *          c.Push(MyValue)
-     *      }
-     *  }
+     * if index := c.Find(MyValue) {
+     *     ; do something
+     * } else {
+     *     ; Since it didn't return an index, we know `MyValue` is outside of the range of the container.
+     *     ; To place the value in order, we must know if it should be placed at the beginning or end.
+     *     if c.Compare(MyValue, 1) < 0 {
+     *         c.InsertAt(1, MyValue)
+     *     } else {
+     *         c.Push(MyValue)
+     *     }
+     * }
      * @
      * @param {*} Value - Any value to compare to one of the values in the container.
      * @param {Integer} Index - The index of the value to compare with `Value`.
@@ -155,16 +155,16 @@ class Container extends Array {
      * for new containers. To also fill the container with the same values, use the built-in
      * `Array.Prototype.Clone` method, e.g.
      * @example
-     *  c := Container(1, 5, 2, 4, 3)
-     *  c.SortTye := CONTAINER_SORTTYPE_NUMBER
-     *  c2 := c.Clone()
-     *  c2.Sort() ; no error is thrown because c2 inherited c.SortType
+     * c := Container(1, 5, 2, 4, 3)
+     * c.SortTye := CONTAINER_SORTTYPE_NUMBER
+     * c2 := c.Clone()
+     * c2.Sort() ; no error is thrown because c2 inherited c.SortType
      * @
      */
     Copy() {
         c := Container()
-        for prop, val in this.OwnProps() {
-            c.%prop% := this.%prop%
+        for prop in this.OwnProps() {
+            c.DefineProp(prop, this.GetOwnPropDesc(prop))
         }
         return c
     }
@@ -177,21 +177,21 @@ class Container extends Array {
      * This converts a string value to a value that can be passed to any of the binary search methods.
      *
      * @example
-     *  c := Container(
-     *      { Date: "3/1/25 12:01" }
-     *    , { Date: "3/1/25 12:15" }
-     *    , { Date: "3/1/25 9:17" }
-     *    , { Date: "3/1/25 14:25" }
-     *  )
-     *  c.SetDateCompareDateStr("M/d/yy H:mm")
-     *  c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
-     *  c.SetCallbackValue((value) => value.Date)
-     *  c.DatePreprocess()
-     *  ; After calling c.DatePreprocess, I can no longer search for values using strings
-     *  ; like "3/1/25 9:17", so I have to convert the date string to a date value
-     *  dateValue := c.DateConvert("3/1/25 9:17")
-     *  index := c.Find(dateValue)
-     *  OutputDebug(index "`n") ; 1
+     * c := Container(
+     *     { Date: "3/1/25 12:01" }
+     *   , { Date: "3/1/25 12:15" }
+     *   , { Date: "3/1/25 9:17" }
+     *   , { Date: "3/1/25 14:25" }
+     * )
+     * c.SetDateCompareDateStr("M/d/yy H:mm")
+     * c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
+     * c.SetCallbackValue((value) => value.Date)
+     * c.DatePreprocess()
+     * ; After calling c.DatePreprocess, I can no longer search for values using strings
+     * ; like "3/1/25 9:17", so I have to convert the date string to a date value
+     * dateValue := c.DateConvert("3/1/25 9:17")
+     * index := c.Find(dateValue)
+     * OutputDebug(index "`n") ; 1
      * @
      *
      * @param {*} Value - The value to convert to an integer.
@@ -208,27 +208,27 @@ class Container extends Array {
      * This converts an object value to a value that can be passed to any of the binary search methods.
      *
      * @example
-     *  c := Container(
-     *      { Date: "3/1/25 12:01" }
-     *    , { Date: "3/1/25 12:15" }
-     *    , { Date: "3/1/25 9:17" }
-     *    , { Date: "3/1/25 14:25" }
-     *  )
-     *  c.SetDateCompareDateStr("M/d/yy H:mm")
-     *  c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
-     *  c.SetCallbackValue((value) => value.Date)
-     *  c.DatePreprocess()
-     *  ; After calling c.DatePreprocess, I can no longer search for values using strings
-     *  ; like "3/1/25 9:17", so I have to convert the date string to a date value
-     *  dateValue := c.DateConvert({ Date: "3/1/25 9:17" })
-     *  index := c.Find(dateValue)
-     *  OutputDebug(index "`n") ; 1
-     *  ; This is unnecessary for values taken directly from the container
-     *  ; because the values in the container are processed and can be
-     *  ; used directly.
-     *  valueToFind := c[2]
-     *  index := c.Find(valueToFind)
-     *  OutputDebug(index "`n") ; 2
+     * c := Container(
+     *     { Date: "3/1/25 12:01" }
+     *   , { Date: "3/1/25 12:15" }
+     *   , { Date: "3/1/25 9:17" }
+     *   , { Date: "3/1/25 14:25" }
+     * )
+     * c.SetDateCompareDateStr("M/d/yy H:mm")
+     * c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
+     * c.SetCallbackValue((value) => value.Date)
+     * c.DatePreprocess()
+     * ; After calling c.DatePreprocess, I can no longer search for values using strings
+     * ; like "3/1/25 9:17", so I have to convert the date string to a date value
+     * dateValue := c.DateConvert({ Date: "3/1/25 9:17" })
+     * index := c.Find(dateValue)
+     * OutputDebug(index "`n") ; 1
+     * ; This is unnecessary for values taken directly from the container
+     * ; because the values in the container are processed and can be
+     * ; used directly.
+     * valueToFind := c[2]
+     * index := c.Find(valueToFind)
+     * OutputDebug(index "`n") ; 2
      * @
      *
      * @param {*} Value - The value to convert to an integer.
@@ -1802,11 +1802,11 @@ class Container extends Array {
             ; we must search <DirectionofAscent> (1 in the example) then return 6 when we get to 7.
             /**
              * @example
-             *  if GT {
-             *      HEV_Direction := BaseDirection == 1 ? -1 : 1
-             *  } else {
-             *      HEV_Direction := BaseDirection == 1 ? 1 : -1
-             *  }
+             * if GT {
+             *     HEV_Direction := BaseDirection == 1 ? -1 : 1
+             * } else {
+             *     HEV_Direction := BaseDirection == 1 ? 1 : -1
+             * }
              * @
              */
             if HEV_Direction > 0 {
@@ -1843,11 +1843,11 @@ class Container extends Array {
             ; we must search <DirectionofAscent> * -1 (-1 in the example) then return 3 when we get to 3.
             /**
              * @example
-             *  if GT {
-             *      HEV_Direction := BaseDirection == 1 ? 1 : -1
-             *  } else {
-             *      HEV_Direction := BaseDirection == 1 ? -1 : 1
-             *  }
+             * if GT {
+             *     HEV_Direction := BaseDirection == 1 ? 1 : -1
+             * } else {
+             *     HEV_Direction := BaseDirection == 1 ? -1 : 1
+             * }
              * @
              */
             loop HEV_Direction > 0 ? IndexEnd - i + 1 : i {
@@ -2499,11 +2499,11 @@ class Container extends Array {
             ; we must search <DirectionofAscent> (1 in the example) then return 6 when we get to 7.
             /**
              * @example
-             *  if GT {
-             *      HEV_Direction := BaseDirection == 1 ? -1 : 1
-             *  } else {
-             *      HEV_Direction := BaseDirection == 1 ? 1 : -1
-             *  }
+             * if GT {
+             *     HEV_Direction := BaseDirection == 1 ? -1 : 1
+             * } else {
+             *     HEV_Direction := BaseDirection == 1 ? 1 : -1
+             * }
              * @
              */
             if HEV_Direction > 0 {
@@ -2542,11 +2542,11 @@ class Container extends Array {
             ; we must search <DirectionofAscent> * -1 (-1 in the example) then return 3 when we get to 3.
             /**
              * @example
-             *  if GT {
-             *      HEV_Direction := BaseDirection == 1 ? 1 : -1
-             *  } else {
-             *      HEV_Direction := BaseDirection == 1 ? -1 : 1
-             *  }
+             * if GT {
+             *     HEV_Direction := BaseDirection == 1 ? 1 : -1
+             * } else {
+             *     HEV_Direction := BaseDirection == 1 ? -1 : 1
+             * }
              * @
              */
             loop HEV_Direction > 0 ? IndexEnd - i + 1 : i {
@@ -2927,14 +2927,14 @@ class Container extends Array {
      * Iterates the values in the container and compares the values to `Value`. If found, the function returns the index.
      *
      * @example
-     *  c := Container(
-     *      { Name: "obj4" }
-     *    , { Name: "obj1" }
-     *    , { Name: "obj3" }
-     *    , { Name: "obj2" }
-     *  )
-     *  OutputDebug(c.HasValue("obj1", (value) => value.Name) '`n') ; 2
-     *  OutputDebug(c.HasValue("obj5", (value) => value.Name) '`n') ; 0
+     * c := Container(
+     *     { Name: "obj4" }
+     *   , { Name: "obj1" }
+     *   , { Name: "obj3" }
+     *   , { Name: "obj2" }
+     * )
+     * OutputDebug(c.HasValue("obj1", (value) => value.Name) '`n') ; 2
+     * OutputDebug(c.HasValue("obj5", (value) => value.Name) '`n') ; 0
      * @
      *
      * @param {*} Value - The value to find.
@@ -2972,14 +2972,14 @@ class Container extends Array {
      * Iterates the values in the container and compares the values to `Value`. If found, the function returns the index.
      *
      * @example
-     *  c := Container(
-     *      { Name: "obj4" }
-     *    ,
-     *    ,
-     *    , { Name: "obj2" }
-     *  )
-     *  OutputDebug(c.HasValueSparse("obj1", (value) => value.Name) '`n') ; 0
-     *  OutputDebug(c.HasValueSparse("obj2", (value) => value.Name) '`n') ; 4
+     * c := Container(
+     *     { Name: "obj4" }
+     *   ,
+     *   ,
+     *   , { Name: "obj2" }
+     * )
+     * OutputDebug(c.HasValueSparse("obj1", (value) => value.Name) '`n') ; 0
+     * OutputDebug(c.HasValueSparse("obj2", (value) => value.Name) '`n') ; 4
      * @
      *
      * @param {*} Value - The value to find.
@@ -3084,18 +3084,13 @@ class Container extends Array {
             if index := this.FindInequalitySparse(Value, , '>=') {
                 ; If `Value` is not equivalent with the value at `index`
                 if this.Compare(Value, index) {
-                    i := index
-                    ; Fill in an unset index if there are any nearby
-                    while !this.Has(--i) && i > 0 {
-                        continue
-                    }
-                    i++
-                    if i = index {
+                    ; If there is an unset index to the left, fill it in
+                    if !this.Has(index - 1) && index > 1 {
+                        this[index - 1] := Value
+                        return index - 1
+                    } else {
                         this.InsertAt(index, Value)
                         return index
-                    } else {
-                        this[i] := Value
-                        return i
                     }
                 }
             } else {
@@ -3149,18 +3144,13 @@ class Container extends Array {
     InsertSparse(Value) {
         if this.Length {
             if index := this.FindInequalitySparse(Value, , '>') {
-                i := index
-                ; Fill in an unset index if there are any nearby
-                while !this.Has(--i) && i > 0 {
-                    continue
-                }
-                i++
-                if i = index {
+                ; If there is an unset index to the left, fill it in
+                if !this.Has(index - 1) && index > 1 {
+                    this[index - 1] := Value
+                    return index - 1
+                } else {
                     this.InsertAt(index, Value)
                     return index
-                } else {
-                    this[i] := Value
-                    return i
                 }
             } else {
                 i := 1
@@ -4197,16 +4187,16 @@ class Container extends Array {
      * sorting. Sets the function to property {@link Container#CallbackValue}.
      *
      * @example
-     *  c := Container(
-     *      { Name: "obj4" }
-     *    , { Name: "obj1" }
-     *    , { Name: "obj3" }
-     *    , { Name: "obj2" }
-     *  )
-     *  c.SetCompareStringEx()
-     *  c.SetCallbackValue((value) => value.Name)
-     *  c.SortType := CONTAINER_SORTTYPE_CB_STRING
-     *  c.Sort()
+     * c := Container(
+     *     { Name: "obj4" }
+     *   , { Name: "obj1" }
+     *   , { Name: "obj3" }
+     *   , { Name: "obj2" }
+     * )
+     * c.SetCompareStringEx()
+     * c.SetCallbackValue((value) => value.Name)
+     * c.SortType := CONTAINER_SORTTYPE_CB_STRING
+     * c.Sort()
      * @
      *
      * @param {*} Callback - The callback to use as a comparator for sorting operations.
@@ -4394,15 +4384,15 @@ class Container extends Array {
      * Set CallbackCompare by calling {@link Container.Prototype.SetCompareDate}.
      *
      * @example
-     *  c := Container(
-     *      { timestamp: '20250312122930' }
-     *    , { timestamp: '20250411122900' }
-     *    , { timestamp: '20251015091805' }
-     *  )
-     *  c.SetSortType(CONTAINER_SORTTYPE_CB_DATE)
-     *  c.SetCallbackValue((value) => value.timestamp)
-     *  c.SetCompareDate()
-     *  c.Sort()
+     * c := Container(
+     *     { timestamp: '20250312122930' }
+     *   , { timestamp: '20250411122900' }
+     *   , { timestamp: '20251015091805' }
+     * )
+     * c.SetSortType(CONTAINER_SORTTYPE_CB_DATE)
+     * c.SetCallbackValue((value) => value.timestamp)
+     * c.SetCompareDate()
+     * c.Sort()
      * @
      *
      * ### CONTAINER_SORTTYPE_CB_DATESTR
@@ -4414,15 +4404,15 @@ class Container extends Array {
      * {@link Container.Prototype.SetDateParser}.
      *
      * @example
-     *  c := Container(
-     *      { date: '2025-03-12 12:29:30' }
-     *    , { date: '2025-04-11 12:29:00' }
-     *    , { date: '2025-10-15 09:18:05' }
-     *  )
-     *  c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
-     *  c.SetCallbackValue((value) => value.date)
-     *  c.SetCompareDateStr('yyyy-MM-dd HH:mm:ss')
-     *  c.Sort()
+     * c := Container(
+     *     { date: '2025-03-12 12:29:30' }
+     *   , { date: '2025-04-11 12:29:00' }
+     *   , { date: '2025-10-15 09:18:05' }
+     * )
+     * c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
+     * c.SetCallbackValue((value) => value.date)
+     * c.SetCompareDateStr('yyyy-MM-dd HH:mm:ss')
+     * c.Sort()
      * @
      *
      * ### CONTAINER_SORTTYPE_CB_NUMBER
@@ -4432,14 +4422,14 @@ class Container extends Array {
      * CallbackCompare is not used.
      *
      * @example
-     *  c := Container(
-     *      { value: 298581 }
-     *    , { value: 195801 }
-     *    , { value: 585929 }
-     *  )
-     *  c.SetSortType(CONTAINER_SORTTYPE_CB_NUMBER)
-     *  c.SetCallbackValue((value) => value.value)
-     *  c.Sort()
+     * c := Container(
+     *     { value: 298581 }
+     *   , { value: 195801 }
+     *   , { value: 585929 }
+     * )
+     * c.SetSortType(CONTAINER_SORTTYPE_CB_NUMBER)
+     * c.SetCallbackValue((value) => value.value)
+     * c.Sort()
      * @
      *
      * ### CONTAINER_SORTTYPE_CB_STRING
@@ -4449,15 +4439,15 @@ class Container extends Array {
      * Set CallbackCompare by calling {@link Container.Prototype.SetCompareStringEx}.
      *
      * @example
-     *  c := Container(
-     *      { name: 'obj4' }
-     *    , { name: 'obj3' }
-     *    , { name: 'obj1' }
-     *  )
-     *  c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
-     *  c.SetCallbackValue((value) => value.name)
-     *  c.SetCompareStringEx()
-     *  c.Sort()
+     * c := Container(
+     *     { name: 'obj4' }
+     *   , { name: 'obj3' }
+     *   , { name: 'obj1' }
+     * )
+     * c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
+     * c.SetCallbackValue((value) => value.name)
+     * c.SetCompareStringEx()
+     * c.Sort()
      * @
      *
      * ### CONTAINER_SORTTYPE_CB_STRINGPTR
@@ -4467,43 +4457,43 @@ class Container extends Array {
      * Set CallbackCompare by calling {@link Container.Prototype.SetCompareStringEx}.
      *
      * @example
-     *  class SomeStruct {
-     *      static __New() {
-     *          this.DeleteProp('__New')
-     *          proto := this.Prototype
-     *          proto.CbSize := 16 ; arbitrary size for example
-     *          proto.__pszText_offset := 8 ; arbitrary offset for example
-     *      }
-     *      __New(pszText) {
-     *          this.Buffer := Buffer(this.cbSize)
-     *          this.__pszText := Buffer(StrPut(pszText, 'cp1200'))
-     *          StrPut(pszText, this.__pszText, 'cp1200')
-     *          NumPut('ptr', this.__pszText.Ptr, this, this.__pszText_offset)
-     *      }
-     *      pszText {
-     *          Get => StrGet(this.__pszText, 'cp1200')
-     *          Set {
-     *              bytes := StrPut(Value, 'cp1200')
-     *              if bytes > this.__pszText.Size {
-     *                  this.__pszText.Size := bytes
-     *                  NumPut('ptr', this.__pszText.Ptr, this, this.__pszText_offset)
-     *              }
-     *              StrPut(Value, this.__pszText, 'cp1200')
-     *          }
-     *      }
-     *      Ptr => this.Buffer.Ptr
-     *      Size => this.Buffer.Size
-     *  }
+     * class SomeStruct {
+     *     static __New() {
+     *         this.DeleteProp('__New')
+     *         proto := this.Prototype
+     *         proto.CbSize := 16 ; arbitrary size for example
+     *         proto.__pszText_offset := 8 ; arbitrary offset for example
+     *     }
+     *     __New(pszText) {
+     *         this.Buffer := Buffer(this.cbSize)
+     *         this.__pszText := Buffer(StrPut(pszText, 'cp1200'))
+     *         StrPut(pszText, this.__pszText, 'cp1200')
+     *         NumPut('ptr', this.__pszText.Ptr, this, this.__pszText_offset)
+     *     }
+     *     pszText {
+     *         Get => StrGet(this.__pszText, 'cp1200')
+     *         Set {
+     *             bytes := StrPut(Value, 'cp1200')
+     *             if bytes > this.__pszText.Size {
+     *                 this.__pszText.Size := bytes
+     *                 NumPut('ptr', this.__pszText.Ptr, this, this.__pszText_offset)
+     *             }
+     *             StrPut(Value, this.__pszText, 'cp1200')
+     *         }
+     *     }
+     *     Ptr => this.Buffer.Ptr
+     *     Size => this.Buffer.Size
+     * }
      *
-     *  c := Container(
-     *      SomeStruct("obj4")
-     *    , SomeStruct("obj3")
-     *    , SomeStruct("obj1")
-     *  )
-     *  c.SetSortType(CONTAINER_SORTTYPE_CB_STRINGPTR)
-     *  c.SetCallbackValue((value) => value.__pszText.Ptr)
-     *  c.SetCompareStringEx()
-     *  c.Sort()
+     * c := Container(
+     *     SomeStruct("obj4")
+     *   , SomeStruct("obj3")
+     *   , SomeStruct("obj1")
+     * )
+     * c.SetSortType(CONTAINER_SORTTYPE_CB_STRINGPTR)
+     * c.SetCallbackValue((value) => value.__pszText.Ptr)
+     * c.SetCompareStringEx()
+     * c.Sort()
      * @
      *
      * ### CONTAINER_SORTTYPE_DATE
@@ -4515,14 +4505,14 @@ class Container extends Array {
      * Set CallbackCompare by calling {@link Container.Prototype.SetCompareDate}.
      *
      * @example
-     *  c := Container(
-     *      '20250312122930'
-     *    , '20250411122900'
-     *    , '20251015091805'
-     *  )
-     *  c.SetSortType(CONTAINER_SORTTYPE_DATE)
-     *  c.SetCompareDate()
-     *  c.Sort()
+     * c := Container(
+     *     '20250312122930'
+     *   , '20250411122900'
+     *   , '20251015091805'
+     * )
+     * c.SetSortType(CONTAINER_SORTTYPE_DATE)
+     * c.SetCompareDate()
+     * c.Sort()
      * @
      *
      * ### CONTAINER_SORTTYPE_DATESTR
@@ -4535,14 +4525,14 @@ class Container extends Array {
      * {@link Container.Prototype.SetDateParser}.
      *
      * @example
-     *  c := Container(
-     *      '2025-03-12 12:29:30'
-     *    , '2025-04-11 12:29:00'
-     *    , '2025-10-15 09:18:05'
-     *  )
-     *  c.SetSortType(CONTAINER_SORTTYPE_DATESTR)
-     *  c.SetCompareDateStr('yyyy-MM-dd HH:mm:ss')
-     *  c.Sort()
+     * c := Container(
+     *     '2025-03-12 12:29:30'
+     *   , '2025-04-11 12:29:00'
+     *   , '2025-10-15 09:18:05'
+     * )
+     * c.SetSortType(CONTAINER_SORTTYPE_DATESTR)
+     * c.SetCompareDateStr('yyyy-MM-dd HH:mm:ss')
+     * c.Sort()
      * @
      *
      * ### CONTAINER_SORTTYPE_DATEVALUE
@@ -4558,17 +4548,17 @@ class Container extends Array {
      * value.
      *
      * @example
-     *  c := Container(
-     *      { id: 'CFikHajB' }
-     *    , { id: 'zhLAlxeK' }
-     *    , { id: 'RwaedOSw' }
-     *  )
-     *  c.SetSortType(CONTAINER_SORTTYPE_MISC)
-     *  c.SetCallbackCompare(MyCallbackCompare)
-     *  MyCallbackCompare(value1, value2) {
-     *      ; Implements some logic and returns a number indicating the relationship of the two values
-     *  }
-     *  c.Sort()
+     * c := Container(
+     *     { id: 'CFikHajB' }
+     *   , { id: 'zhLAlxeK' }
+     *   , { id: 'RwaedOSw' }
+     * )
+     * c.SetSortType(CONTAINER_SORTTYPE_MISC)
+     * c.SetCallbackCompare(MyCallbackCompare)
+     * MyCallbackCompare(value1, value2) {
+     *     ; Implements some logic and returns a number indicating the relationship of the two values
+     * }
+     * c.Sort()
      * @
      *
      * ### CONTAINER_SORTTYPE_NUMBER
@@ -4580,13 +4570,13 @@ class Container extends Array {
      * CallbackCompare is not used.
      *
      * @example
-     *  c := Container(
-     *      298581
-     *    , 195801
-     *    , 585929
-     *  )
-     *  c.SetSortType(CONTAINER_SORTTYPE_NUMBER)
-     *  c.Sort()
+     * c := Container(
+     *     298581
+     *   , 195801
+     *   , 585929
+     * )
+     * c.SetSortType(CONTAINER_SORTTYPE_NUMBER)
+     * c.Sort()
      * @
      *
      * ### CONTAINER_SORTTYPE_STRING
@@ -4598,14 +4588,14 @@ class Container extends Array {
      * Set CallbackCompare by calling {@link Container.Prototype.SetCompareStringEx}.
      *
      * @example
-     *  c := Container(
-     *      'string4'
-     *    , 'string3'
-     *    , 'string1'
-     *  )
-     *  c.SetSortType(CONTAINER_SORTTYPE_STRING)
-     *  c.SetCompareStringEx()
-     *  c.Sort()
+     * c := Container(
+     *     'string4'
+     *   , 'string3'
+     *   , 'string1'
+     * )
+     * c.SetSortType(CONTAINER_SORTTYPE_STRING)
+     * c.SetCompareStringEx()
+     * c.Sort()
      * @
      *
      * ### CONTAINER_SORTTYPE_STRINGPTR
@@ -4617,23 +4607,23 @@ class Container extends Array {
      * Set CallbackCompare by calling {@link Container.Prototype.SetCompareStringEx}.
      *
      * @example
-     *  buf1 := StrBuf('string4')
-     *  buf2 := StrBuf('string3')
-     *  buf3 := StrBuf('string1')
-     *  c := Container(
-     *      buf1.Ptr
-     *    , buf2.Ptr
-     *    , buf3.Ptr
-     *  )
-     *  c.SetSortType(CONTAINER_SORTTYPE_STRINGPTR)
-     *  c.SetCompareStringEx()
-     *  c.Sort()
+     * buf1 := StrBuf('string4')
+     * buf2 := StrBuf('string3')
+     * buf3 := StrBuf('string1')
+     * c := Container(
+     *     buf1.Ptr
+     *   , buf2.Ptr
+     *   , buf3.Ptr
+     * )
+     * c.SetSortType(CONTAINER_SORTTYPE_STRINGPTR)
+     * c.SetCompareStringEx()
+     * c.Sort()
      *
-     *  StrBuf(str) {
-     *      buf := Buffer(StrPut(str, 'cp1200'))
-     *      StrPut(str, buf, 'cp1200')
-     *      return buf
-     *  }
+     * StrBuf(str) {
+     *     buf := Buffer(StrPut(str, 'cp1200'))
+     *     StrPut(str, buf, 'cp1200')
+     *     return buf
+     * }
      * @
      *
      * @throws {ValueError} - "Invalid SortType."

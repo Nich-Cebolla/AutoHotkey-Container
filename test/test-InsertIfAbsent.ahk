@@ -26,6 +26,16 @@ class test_InsertIfAbsent {
             c[100] := c[99]
             _Compare(c.InsertIfAbsent(val1), 1)
             _Compare(c.InsertIfAbsent(val100), 102)
+            _c := c.Copy()
+            _c.Push(c[3])
+            _Compare(_c.InsertIfAbsent(c[3]), '')
+            _Compare(_c.InsertIfAbsent(c[4]), 2)
+            _c.Length := 5
+            _c[5] := c[8]
+            _Compare(_c.InsertIfAbsentSparse(c[8]), '')
+            _Compare(_c.InsertIfAbsentSparse(c[7]), 4)
+            _Compare(_c.InsertIfAbsentSparse(c[6]), 3)
+            _Compare(_c.InsertIfAbsentSparse(c[5]), 3)
         }
 
         _Proc1(index) {
