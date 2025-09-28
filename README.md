@@ -96,7 +96,8 @@ else more useful for sorting (if the values are not inherently sortable).
 Skip this step if the values in the container are to be sorted as they are.
 
 In our example above we set the sort type to `CONTAINER_SORTTYPE_CB_STRING`. The "CB" stands for
-"callback", which tells the relevant methods to call the callback function for the items in the container.
+"callback". The sort types with "CB" in the symbol direct the relevant methods to call the callback
+to get the sort value of the items in the container.
 
 ```
 ; ... continuing with our example
