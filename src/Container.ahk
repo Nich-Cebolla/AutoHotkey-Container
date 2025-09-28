@@ -8,12 +8,10 @@
 ; https://github.com/Nich-Cebolla/AutoHotkey-LibV2/blob/main/LibraryManager.ahk
 #include <LibraryManager>
 
-; Only needed if using sort type CONTAINER_SORTTYPE_DATESTR or CONTAINER_SORTTYPE_CB_DATESTR
-#include *i Container_DateObj.ahk
-
 ; Only needed if using the NlsVersionInfo class.
 #include *i NlsVersionInfo.ahk
 
+#include *i Container_DateObj.ahk
 #include lib.ahk
 
 class Container extends Array {
