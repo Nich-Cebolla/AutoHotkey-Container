@@ -12,6 +12,7 @@
 #include *i NlsVersionInfo.ahk
 
 #include *i Container_DateObj.ahk
+#include ContainerConstructor.ahk
 #include lib.ahk
 
 class Container extends Array {
