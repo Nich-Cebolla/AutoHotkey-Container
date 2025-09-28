@@ -46,8 +46,8 @@ The sorting methods **always require all indices to have a value**.
 
 # Quick start
 
-This section provides the minimum information needed to work with the class. Note you can run the
-examples in this section from file test\test-readme-examples.ahk.
+This section provides the minimum information needed to work with the class' sorting and binary
+search methods. Note you can run the examples in this section from file test\test-readme-examples.ahk.
 
 ## Decide which sort type to use
 
