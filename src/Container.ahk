@@ -370,7 +370,7 @@ class Container extends Array {
      *
      * @returns {Integer} - The index at which it was inserted.
      */
-    DateInsertSparseIfAbsent(Value) {
+    DateInsertIfAbsentSparse(Value) {
         this.__CallbackDateInsert.Call(Value)
         return this.InsertIfAbsentSparse(Value)
     }
