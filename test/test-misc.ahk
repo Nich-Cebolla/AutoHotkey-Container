@@ -64,12 +64,12 @@ class test_Misc {
         if c.Length != this.Len {
             throw Error('An item was added to the container when it should have replaced an unset index.')
         }
-        i := floor(c.length / 2)
+        i := Floor(c.length / 2)
         n := c[i] + 1
         c.Delete(i)
         c.Delete(i - 1)
         c.InsertSparse(n)
-        if c[i - 1] != n {
+        if c[i] != n {
             throw Error('Mismatched values.')
         }
         if c.Length != this.Len {

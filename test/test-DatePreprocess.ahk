@@ -1,6 +1,10 @@
 ﻿
 #include Container_Test.ahk
 
+if A_LineFile == A_ScriptFullPath {
+    test_DatePreprocess()
+}
+
 class test_DatePreprocess {
     static __New() {
         this.DeleteProp('__New')
@@ -16,29 +20,28 @@ class test_DatePreprocess {
         _Test(c.Clone().QuickSort())
         _Test(c.Clone().Sort())
 
-        c := _c.Clone()
+        c := _c
 
         ; From the original container before calling DatePreprocess, we should be able to search
         ; for date strings
         CallbackValue := c.CallbackValue
         c := c.QuickSort()
         loop 10 {
+            _FindCb(Random(1, c.Length))
+        }
+
+        ; After DatePreprocess we should still be able to search for date strings
+        c.DatePreprocess()
+        loop 10 {
+            _FindCb(Random(1, c.Length))
+        }
+
+        ; We should be able to search just using objects
+        loop 10 {
             _Find(Random(1, c.Length))
         }
 
-        ; After DatePreprocess, searching for a date string should throw an error
-        dateStr := CallbackValue(c[1])
-        c.DatePreprocess()
-        flag := false
-        try {
-            c.Find(dateStr)
-            flag := true
-        }
-        if flag {
-            throw Error('Expected an error.')
-        }
-
-        ; But we should be able to search by converting the date strings to their date value
+        ; We should be able to search by converting date strings
         loop 10 {
             _Convert(Random(1, c.Length))
         }
@@ -64,6 +67,9 @@ class test_DatePreprocess {
             _Compare(c.Find(c.DateConvertCb(c[index])), index)
         }
         _Find(index) {
+            _Compare(c.Find(c[index]), index)
+        }
+        _FindCb(index) {
             _Compare(c.Find(CallbackValue(c[index])), index)
         }
         _Test(c) {

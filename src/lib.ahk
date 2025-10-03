@@ -17,11 +17,7 @@ CONTAINER_SORTTYPE_STRINGPTR
 
 Container_SetConstants() {
     global
-    g_proc_kernel32_CompareStringEx := 0
-
-    Container.LibToken := LibraryManager(
-        'kernel32', [ 'CompareStringEx' ]
-    )
+    g_proc_kernel32_CompareStringEx := DllCall('GetProcAddress', 'Ptr', DllCall('GetModuleHandle', 'Str', 'kernel32', 'Ptr'), 'AStr', 'CompareStringEx', 'Ptr')
 
     if !IsSet(PTR_EMPTY_STRING) {
         PTR_EMPTY_STRING := StrPtr('')
@@ -83,11 +79,9 @@ Container_CompareStringEx(LocaleName, Flags, VersionInformation, Ptr1, Ptr2) {
 Container_CompareDate(date1, date2) {
     return DateDiff(date1, date2, 'S')
 }
-
 Container_CompareDateEx(date1, date2) {
     return Container_DateObj.FromTimestamp(date1).TotalSeconds - Container_DateObj.FromTimestamp(date2).TotalSeconds
 }
-
 Container_CompareDateStr(DateParserObj, dateStr1, dateStr2) {
     return DateParserObj(dateStr1).Diff('S', DateParserObj(dateStr2).Timestamp)
 }
@@ -100,7 +94,6 @@ Container_CompareDateStr_CompareValue(DateParserObj, date1, dateStr2) {
 Container_CompareDateStr_Century_CompareValue(DateParserObj, Century, date1, dateStr2) {
     return date1.Diff('S', DateParserObj(dateStr2, Century).Timestamp)
 }
-
 Container_CompareDateStrEx(DateParserObj, dateStr1, dateStr2) {
     return DateParserObj(dateStr1).TotalSeconds - DateParserObj(dateStr2).TotalSeconds
 }
@@ -113,7 +106,6 @@ Container_CompareDateStr_CompareValueEx(DateParserObj, date1, dateStr2) {
 Container_CompareDateStr_Century_CompareValueEx(DateParserObj, Century, date1, dateStr2) {
     return date1.TotalSeconds - DateParserObj(dateStr2, Century).TotalSeconds
 }
-
 Container_CallbackValue_DateValue(Value) {
     return Value.__Container_DateValue
 }
@@ -123,17 +115,9 @@ Container_CallbackValue_DateValueCustom(PropertyName, Value) {
 Container_CallbackDateInsert(PropertyName, DateObjFunc, CallbackValue, Value) {
     Value.DefineProp(PropertyName, { Value: DateObjFunc(CallbackValue(Value)).TotalSeconds })
 }
-
 Container_ConvertDate(DateObjFunc, Self, Value) {
     return DateObjFunc(Value).TotalSeconds
 }
 Container_ConvertDateCb(DateObjFunc, CallbackValue, Self, Value) {
     return DateObjFunc(CallbackValue(Value)).TotalSeconds
-}
-
-SortDateConstructorCall(Self, linkedidList) {
-    contactExtObj := { list: linkedidList }
-    ObjSetBase(contactExtObj, Self.Prototype)
-    contactExtObj.Process()
-    return contactExtObj
 }

@@ -5,14 +5,10 @@
     License: MIT
 */
 
-; https://github.com/Nich-Cebolla/AutoHotkey-LibV2/blob/main/LibraryManager.ahk
-#include <LibraryManager>
-
 ; Only needed if using the NlsVersionInfo class.
 #include *i NlsVersionInfo.ahk
 
-#include *i Container_DateObj.ahk
-#include ContainerConstructor.ahk
+#include Container_DateObj.ahk
 #include lib.ahk
 
 class Container extends Array {
@@ -118,6 +114,11 @@ class Container extends Array {
         c.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
         return c
     }
+    static StrSplit(Str, Delimiters?, OmitChars?, MaxParts := -1) {
+        split := StrSplit(Str, Delimiters ?? unset, OmitChars ?? unset, MaxParts)
+        ObjSetBase(split, Container.Prototype)
+        return split
+    }
     /**
      * Requires a sorted container: yes.
      *
@@ -213,10 +214,15 @@ class Container extends Array {
                 return this.CallbackCompare.Call(Value, this[Index])
             case CONTAINER_SORTTYPE_DATEVALUE:
                 if IsObject(Value) {
-                    return Value.__Container_DateValue - this[Index].__Container_DateValue
-                } else {
-                    return Value - this[Index].__Container_DateValue
+                    if HasProp(Value, '__Container_DateValue') {
+                        Value := Value.__Container_DateValue
+                    } else {
+                        Value := this.DateConvertCb(Value)
+                    }
+                } else if !IsNumber(Value) {
+                    Value := this.DateConvert(Value)
                 }
+                return Value - this[Index].__Container_DateValue
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
     }
@@ -241,21 +247,17 @@ class Container extends Array {
      * Allows unset indices: yes.
      *
      * Creates a new {@link Container}, copying the values of any own properties of this object.
-     * The new container is empty. The purpose of this method is to use one container as a template
-     * for new containers. To also fill the container with the same values, use the built-in
-     * `Array.Prototype.Clone` method, e.g.
-     * @example
-     * c := Container(1, 5, 2, 4, 3)
-     * c.SortTye := CONTAINER_SORTTYPE_NUMBER
-     * c2 := c.Clone()
-     * c2.Sort() ; no error is thrown because c2 inherited c.SortType
-     * @
+     * The base object of the new {@link Container} is also set to the base of this object.
+     *
+     * The new container is empty. To also fill the container with the same values, use the built-in
+     * `Array.Prototype.Clone` method, e.g. `containerObj.Clone()`.
      */
     Copy() {
         c := Container()
         for prop in this.OwnProps() {
             c.DefineProp(prop, this.GetOwnPropDesc(prop))
         }
+        ObjSetBase(c, this.Base)
         return c
     }
     /**
@@ -287,7 +289,7 @@ class Container extends Array {
      * @param {*} Value - The value to convert to an integer.
      */
     DateConvert(Value) {
-        ; this is overridden
+        throw Error(A_ThisFunc ' must be overridden by ``Container.Prototype.DatePreprocess``.')
     }
     /**
      * Requires a sorted container: no.
@@ -324,7 +326,7 @@ class Container extends Array {
      * @param {*} Value - The value to convert to an integer.
      */
     DateConvertCb(Value) {
-        ; this is overridden
+        throw Error(A_ThisFunc ' must be overridden by ``Container.Prototype.DatePreprocess``.')
     }
     /**
      * Requires a sorted container: yes.
@@ -418,17 +420,19 @@ class Container extends Array {
      * - Your code has previously called {@link Container.Prototype.SetCompareDateStr}, or your
      *   code passes a {@link Container_DateParser} to parameter `DateParserObj`.
      *
-     * After calling {@link Container.Prototype.DatePreprocess}, your code can no longer pass string
-     * values to any of the methods that implement a binary search. For example, if your date
-     * format is "M/d/yy H:mm", before calling {@link Container.Prototype.DatePreprocess} you can
-     * search for values with `ContainerObj.Find("3/1/25 12:01")`. After calling
-     * {@link Container.Prototype.DatePreprocess}, you must convert the string to a number first
-     * by calling {@link Container#DateConvert} or {@link Container#DateConvertCb},
-     * e.g. `ContainerObj.Find(ContainerObj.DateConvert("3/1/25 12:01"))`.
+     * After calling {@link Container.Prototype.DatePreprocess}, your code has a range of options for
+     * kinds of values to pass to the methods that implement a binary search. You can pass
+     * - A date string that is in the format readable by {@link Container#DateParser}.
+     * - An object that returns a date string when passed to {@link Container#CallbackValue}.
+     * - An object that has the property `PropertyName` (i.e. an object in the container that has
+     *   been processed by {@link Container.Prototype.DatePreprocess} or
+     *   {@link Container.Prototype.DateUpdate}.
+     * - A date value number, e.g. a value returned by {@link Container#DateConvert} or
+     *   {@link Container#DateConvertCb}.
      *
      * The following are some additional actions taken by {@link Container.Prototype.DatePreprocess}:
      * - Sets property {@link Container#__CallbackDateInsert} with a function that sets the property
-     *   the property with the date value.
+     *   with the date value.
      * - Sets property {@link Container#DateConvert} with a function that returns the date
      *   value from an input string.
      * - Sets property {@link Container#DateConvertCb} with a function that returns the date
@@ -519,8 +523,99 @@ class Container extends Array {
      *
      * Allows unset indices: no.
      *
+     * Calls {@link Container.Prototype.FindAll} to find a value in the container. If the
+     * value is found, deletes each instance of the value, leaving the indices unset.
+     *
+     * @param {*} Value - The value to find and delete.
+     *
+     * @param {VarRef} [OutList] - A variable that will receive a {@link Container} containing
+     * the deleted values. The {@link Container} is created by calling {@link Container.Prototype.Copy}.
+     * You must set the variable with a nonzero value before calling {@link Container.Prototype.DeleteAll}
+     * to direct the function to collect the values.
+     *
+     * @example
+     * ; Assume `c` is a correctly prepared `Container`.
+     * index := c.DeleteAll(1000, &list := true)
+     * for v in list {
+     *     ; do something
+     * }
+     * @
+     *
+     * @returns {Integer} - If the value is found, the first index from left-to-right where the value
+     * was located. Else, 0.
+     */
+    DeleteAll(Value, &OutList?) {
+        if index := this.FindAll(Value, &lastIndex) {
+            i := index - 1
+            if IsSet(OutList) && OutList {
+                OutList := this.Copy()
+                loop lastIndex - i {
+                    OutList.Push(this.Delete(++i))
+                }
+            } else {
+                loop lastIndex - i {
+                    this.Delete(++i)
+                }
+            }
+            return index
+        }
+        return 0
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: yes.
+     *
+     * Calls {@link Container.Prototype.FindAllSparse} to find a value in the container. If the
+     * value is found, deletes each instance of the value, leaving the indices unset.
+     *
+     * @param {*} Value - The value to find and delete.
+     *
+     * @param {VarRef} [OutList] - A variable that will receive a {@link Container} containing
+     * the deleted values. The {@link Container} is created by calling {@link Container.Prototype.Copy}.
+     * You must set the variable with a nonzero value before calling
+     * {@link Container.Prototype.DeleteAllSparse} to direct the function to collect the values.
+     *
+     * @example
+     * ; Assume `c` is a correctly prepared `Container`.
+     * index := c.DeleteAllSparse(1000, &list := true)
+     * for v in list {
+     *     ; do something
+     * }
+     * @
+     *
+     * @returns {Integer} - If the value is found, the first index from left-to-right where the value
+     * was located. Else, 0.
+     */
+    DeleteAllSparse(Value, &OutList?) {
+        if index := this.FindAllSparse(Value, &lastIndex) {
+            i := index - 1
+            if IsSet(OutList) && OutList {
+                OutList := this.Copy()
+                loop lastIndex - i {
+                    if this.Has(++i) {
+                        OutList.Push(this.Delete(i))
+                    }
+                }
+            } else {
+                loop lastIndex - i {
+                    if this.Has(++i) {
+                        this.Delete(i)
+                    }
+                }
+            }
+            return index
+        }
+        return 0
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: no.
+     *
      * Calls {@link Container.Prototype.Find} to find a value in the container. If the
-     * value is found, deletes the valu. If the value is not found, throws an error.
+     * value is found, deletes the value, leaving the index unset. If the value is not found, throws
+     * an error.
      *
      * @param {*} Value - The value to find and delete.
      *
@@ -588,7 +683,8 @@ class Container extends Array {
      * Allows unset indices: yes.
      *
      * Calls {@link Container.Prototype.FindSparse} to find a value in the container. If the
-     * value is found, deletes the valu. If the value is not found, throws an error.
+     * value is found, deletes the value, leaving the index unset. If the value is not found, throws
+     * an error.
      *
      * @param {*} Value - The value to find and delete.
      *
@@ -736,29 +832,25 @@ class Container extends Array {
             return 0
         }
         switch this.SortType, 0 {
-            case CONTAINER_SORTTYPE_NUMBER:
-                Compare := _CompareNumber
-            case CONTAINER_SORTTYPE_STRING:
-                CallbackCompare := this.CallbackCompare
-                Compare := _CompareString
-                if !IsNumber(Value) {
-                    _value := Value
-                    Value := StrPtr(_value)
-                }
-            case CONTAINER_SORTTYPE_STRINGPTR:
-                CallbackCompare := this.CallbackCompare
-                Compare := _CompareValue
-                if !IsNumber(Value) {
-                    _value := Value
-                    Value := StrPtr(_value)
-                }
-            case CONTAINER_SORTTYPE_DATESTR:
+            case CONTAINER_SORTTYPE_CB_DATE:
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
                     Value := Container_DateObj.FromTimestamp(Value)
                 } else {
-                    Value := this.DateParser.Call(
+                    Value := Container_DateObj.FromTimestamp(this.CallbackValue.Call(Value))
+                }
+            case CONTAINER_SORTTYPE_CB_DATESTR:
+                CallbackCompare := this.CallbackCompareValue
+                CallbackValue := this.CallbackValue
+                Compare := _CompareCbValue
+                if IsObject(Value) {
+                    Value := CallbackValue(Value)
+                }
+                if IsNumber(Value) {
+                    Value := Container_DateObj.FromTimestamp(Value)
+                } else {
+                    Value := this.__DateParser.Call(
                         Value
                       , StrLen(this.CompareDateCentury) ? this.CompareDateCentury : unset
                     )
@@ -797,25 +889,16 @@ class Container extends Array {
                         Value := StrPtr(_value)
                     }
                 }
-            case CONTAINER_SORTTYPE_CB_DATE:
+            case CONTAINER_SORTTYPE_DATE:
+                CallbackCompare := this.CallbackCompare
+                Compare := _CompareValue
+            case CONTAINER_SORTTYPE_DATESTR:
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
                     Value := Container_DateObj.FromTimestamp(Value)
                 } else {
-                    Value := Container_DateObj.FromTimestamp(this.CallbackValue.Call(Value))
-                }
-            case CONTAINER_SORTTYPE_CB_DATESTR:
-                CallbackCompare := this.CallbackCompareValue
-                CallbackValue := this.CallbackValue
-                Compare := _CompareCbValue
-                if IsObject(Value) {
-                    Value := CallbackValue(Value)
-                }
-                if IsNumber(Value) {
-                    Value := Container_DateObj.FromTimestamp(Value)
-                } else {
-                    Value := this.__DateParser.Call(
+                    Value := this.DateParser.Call(
                         Value
                       , StrLen(this.CompareDateCentury) ? this.CompareDateCentury : unset
                     )
@@ -823,15 +906,36 @@ class Container extends Array {
                 if !Value {
                     throw Error('Failed to parse ``Value``.', , Value)
                 }
-            case CONTAINER_SORTTYPE_MISC
-            , CONTAINER_SORTTYPE_DATE:
-                CallbackCompare := this.CallbackCompare
-                Compare := _CompareValue
             case CONTAINER_SORTTYPE_DATEVALUE:
                 if IsObject(Value) {
-                    Value := Value.__Container_DateValue
+                    if HasProp(Value, '__Container_DateValue') {
+                        Value := Value.__Container_DateValue
+                    } else {
+                        Value := this.DateConvertCb(Value)
+                    }
+                } else if !IsNumber(Value) {
+                    Value := this.DateConvert(Value)
                 }
                 Compare := _CompareDateValue
+            case CONTAINER_SORTTYPE_MISC:
+                CallbackCompare := this.CallbackCompare
+                Compare := _CompareValue
+            case CONTAINER_SORTTYPE_NUMBER:
+                Compare := _CompareNumber
+            case CONTAINER_SORTTYPE_STRING:
+                CallbackCompare := this.CallbackCompare
+                Compare := _CompareString
+                if !IsNumber(Value) {
+                    _value := Value
+                    Value := StrPtr(_value)
+                }
+            case CONTAINER_SORTTYPE_STRINGPTR:
+                CallbackCompare := this.CallbackCompare
+                Compare := _CompareValue
+                if !IsNumber(Value) {
+                    _value := Value
+                    Value := StrPtr(_value)
+                }
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
         stop := -1
@@ -1002,7 +1106,13 @@ class Container extends Array {
                 Compare := _CompareValue
             case CONTAINER_SORTTYPE_DATEVALUE:
                 if IsObject(Value) {
-                    Value := Value.__Container_DateValue
+                    if HasProp(Value, '__Container_DateValue') {
+                        Value := Value.__Container_DateValue
+                    } else {
+                        Value := this.DateConvertCb(Value)
+                    }
+                } else if !IsNumber(Value) {
+                    Value := this.DateConvert(Value)
                 }
                 Compare := _CompareDateValue
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
@@ -1198,7 +1308,13 @@ class Container extends Array {
                 Compare := _CompareValue
             case CONTAINER_SORTTYPE_DATEVALUE:
                 if IsObject(Value) {
-                    Value := Value.__Container_DateValue
+                    if HasProp(Value, '__Container_DateValue') {
+                        Value := Value.__Container_DateValue
+                    } else {
+                        Value := this.DateConvertCb(Value)
+                    }
+                } else if !IsNumber(Value) {
+                    Value := this.DateConvert(Value)
                 }
                 Compare := _CompareDateValue
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
@@ -1429,7 +1545,13 @@ class Container extends Array {
                 Compare2 := _CompareValue2
             case CONTAINER_SORTTYPE_DATEVALUE:
                 if IsObject(Value) {
-                    Value := Value.__Container_DateValue
+                    if HasProp(Value, '__Container_DateValue') {
+                        Value := Value.__Container_DateValue
+                    } else {
+                        Value := this.DateConvertCb(Value)
+                    }
+                } else if !IsNumber(Value) {
+                    Value := this.DateConvert(Value)
                 }
                 Compare1 := _CompareDateValue1
                 Compare2 := _CompareDateValue2
@@ -1439,7 +1561,11 @@ class Container extends Array {
         ;@region 1 Unique val
         ; This block handles conditions where there is only one unique value between `IndexStart`
         ; and `IndexEnd`.
-        x := Compare2(IndexStart, IndexEnd)
+        if IndexEnd > IndexStart {
+            x := Compare2(IndexStart, IndexEnd)
+        } else {
+            x := 0
+        }
         if !x {
             ; First, we validate `Value`. We might be able to skip the whole process if `Value` is
             ; out of range. We can also prepare the return value so we don't need to re-check
@@ -2091,7 +2217,13 @@ class Container extends Array {
                 Compare2 := _CompareValue2
             case CONTAINER_SORTTYPE_DATEVALUE:
                 if IsObject(Value) {
-                    Value := Value.__Container_DateValue
+                    if HasProp(Value, '__Container_DateValue') {
+                        Value := Value.__Container_DateValue
+                    } else {
+                        Value := this.DateConvertCb(Value)
+                    }
+                } else if !IsNumber(Value) {
+                    Value := this.DateConvert(Value)
                 }
                 Compare1 := _CompareDateValue1
                 Compare2 := _CompareDateValue2
@@ -2116,7 +2248,11 @@ class Container extends Array {
         ;@region 1 Unique val
         ; This block handles conditions where there is only one unique value between `IndexStart`
         ; and `IndexEnd`.
-        x := Compare2(left, right)
+        if IndexEnd > IndexStart {
+            x := Compare2(left, right)
+        } else {
+            x := 0
+        }
         if !x {
             ; First, we validate `Value`. We might be able to skip the whole process if `Value` is
             ; out of range. We can also prepare the return value so we don't need to re-check
@@ -2790,7 +2926,13 @@ class Container extends Array {
                 Compare := _CompareValue
             case CONTAINER_SORTTYPE_DATEVALUE:
                 if IsObject(Value) {
-                    Value := Value.__Container_DateValue
+                    if HasProp(Value, '__Container_DateValue') {
+                        Value := Value.__Container_DateValue
+                    } else {
+                        Value := this.DateConvertCb(Value)
+                    }
+                } else if !IsNumber(Value) {
+                    Value := this.DateConvert(Value)
                 }
                 Compare := _CompareDateValue
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
@@ -3412,12 +3554,12 @@ class Container extends Array {
      * unset indices entirely (and not have them represented in the output), set `UnsetItem` with
      * zero or an empty string.
      *
-     * @param {*} [CallbackObject = (value) => "{" Type(value) "}"] - A `Func` or callable object
-     * which accepts the object as an argument and returns the string to add to the result string.
+     * @param {*} [CallbackObject = (value) => "{ " Type(value) " }"] - A `Func` or callable object
+     * which accepts the object as an argument and returns the substring to add to the result string.
      *
      * @returns {String} - The string.
      */
-    JoinEx(Delimiter := ', ', UnsetItem := '""', CallbackObject := (value) => '{' Type(value) '}') {
+    JoinEx(Delimiter := ', ', UnsetItem := '""', CallbackObject := (value) => '{ ' Type(value) ' }') {
         s := ''
         VarSetStrCapacity(&s, this.Length * 5)
         if UnsetItem {
@@ -3629,13 +3771,34 @@ class Container extends Array {
      *
      * Allows unset indices: yes.
      *
-     * This is the same as `Array.Prototype.Push`, except it also returns the array, allowing this
-     * method to be chained with others.
+     * This is similar to `Array.Prototype.Push`, except:
+     * - It is not variadic, but you can pass an array of items to `Value`.
+     * - It returns the container, allowing {@link Container.Prototype.PushEx} to be chained
+     *   with other functions.
      *
-     * @param {...*} Value - The values to add to the container.
+     * @example
+     * c := Container(1, 2, 3)
+     * c2 := Container(4, 5, 6)
+     * c3 := Container(7, 8, 9)
+     * c.PushEx(c2.PushEx(c3.PushEx([10, 11, 12])))
+     * OutputDebug(c.Join() '`n') ; 1, 2, 3, 4, 5, ...
+     * @
+     *
+     * @param {*} Value - The value(s) to add to the container. Is `Value` inherits from `Array`,
+     * the values contained in the array are added to the container, not `Value` itself. To add
+     * a value that inherits from `Array` as-is, pass the value nested in another array.
+     * @example
+     * c := Container(1, 2, 3)
+     * arr := [ 4, 5, 6 ]
+     * c.PushEx([ arr ])
+     * @
      */
-    PushEx(Value*) {
-        this.Push(Value*)
+    PushEx(Value) {
+        if Value is Array {
+            this.Push(Value*)
+        } else {
+            this.Push(Value)
+        }
         return this
     }
     /**
@@ -3880,9 +4043,9 @@ class Container extends Array {
         _CompareCbValue2(a) => CallbackCompare(CallbackValue(a), CallbackValue(b))
         _CompareValue2(a) => Callbackcompare(a, b)
         _MakeResult(c) {
-            ObjSetBase(c, Container.Prototype)
-            for prop, val in this.OwnProps() {
-                c.DefineProp(prop, { Value: val })
+            ObjSetBase(c, this.Base)
+            for prop in this.OwnProps() {
+                c.DefineProp(prop, this.GetOwnPropDesc(prop))
             }
             return c
         }
@@ -3977,6 +4140,96 @@ class Container extends Array {
         } else {
             throw UnsetItemError('Value not found.', -1, IsObject(Value) ? '{ ' Type(Value) ' }' : Value)
         }
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: no.
+     *
+     * Calls {@link Container.Prototype.FindAll} to find a value in the container. If the
+     * value is found, removes each instance of the value.
+     *
+     * @param {*} Value - The value to find and remove.
+     *
+     * @param {VarRef} [OutList] - A variable that will receive a {@link Container} containing
+     * the removed values. The {@link Container} is created by calling {@link Container.Prototype.Copy}.
+     * You must set the variable with a nonzero value before calling {@link Container.Prototype.RemoveAll}
+     * to direct the function to collect the values.
+     *
+     * @example
+     * ; Assume `c` is a correctly prepared `Container`.
+     * index := c.RemoveAll(1000, &list := true)
+     * for v in list {
+     *     ; do something
+     * }
+     * @
+     *
+     * @returns {Integer} - If the value is found, the first index from left-to-right where the value
+     * was located. Else, 0.
+     */
+    RemoveAll(Value, &OutList?) {
+        if index := this.FindAll(Value, &lastIndex) {
+            i := index - 1
+            if IsSet(OutList) && OutList {
+                OutList := this.Copy()
+                loop lastIndex - i {
+                    OutList.Push(this.RemoveAt(++i))
+                }
+            } else {
+                loop lastIndex - i {
+                    this.RemoveAt(++i)
+                }
+            }
+            return index
+        }
+        return 0
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: yes.
+     *
+     * Calls {@link Container.Prototype.FindAllSparse} to find a value in the container. If the
+     * value is found, removes each instance of the value.
+     *
+     * @param {*} Value - The value to find and remove.
+     *
+     * @param {VarRef} [OutList] - A variable that will receive a {@link Container} containing
+     * the removed values. The {@link Container} is created by calling {@link Container.Prototype.Copy}.
+     * You must set the variable with a nonzero value before calling
+     * {@link Container.Prototype.RemoveAllSparse} to direct the function to collect the values.
+     *
+     * @example
+     * ; Assume `c` is a correctly prepared `Container`.
+     * index := c.RemoveAllSparse(1000, &list := true)
+     * for v in list {
+     *     ; do something
+     * }
+     * @
+     *
+     * @returns {Integer} - If the value is found, the first index from left-to-right where the value
+     * was located. Else, 0.
+     */
+    RemoveAllSparse(Value, &OutList?) {
+        if index := this.FindAllSparse(Value, &lastIndex) {
+            i := index - 1
+            if IsSet(OutList) && OutList {
+                OutList := this.Copy()
+                loop lastIndex - i {
+                    if this.Has(++i) {
+                        OutList.Push(this.RemoveAt(i))
+                    }
+                }
+            } else {
+                loop lastIndex - i {
+                    if this.Has(++i) {
+                        this.RemoveAt(i)
+                    }
+                }
+            }
+            return index
+        }
+        return 0
     }
     /**
      * Requires a sorted container: yes.
@@ -4939,6 +5192,122 @@ class Container extends Array {
         _CompareCbString2(a) => CallbackCompare(StrPtr(CallbackValue(a)), StrPtr(CallbackValue(b)))
         _CompareCbValue2(a) => CallbackCompare(CallbackValue(a), CallbackValue(b))
         _CompareValue2(a) => Callbackcompare(a, b)
+    }
+    ToCbDate(CallbackValue, UseCompareDateEx := false, Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_CB_DATE)
+        this.SetCallbackValue(CallbackValue)
+        this.SetCompareDate(UseCompareDateEx)
+        return this
+    }
+    ToCbDateStr(CallbackValue, DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false, Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
+        this.SetCallbackValue(CallbackValue)
+        this.SetCompareDateStr(DateFormat, RegExOptions, Century ?? unset, UseCompareDateEx)
+        return this
+    }
+    ToCbDateStrFromParser(CallbackValue, DateParser, Century?, UseCompareDateEx := false, Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
+        this.SetCallbackValue(CallbackValue)
+        this.SetDateParser(DateParser, Century ?? unset, UseCompareDateEx)
+        return this
+    }
+    ToCbNumber(CallbackValue, Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_CB_NUMBER)
+        this.SetCallbackValue(CallbackValue)
+        return this
+    }
+    ToCbString(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
+        this.SetCallbackValue(CallbackValue)
+        this.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        return this
+    }
+    ToCbStringPtr(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_CB_STRINGPTR)
+        this.SetCallbackValue(CallbackValue)
+        this.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        return this
+    }
+    ToDate(UseCompareDateEx := false, Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_DATE)
+        this.SetCompareDate(UseCompareDateEx)
+        return this
+    }
+    ToDateStr(DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false, Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_DATESTR)
+        this.SetCompareDateStr(DateFormat, RegExOptions, Century ?? unset, UseCompareDateEx)
+        return this
+    }
+    ToDateStrFromParser(DateParser, Century?, UseCompareDateEx := false, Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_DATESTR)
+        this.SetDateParser(DateParser, Century ?? unset, UseCompareDateEx)
+        return this
+    }
+    ToDateValue(CallbackValue, DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false, PropertyName := '__Container_DateValue', Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.ToCbDateStr(CallbackValue, DateFormat, RegExOptions, Century ?? unset, UseCompareDateEx)
+        this.DatePreprocess(, , PropertyName)
+        return this
+    }
+    ToMisc(CallbackCompare, Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_MISC)
+        this.SetCallbackCompare(CallbackCompare)
+        return this
+    }
+    ToNumber(Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_NUMBER)
+        return this
+    }
+    ToString(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_STRING)
+        this.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        return this
+    }
+    ToStringPtr(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+        if Values.Length {
+            this.Push(Values*)
+        }
+        this.SetSortType(CONTAINER_SORTTYPE_STRINGPTR)
+        this.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        return this
     }
 
     /**

@@ -13,9 +13,9 @@ The last AutoHotkey (AHK) array class you will ever need.
     <li><a href="#set-the-sort-type">Set the sort type</a></li>
     <li><a href="#set-containerobjcallbackvalue">Set `ContainerObj.CallbackValue`</a></li>
     <li><a href="#set-containerobjcallbackcompare">Set `ContainerObj.CallbackCompare`</a></li>
-    <li><a href="#use-the-object---part-1">Use the object - part 1</a></li>
-    <li><a href="#use-the-object---part-2">Use the object - part 2</a></li>
+    <li><a href="#use-the-object---sort-the-container">Use the object - sort the container</a></li>
     <li><a href="#use-the-object---the-value-parameter">Use the object - the `Value` parameter</a></li>
+    <li><a href="#use-the-object---more-on-binary-search">Use the object - more on binary search</a></li>
   </ol>
   <li><a href="#binary-search">Binary search</a></li>
   <li><a href="#sorting-date-strings">Sorting date strings</a></li>
@@ -52,8 +52,9 @@ search methods. Note you can run the examples in this section from file test\tes
 ## Decide which sort type to use
 
 `Container` stands above all other classes of its kind for its sorting and [binary search](#binary-search)
-methods. Using these methods requires the caller to set the property `ContainerObj.SortType` with a
-valid integer. Set the sort type by calling `Container.Prototype.SetSortType`.
+methods. Using these methods requires the property `ContainerObj.SortType` to be set with a valid
+integer. Set the sort type by calling `Container.Prototype.SetSortType`, or any of the static macros
+(e.g. `Container.CbString`) or instance macros (e.g. `Container.Prototype.ToCbString`).
 
 ```
 c := Container(
@@ -149,7 +150,7 @@ for more information.
     }
     ```
 
-## Use the object - part 1
+## Use the object - sort the container
 
 At the top of the description of each method is a line that says "Requires a sorted container: yes/no"
 and a line that says "Allows unset indices: yes/no".
@@ -175,14 +176,16 @@ There are three sort methods available:
     ```
     c.InsertionSort()
     ```
-- `Container.Prototype.Sort` - Sorts in-place and is appropriate for all containers.
+- `Container.Prototype.Sort` - Sorts in-place (heap sort) and is appropriate for all containers.
     ```
     c.Sort()
     ```
 - `Container.Prototype.QuickSort` - Does not mutate the original container (returns a new container)
   and is about 30% faster than `Container.Prototype.Sort`, but uses up to 10x the memory. I recommend
   using `Container.Prototype.QuickSort` in any case where sorting in-place is not necessary and where
-  memory is not an issue. You can return the value to the same variable:
+  memory is not an issue. You can return the value to the same variable; the returned container will
+  have any own properties from the original, including properties added by external code, and will
+  have the same base as the original:
     ```
     c := c.QuickSort()
     ```
@@ -223,10 +226,87 @@ c.Condense()
 OutputDebug(c.Has(4) "`n") ; 1
 ```
 
-## Use the object - part 2
+## Use the object - the `Value` parameter
 
-You now know everything you need to know to work with `Container`. However, I included these last
-two sections to promote a more advanced use case that I believe many programmers will be interested in.
+You will notice that the first parameter of any method that implements a [binary search](#binary-search)
+is `Value` - the value to find.
+
+The type of value that is valid to pass to `Value` depends on the sort type, but can be appropriately
+summarized as:
+- If `ContainerObj.CallbackValue` has been set, `Value` can be an object as long as the `CallbackValue`
+  function can be used to return the sort value.
+- `Value` can also be a primitive value as long as the value is valid for the sort type.
+
+Each of the following are valid using our example container:
+```
+val := "obj1"
+c.Find(val)
+```
+```
+val := { Name: "obj1" }
+c.Find(val)
+```
+```
+val := c[1]
+c.Find(val)
+```
+
+Date values behave somewhat differently because there are two kinds of date strings that can be
+recognized by `Container` - standard yyyyMMddHHmmss strings, and also strings that will be passed
+to an instance of `Container_DateParser`. Furthermore, `Container.Prototype.DatePreprocess` converts
+date strings to a number, expanding the permissible kinds of values to include integers repesenting
+date values (number of seconds since Jan 01, 1, 00:00:00).
+
+See [Sorting date strings](#sorting-date-strings) for more information.
+
+Here is a comprehensive list:
+
+- CONTAINER_SORTTYPE_CB_DATE:
+  - Object : A value that, when passed to `ContainerObj.CallbackValue`, returns a yyyyMMddHHmmss string or integer.
+  - Primitive : A yyyyMMddHHmmss string or integer.
+- CONTAINER_SORTTYPE_CB_DATESTR:
+  - Object : A value that, when passed to `ContainerObj.CallbackValue`, returns a date string that
+    can be parsed by `ContainerObj.DateParser`.
+  - Primitive : A yyyyMMddHHmmss string or integer.
+  - Primitive : A date string that can be parsed by `ContainerObj.DateParser`.
+- CONTAINER_SORTTYPE_CB_NUMBER:
+  - Object : A value that, when passed to `ContainerObj.CallbackValue`, returns a number or numeric string.
+  - Primitive : A number or numeric string.
+- CONTAINER_SORTTYPE_CB_STRING:
+  - Object : A value that, when passed to `ContainerObj.CallbackValue`, returns a string.
+  - Primitive : An integer representing the ptr to a null-terminated string.
+  - Primitive : A string value.
+- CONTAINER_SORTTYPE_CB_STRINGPTR:
+  - Object : A value that, when passed to `ContainerObj.CallbackValue`, returns an integer representing
+    the ptr to a null-terminated string.
+  - Primitive : An integer representing the ptr to a null-terminated string.
+  - Primitive : A string value.
+- CONTAINER_SORTTYPE_DATE:
+  - Primitive : A yyyyMMddHHmmss string or integer.
+- CONTAINER_SORTTYPE_DATESTR:
+  - Primitive : A yyyyMMddHHmmss string or integer.
+  - Primitive : A date string that can be parsed by `ContainerObj.DateParser`.
+- CONTAINER_SORTTYPE_DATEVALUE:
+  - Object : A value that, when passed to `ContainerObj.CallbackValue`, returns a date string that
+    can be parsed by `ContainerObj.DateParser`.
+  - Object : A value that was an item in the container when `Container.Prototype.DatePreprocess` or
+    `Container.Prototype.DateUpdate` was called, and that still has the property set with the
+    date value as integer.
+  - Primitive : A date string that can be parsed by `ContainerObj.DateParser`.
+  - Primitive : An integer representing the number of seconds between Jan 01, 1, 00:00:00 and
+    the date.
+- CONTAINER_SORTTYPE_MISC:
+  - Object or primitive : Any value that can be passed to `ContainerObj.CallbackCompare`.
+- CONTAINER_SORTTYPE_NUMBER:
+  - Primitive : A number.
+- CONTAINER_SORTTYPE_STRING:
+  - Primitive : An integer representing the ptr to a null-terminated string.
+  - Primitive : A string value.
+- CONTAINER_SORTTYPE_STRINGPTR:
+  - Primitive : An integer representing the ptr to a null-terminated string.
+  - Primitive : A string value.
+
+## Use the object - more on binary search
 
 Internally, AutoHotkey's `Map` class and object property tables implement a [binary search](#binary-search).
 This allows us to associate values with string names.
@@ -236,8 +316,7 @@ want to be able to refer to an item by name, and I also want to be able to refer
 and use operations that are dependent on the values being serialized. I wrote `Container` for this
 use case.
 
-Our example container is already set up to be used as an associative array, but let's recreate it
-for demonstration:
+Our example container is already set up to be used this way, but let's recreate it for demonstration:
 ```
 ; Items must have a property that can be used as the name / key.
 c := Container(
@@ -266,51 +345,50 @@ c := c.QuickSort()
 
 Using the `CONTAINER_SORTTYPE_CB_STRING` sort type allows us to define an object property as the
 source of the name. As long as each object in the container has the same property that returns
-a string value, then we can use the container as an associative array.
+a string value, then we can use the container container in a manner similar to a `Map` object.
 
-The following is a list of methods that are analagous to `Map` instance methods.
-- `Map.Prototype.Clear` - Use `ContainerObj.Length := 0`.
-- `Map.Prototype.Clone` - Use `Array.Prototype.Clone` (i.e. call `ContainerObj.Clone()`).
-- `Map.Prototype.Delete` - Use `Container.Prototype.DeleteValue`, `Container.Prototype.DeleteValueIf`,
-  `Container.Prototype.DeleteValueIfSparse`, `Container.Prototype.DeleteValueSparse`,
-  `Container.Prototype.Remove`, `Container.Prototype.RemoveIf`, `Container.Prototype.RemoveIfSparse`,
-  or `Container.Prototype.RemoveSparse`.
-- `Map.Prototype.Get` - Use `Containe.Prototype.Find`, `Container.Prototype.FindAll`,
-  `Container.Prototype.FindAllSparse`, `Container.Prototype.FindInequality`,
-  `Container.Prototype.FindInequalitySparse`, or `Container.Prototype.FindSparse`.
-- `Map.Prototype.Has` - Use `Container.Prototype.Find` or `Container.Prototype.FindSparse`.
-- `Map.Prototype.Set` - Use `Container.Prototype.DateInsert`, `Container.Prototype.DateInsertSparse`,
-  `Container.Prototype.Insert`, or `Container.Prototype.InsertSparse`.
-
-## Use the object - the `Value` parameter
-
-You will notice that the first parameter of any method that implements a [binary search](#binary-search)
-is `Value` - the value to find.
-
-The type of value that is valid to pass to `Value` depends on the sort type, but can be appropriately
-summarized as:
-- If `ContainerObj.CallbackValue` has been set, `Value` can be an object as long as the `CallbackValue`
-  function can be used to return the sort value.
-- `Value` can also be a primitive value as long as the value is valid for the sort type.
-
-Each of the following are valid using our example container:
-```
-c.Find("obj1")
-```
-```
-val := { Name: "obj1" }
-c.Find(val)
-```
-```
-val := c[1]
-c.Find(val)
-```
-
-Date values behave somewhat differently because there are two kinds of date strings that can be
-recognized by `Container` - standard yyyyMMddHHmmss strings, and also strings that will be passed
-to an instance of `Container_DateParser`. Furthermore, `Container.Prototype.DatePreprocess` converts
-date strings to a number but also restricts what kinds of values are valid to be passed to the
-`Value` parameter. See [Sorting date strings](#sorting-date-strings) for more information.
+The following is a list of methods that are analagous to `Map` instance methods. This list is not
+exhaustive.
+- `Map.Prototype.Clear` -
+  - Use `ContainerObj.Length := 0`.
+- `Map.Prototype.Clone` -
+  - Use `Array.Prototype.Clone` (i.e. call `ContainerObj.Clone()`) to include the items in the clone
+  - Use `Container.Prototype.Copy` to only copy the own properties and base object.
+- `Map.Prototype.Delete` -
+  - Use `Container.Prototype.DeleteAll`, `Container.Prototype.DeleteValue`,
+    `Container.Prototype.DeleteValueIf`, `Container.Prototype.Remove`,  `Container.Prototype.RemoveAll`,
+    `Container.Prototype.RemoveIf`, or their sparse counterparts.
+    ```
+    if c.DeleteValueIf("obj1") {
+        ; do something
+    }
+    if c.RemoveIf("obj2") {
+        ; do something
+    }
+    ```
+- `Map.Prototype.Get` -
+  - Use `Containe.Prototype.Find`, `Container.Prototype.FindAll`, `Container.Prototype.FindInequality`,
+    or their sparse counterparts.
+    ```
+    if c.Find("obj3", &value) {
+        ; do something, probably with `value`
+    }
+    ```
+- `Map.Prototype.Has` -
+  - Use `Container.Prototype.Find` or `Container.Prototype.FindSparse`.
+    ```
+    if c.Find("obj3") {
+        ; do something
+    }
+    ```
+- `Map.Prototype.Set` -
+  - Use `Container.Prototype.DateInsert`, `Container.Prototype.Insert`,
+    `Container.Prototype.InsertIfAbsent`, or their sparse counterparts.
+    ```
+    if c.InsertIfAbsentSparse({ Name: "obj1" }) {
+        ; do something
+    }
+    ```
 
 # Binary search
 

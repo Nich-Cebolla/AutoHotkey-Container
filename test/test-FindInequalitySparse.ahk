@@ -92,7 +92,7 @@ class test_FindInequalitySparse {
         if this.Stop {
             this.Stop := this.Paused := 0
         } else if !this.Paused && !this.DebugPause {
-            this.__ShowTooltip('Done')
+            ; this.__ShowTooltip('Done')
             this.Finished := 1
             this.Result.Capacity := this.Result.Length
             Result := this.Problem.Capacity := this.Problem.Length
