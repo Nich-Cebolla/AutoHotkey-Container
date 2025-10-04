@@ -23,6 +23,21 @@ class Container extends Array {
         if !IsSet(CONTAINER_SORTTYPE_NUMBER) {
             Container_SetConstants()
         }
+        this.SortTypeSymbolList := [
+            'CONTAINER_SORTTYPE_CB_DATE'
+          , 'CONTAINER_SORTTYPE_CB_DATESTR'
+          , 'CONTAINER_SORTTYPE_CB_NUMBER'
+          , 'CONTAINER_SORTTYPE_CB_STRING'
+          , 'CONTAINER_SORTTYPE_CB_STRINGPTR'
+          , 'CONTAINER_SORTTYPE_DATE'
+          , 'CONTAINER_SORTTYPE_DATESTR'
+          , 'CONTAINER_SORTTYPE_DATEVALUE'
+          , 'CONTAINER_SORTTYPE_MISC'
+          , 'CONTAINER_SORTTYPE_NUMBER'
+          , 'CONTAINER_SORTTYPE_STRING'
+          , 'CONTAINER_SORTTYPE_STRINGPTR'
+          , 'CONTAINER_SORTTYPE_END'
+        ]
     }
     static CbDate(CallbackValue, UseCompareDateEx := false, Values*) {
         c := Container(Values*)
@@ -386,6 +401,50 @@ class Container extends Array {
     DateInsertIfAbsentSparse(Value) {
         this.CallbackDateInsert.Call(Value)
         return this.InsertIfAbsentSparse(Value)
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: no.
+     *
+     * Inserts values in order. See {@link Container.Prototype.DatePreprocess} for more information.
+     *
+     * @param {*} Values - One or more values to insert.
+     */
+    DateInsertList(Values) {
+        if Values is Array {
+            callbackDateInsert := this.CallbackDateInsert
+            for value in Values {
+                callbackDateInsert.Call(value)
+                this.Insert(value)
+            }
+        } else {
+            this.CallbackDateInsert.Call(Values)
+            this.Insert(Values)
+        }
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: yes.
+     *
+     * Inserts values in order. See {@link Container.Prototype.DatePreprocess} for more information.
+     *
+     * @param {*} Values - One or more values to insert.
+     */
+    DateInsertListSparse(Values) {
+        if Values is Array {
+            callbackDateInsert := this.CallbackDateInsert
+            loop Values.Length {
+                if Values.Has(A_Index) {
+                    callbackDateInsert.Call(Values[A_Index])
+                    this.InsertSparse(Values[A_Index])
+                }
+            }
+        } else {
+            this.CallbackDateInsert.Call(Values)
+            this.InsertSparse(Values)
+        }
     }
     /**
      * Requires a sorted container: yes.
@@ -3493,6 +3552,44 @@ class Container extends Array {
     /**
      * Requires a sorted container: yes.
      *
+     * Allows unset indices: no.
+     *
+     * Inserts values in order.
+     *
+     * @param {*} Values - One or more values to insert.
+     */
+    InsertList(Values) {
+        if Values is Array {
+            for value in Values {
+                this.Insert(value)
+            }
+        } else {
+            this.Insert(Values)
+        }
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: yes.
+     *
+     * Inserts values in order.
+     *
+     * @param {*} Values - One or more values to insert.
+     */
+    InsertListSparse(Values) {
+        if Values is Array {
+            loop Values.Length {
+                if Values.Has(A_Index) {
+                    this.InsertSparse(Values[A_Index])
+                }
+            }
+        } else {
+            this.InsertSparse(Values)
+        }
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
      * Allows unset indices: yes.
      *
      * Inserts a value in order.
@@ -5436,6 +5533,98 @@ class Container extends Array {
         this.SetSortType(CONTAINER_SORTTYPE_STRINGPTR)
         this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
         return this
+    }
+    /**
+     * Requires a sorted container: no.
+     *
+     * Allows unset indices: no.
+     *
+     * Compares every value (except the first) with the preceding value to verify that each is in
+     * order.
+     *
+     * @param {Boolean} [InvertDirection = false] - If true, the sort order is inverted. The default
+     * is ascending order.
+     *
+     * @throws {Error} - "Values out of order."
+     * @throws {ValueError} - "Invalid SortType."
+     */
+    ValidateSort(InvertDirection := false) {
+        condition := InvertDirection ? (n) => n < 0 : (n) => n > 0
+        switch this.SortType, 0 {
+            case CONTAINER_SORTTYPE_CB_DATE
+            , CONTAINER_SORTTYPE_CB_DATESTR
+            , CONTAINER_SORTTYPE_CB_STRINGPTR:
+                callbackValue := this.CallbackValue
+                callbackCompare := this.CallbackCompare
+                loop this.Length - 1 {
+                    if condition(callbackCompare(callbackValue(this[A_Index]), callbackValue(this[A_Index + 1]))) {
+                        v1 := callbackValue(this[A_Index])
+                        v2 := callbackValue(this[A_Index + 1])
+                        _Throw(A_Index)
+                    }
+                }
+            case CONTAINER_SORTTYPE_CB_STRING:
+                callbackValue := this.CallbackValue
+                callbackCompare := this.CallbackCompare
+                loop this.Length - 1 {
+                    if condition(callbackCompare(StrPtr(callbackValue(this[A_Index])), StrPtr(callbackValue(this[A_Index + 1])))) {
+                        v1 := callbackValue(this[A_Index])
+                        v2 := callbackValue(this[A_Index + 1])
+                        _Throw(A_Index)
+                    }
+                }
+            case CONTAINER_SORTTYPE_CB_NUMBER:
+                callbackValue := this.CallbackValue
+                loop this.Length - 1 {
+                    if condition(callbackValue(this[A_Index]) - callbackValue(this[A_Index + 1])) {
+                        v1 := callbackValue(this[A_Index])
+                        v2 := callbackValue(this[A_Index + 1])
+                        _Throw(A_Index)
+                    }
+                }
+            case CONTAINER_SORTTYPE_DATEVALUE:
+                loop this.Length - 1 {
+                    if condition(this[A_Index].__Container_DateValue - this[A_Index + 1].__Container_DateValue) {
+                        v1 := this[A_Index].__Container_DateValue
+                        v2 := this[A_Index + 1].__Container_DateValue
+                        _Throw(A_Index)
+                    }
+                }
+            case CONTAINER_SORTTYPE_DATE
+            , CONTAINER_SORTTYPE_DATESTR
+            , CONTAINER_SORTTYPE_MISC
+            , CONTAINER_SORTTYPE_STRINGPTR:
+                callbackCompare := this.CallbackCompare
+                loop this.Length - 1 {
+                    if condition(callbackCompare(this[A_Index], this[A_Index + 1])) {
+                        v1 := this[A_Index]
+                        v2 := this[A_Index + 1]
+                        _Throw(A_Index)
+                    }
+                }
+            case CONTAINER_SORTTYPE_STRING:
+                callbackCompare := this.CallbackCompare
+                loop this.Length - 1 {
+                    if condition(callbackCompare(StrPtr(this[A_Index]), StrPtr(this[A_Index + 1]))) {
+                        v1 := this[A_Index]
+                        v2 := this[A_Index + 1]
+                        _Throw(A_Index)
+                    }
+                }
+            case CONTAINER_SORTTYPE_NUMBER:
+                loop this.Length - 1 {
+                    if condition(this[A_Index] - this[A_Index + 1]) {
+                        v1 := this[A_Index]
+                        v2 := this[A_Index + 1]
+                        _Throw(A_Index)
+                    }
+                }
+            default: throw ValueError('Invalid SortType.', -1, this.SortType)
+        }
+
+        _Throw(i) {
+            throw Error('Values out of order.', -1, 'Index: ' i ' - ' (i + 1))
+        }
     }
 
     /**
