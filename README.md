@@ -640,11 +640,9 @@ The methods are fully documented in either file, but this section provides a qui
 
 ### Using `Container_Date` with timestamps
 
-(By timestamp I mean a yyyyMMddHHmmss string / integer).
-
-`Container_Date.FromTimestamp` accepts a whole or partial timestamp string / integer and returns
-a `Container_Date` object. This is used with any of `Container`'s sort / binary search operations
-involving yyyyMMddHHmmss values.
+`Container_Date.FromTimestamp` accepts a whole or partial timestamp (yyyyMMddHHmmss) string / integer
+and returns a `Container_Date` object. This is used with any of `Container`'s sort / binary search
+operations involving yyyyMMddHHmmss values.
 
 ### Using `Container_DateParser` with date strings
 
