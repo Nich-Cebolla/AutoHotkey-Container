@@ -484,8 +484,8 @@ exhaustive.
     - Number comparisons do not require a comparator.
   - `ContainerObj.CallbackValue` - A function that returns the sort value, mostly used with objects
     to return a property value.
-- To use a `Container` like a `Map` object, use sort type `CONTAINER_SORTTYPE_CB_STRING` and always
-  add values to the container using one of the "Insert" methods to keep the values in order.
+- To use a `Container` like a `Map` object, use sort type `CONTAINER_SORTTYPE_CB_STRING`.
+- Add values to the container using one of the "Insert" methods to keep the values in order.
 - Methods are divided into sparse and non-sparse versions.
 - Iterative methods do not require any preparation; they can always be called.
 
