@@ -47,10 +47,10 @@ class test extends Container {
 
         loop CONTAINER_SORTTYPE_END {
             if SkipDateStr
-            && A_Index == CONTAINER_SORTTYPE_CB_DATESTR
+            && (A_Index == CONTAINER_SORTTYPE_CB_DATESTR
             || A_Index == CONTAINER_SORTTYPE_DATESTR
             || A_Index == CONTAINER_SORTTYPE_DATEVALUE
-            || A_Index == CONTAINER_SORTTYPE_MISC {
+            || A_Index == CONTAINER_SORTTYPE_MISC) {
                 continue
             }
             MouseGetPos(&x, &y)
