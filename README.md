@@ -7,6 +7,7 @@ The last AutoHotkey (AHK) array class you will ever need.
 
 <ol type="I">
   <li><a href="#introduction">Introduction</a></li>
+  <li><a href="#autohotkey-forum-post">AutoHotkey forum post</a></li>
   <li><a href="#quick-start">Quick start</a></li>
   <ol type="A">
     <li><a href="#decide-which-sort-type-to-use">Decide which sort type to use</a></li>
@@ -85,13 +86,14 @@ object" or `ContainerObj`.
 class Container extends Array
 ```
 
-`Container` inherits from `Array` and exposes over 50 additional methods to perform common actions
+`Container` inherits from `Array` and exposes **almost 100** additional methods to perform common actions
 such as sorting and finding values.
 
 The class methods can be divided into three categories:
 1. Methods that sort the values in the container.
-2. Methods that require the container to be sorted.
-3. Methods that do not require the container to be sorted.
+2. Methods that require the container to be sorted - [binary search methods](#instance-methods---binary-search-methods).
+3. Methods that do not require the container to be sorted - [iterative methods](#instance-methods---iterative-methods)
+   and [general methods](#instance-methods---general-methods).
 
 Categories 2 and 3 above can be further divided into two subcategories:
 1. Methods that allow the container to have unset indices.
@@ -99,6 +101,10 @@ Categories 2 and 3 above can be further divided into two subcategories:
 
 The sorting methods **always require all indices to have a value**. Use `Container.Prototype.Condense`
 to remove unset indices.
+
+# AutoHotkey forum post
+
+Join the discussion on [autohotkey.com](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=139207).
 
 # Quick start
 
