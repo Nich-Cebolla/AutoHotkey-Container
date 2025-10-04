@@ -220,8 +220,8 @@ input value, significantly reducing the amount of processing time spent finding 
 to a linear search).
 
 Methods that do not require a sorted container are methods that implement a linear search, or methods
-that iterate over each item in the container sequentially. Many of these will feel analagous to
-javascript array methods.
+that iterate over each item in the container sequentially. These are each adapted from javascript
+array methods.
 
 Methods that allow unset indices are designed to check whether an index has a value before performing
 the action on that index. These methods typically have the word "Sparse" at the end of the method name,
@@ -744,7 +744,7 @@ the relationship between the two.
 # Iterative methods
 
 Iterative methods iterate over the values in the container sequentially. All of them are adapted
-from Javascript. Like the other methods, there are sparse and non-sparse versions of each method.
+from javascript. Like the other methods, there are sparse and non-sparse versions of each method.
 
 Iterative methods have a parameter `Callback`. This is separate from the `ContainerObj.CallbackValue`
 and `ContainerObj.CallbackCompare` functions; `Callback` never gets cached as a property by the
