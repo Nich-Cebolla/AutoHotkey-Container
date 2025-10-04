@@ -5,7 +5,8 @@
 #include test-Find.ahk
 #include test-FindInequalitySparse.ahk
 #include test-InsertIfAbsent.ahk
-#include test-Misc.ahk
+#include test-misc-examples.ahk
+#include test-misc.ahk
 #include test-readme-examples.ahk
 #include test-SetSortType-examples.ahk
 #include test-Sort.ahk
@@ -20,7 +21,8 @@ test() {
     test_Find()
     test_FindInequalitySparse.TestAll()
     test_InsertIfAbsent()
-    test_Misc()
+    test_miscExamples()
+    test_misc()
     test_ReadmeExamples()
     test_SetSortTypeExamples()
     test_Sort()

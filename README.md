@@ -13,24 +13,17 @@ The last AutoHotkey (AHK) array class you will ever need.
     <li><a href="#set-the-sort-type">Set the sort type</a></li>
     <li><a href="#set-containerobjcallbackvalue">Set `ContainerObj.CallbackValue`</a></li>
     <li><a href="#set-containerobjcallbackcompare">Set `ContainerObj.CallbackCompare`</a></li>
-    <li><a href="#use-the-object---introduction">Use the object - introduction</a></li>
-    <li><a href="#use-the-object---sort-the-container">Use the object - sort the container</a></li>
-    <li><a href="#use-the-object---binary-search">Use the object - binary search</a></li>
-    <li><a href="#use-the-object---the-value-parameter">Use the object - the `Value` parameter</a></li>
-    <li><a href="#use-the-object---more-on-binary-search">Use the object - more on binary search</a></li>
+    <li><a href="#use-the-object---introduction">Use the object - Introduction</a></li>
+    <li><a href="#use-the-object---sort-the-container">Use the object - Sort the container</a></li>
+    <li><a href="#use-the-object---binary-search">Use the object - Binary search</a></li>
+    <li><a href="#use-the-object---the-value-parameter">Use the object - The `Value` parameter</a></li>
+    <li><a href="#use-the-object---more-on-binary-search">Use the object - More on binary search</a></li>
   </ol>
   <li><a href="#binary-search">Binary search</a></li>
-  <li><a href="#sorting-dates">Sorting dates</a></li>
-  <ol type="A">
-    <li><a href="#container_date">`Container_Date`</a></li>
-    <li><a href="#using-container_date-with-timestamps">Using `Container_Date` with timestamps</a></li>
-    <li><a href="#using-container_dateparser-with-time-strings">Using `Container_DateParser` with time strings</a></li>
-    <li><a href="#comparing-dates">Comparing dates</a></li>
-  </ol>
   <li><a href="#instantiating-a-container">Instantiating a `Container`</a></li>
   <ol type="A">
-    <li><a href="#static-method-macros">Static method macros</a></li>
-    <li><a href="#instance-method-macros">Instance method macros</a></li>
+    <li><a href="#static-methods">Static methods</a></li>
+    <li><a href="#instance-methods">Instance methods</a></li>
     <li><a href="#containerprototypecopy">`Container.Prototype.Copy`</a></li>
     <li><a href="#containerprototypedeepclone">`Container.Prototype.DeepClone`</a></li>
     <li><a href="#containerstrsplit">`Container.StrSplit`</a></li>
@@ -40,12 +33,46 @@ The last AutoHotkey (AHK) array class you will ever need.
     <li><a href="#nlsversioninfoex">NlsVersionInfoEx</a></li>
   </ol>
   <li><a href="#comparing-numbers">Comparing numbers</a></li>
+  <li><a href="#comparing-dates">Comparing dates</a></li>
+  <ol type="A">
+    <li><a href="#container_date">`Container_Date`</a></li>
+    <ol type="1">
+      <li><a href="#using-container_date-with-timestamps">Using `Container_Date` with timestamps</a></li>
+      <li><a href="#using-container_dateparser-with-time-strings">Using `Container_DateParser` with time strings</a></li>
+    </ol>
+  </ol>
   <li><a href="#custom-comparisons">Custom comparisons</a></li>
-  <li><a href="#static-methods">Static methods</a></li>
+  <li><a href="#class-details">Class details</a></li>
+  <ol type="A">
+    <li><a href="#static-methods-1">Static methods</a></li>
+    <li><a href="#instance-methods---alphabetized-list">Instance methods - Alphabetized list</a></li>
+    <li><a href="#instance-methods---categorized-list">Instance methods - Categorized list</a></li>
+    <ol type="1">
+      <li><a href="#instance-methods---sort-methods">Instance methods - Sort methods</a></li>
+      <li><a href="#instance-methods---binary-search-methods">Instance methods - Binary search methods</a></li>
+      <ol type="i">
+        <li><a href="#instance-methods---find-methods">Instance methods - Find methods</a></li>
+        <li><a href="#instance-methods---insert-methods">Instance methods - Insert methods</a></li>
+        <li><a href="#instance-methods---delete-methods">Instance methods - Delete methods</a></li>
+        <li><a href="#instance-methods---remove-methods">Instance methods - Remove methods</a></li>
+        <li><a href="#instance-methods---date-methods">Instance methods - Date methods</a></li>
+        <li><a href="#instance-methods---instantiation-methods">Instance methods - Instantiation methods</a></li>
+      </ol>
+      <li><a href="#instance-methods---iterative-methods">Instance methods - Iterative methods</a></li>
+      <li><a href="#instance-methods---general-methods">Instance methods - General methods</a></li>
+    </ol>
+    <li><a href="#instance-properties---alphabetized-list">Instance properties - Alphabetized list</a></li>
+    <li><a href="#instance-properties---categorized-list">Instance properties - Categorized list</a></li>
+    <ol type="1">
+      <li><a href="#instance-properties---dynamic-properties">Instance properties - Dynamic properties</a></li>
+      <li><a href="#instance-properties---own-properties">Instance properties - Own properties</a></li>
+    </ol>
+  </ol>
   <li><a href="#miscellaneous-info">Miscellaneous info</a></li>
   <ol type="A">
     <li><a href="#parameter-hints">Parameter hints</a></li>
   </ol>
+  <li><a href="#changelog">Changelog</a></li>
 </ol>
 <ul><i><sub>Table of contents generated by <a href="https://github.com/Nich-Cebolla/AutoHotkey-LibV2/blob/main/Headers2ToC.ahk">Headers2ToC.ahk</a></i></sub></ul>
 
@@ -148,7 +175,7 @@ you might want to use is `LINGUISTIC_IGNORECASE`, which you can pass as the glob
     ```
 2. If the values will be compared as date strings, call one of `Container.Prototype.SetCompareDate`,
 `Container.Prototype.SetCompareDateStr`, `Container.Prototype.SetDateParser`, or
-`Container.Prototype.DatePreprocess`. See the section [sorting dates](#sorting-dates)
+`Container.Prototype.DatePreprocess`. See the section [Comparing dates](#comparing-dates)
 for more information.
 3. Define your own function to use custom logic.
   - Parameters:
@@ -172,13 +199,13 @@ for more information.
     }
     ```
 
-## Use the object - introduction
+## Use the object - Introduction
 
 At the top of the description of each method is a line that says "Requires a sorted container: yes/no"
 and a line that says "Allows unset indices: yes/no".
 
 Methods that require a sorted container are methods that implement a [binary search](#binary-search).
-A [binary search](#binary-search) is when you split a range in half repeatedly to narrow in on an
+A binary search is when you split a range in half repeatedly to narrow in on an
 input value, significantly reducing the amount of processing time spent finding the value (compared
 to a linear search).
 
@@ -193,7 +220,7 @@ your code should use the non-sparse version. However, the difference in performa
 noticeable over thousands of consecutive operations, and so if there is a chance a container might
 be sparse, there should not be any problem with using the sparse version.
 
-## Use the object - sort the container
+## Use the object - Sort the container
 
 There are three sort methods available:
 - `Container.Prototype.InsertionSort` - Sorts in-place and is appropriate for small containers (n <= 32).
@@ -214,7 +241,7 @@ There are three sort methods available:
     c := c.QuickSort()
     ```
 
-## Use the object - binary search
+## Use the object - Binary search
 
 Binary search requires a sorted container. There are over twenty binary search methods available,
 including actions such as finding, deleting, an inserting values in order. They all rely on the various
@@ -268,9 +295,9 @@ c.Condense()
 OutputDebug(c.Has(4) "`n") ; 1
 ```
 
-## Use the object - the `Value` parameter
+## Use the object - The `Value` parameter
 
-You will notice that the first parameter of any method that implements a [binary search](#binary-search)
+You will notice that the first parameter of any method that implements a binary search
 is `Value` - the value to find.
 
 The type of value that is valid to pass to `Value` depends on the sort type, but can be appropriately
@@ -299,7 +326,7 @@ to an instance of `Container_DateParser`. Furthermore, `Container.Prototype.Date
 date strings to a number, expanding the permissible kinds of values to include integers repesenting
 date values (number of seconds since Jan 01, 1, 00:00:00).
 
-See [sorting dates](#sorting-dates) for more information.
+See [Comparing dates](#comparing-dates) for more information.
 
 Here is a comprehensive list:
 
@@ -348,9 +375,9 @@ Here is a comprehensive list:
   - Primitive : An integer representing the ptr to a null-terminated string.
   - Primitive : A string value.
 
-## Use the object - more on binary search
+## Use the object - More on binary search
 
-Internally, AutoHotkey's `Map` class and object property tables implement a [binary search](#binary-search).
+Internally, AutoHotkey's `Map` class and object property tables implement a binary search.
 This allows us to associate values with string names.
 
 Though `Map` is sufficient for many cases, I often found myself wanting the best of both worlds - I
@@ -432,41 +459,121 @@ exhaustive.
     }
     ```
 
-# Binary search
+# Instantiating a `Container`
 
-The following is a simple binary search written in AHK code. `Container` has many variations of
-this same logic to meet any use case.
+The examples in the [Quick start](#quick-start) section demonstrate how to prepare a container the
+long way so you can understand the various components. Typically you will instantiate a container
+using an alternative method.
 
+## Instantiating a `Container` - Static methods
+
+Use one of the static methods to instantiate a new container with all the needed properties for
+the specified sort type.
+
+- Container.CbDate
+- Container.CbDateStr
+- Container.CbDateStrFromParser
+- Container.CbNumber
+- Container.CbString
+- Container.CbStringPtr
+- Container.Date
+- Container.DateStr
+- Container.DateStrFromParser
+- Container.DateValue
+- Container.Misc
+- Container.Number
+- Container.String
+- Container.StringPtr
+
+## Instantiating a `Container` - Instance methods
+
+Use one of the "ToXXX" instance methods to set the needed properties on an existing instance.
+
+- Container.Prototype.ToCbDate
+- Container.Prototype.ToCbDateStr
+- Container.Prototype.ToCbDateStrFromParser
+- Container.Prototype.ToCbNumber
+- Container.Prototype.ToCbString
+- Container.Prototype.ToCbStringPtr
+- Container.Prototype.ToDate
+- Container.Prototype.ToDateStr
+- Container.Prototype.ToDateStrFromParser
+- Container.Prototype.ToDateValue
+- Container.Prototype.ToMisc
+- Container.Prototype.ToNumber
+- Container.Prototype.ToString
+- Container.Prototype.ToStringPtr
+
+## `Container.Prototype.Copy`
+
+`Container.Prototype.Copy` allows you to use one `Container` object to instantiate another identical
+`Container` object. Unlike `Array.Prototype.Clone` which will also copy the items, `Container.Prototype.Copy`
+only copies the own properties and the base object to the new instance. If your project will be using
+a number `Container` objects with the same setup, you can simply create a template and then any time
+your project needs a new instance, copy the template.
+
+Make the template:
 ```
-BinarySearch(arr, value, comparator) {
-    left := 1
-    rng := right := arr.Length
-    stop := -1
-    while rng * 0.5 ** stop > 4 {
-        stop++
-        i := right - Ceil((right - left) * 0.5)
-        if x := comparator(value, arr[i]) {
-            if x > 0 {
-                left := i
-            } else {
-                right := i
-            }
-        } else {
-            return i
-        }
-    }
-    i := left
-    loop right - i + 1 {
-        if comparator(value, arr[i]) {
-            ++i
-        } else {
-            return i
-        }
-    }
+template_calldate := Container.DateValue(Container_CallbackValue_Calldate, "yyyy-MM-dd HH:mm:ss")
+
+Container_CallbackValue_Calldate(value) {
+    return value.calldate
 }
 ```
 
-# Sorting dates
+Make a copy:
+```
+c := template_calldate.Copy()
+```
+
+Any own properties which were added to `template_calldate` will be reflected on `c`, and also if the
+base of `template_calldate` was changed then `c` will have the same base (assuming the base still
+inherits from `Container` and does not override `Container.Prototype.Copy`).
+
+`Container.Prototype.Copy` does **not** deep clone property values that are objects. For object
+property values, the value on the template will be the same object as the one on the new instance.
+
+## `Container.Prototype.DeepClone`
+
+`Container.Prototype.DeepClone` is adapted from my
+[`Object.Prototype.DeepClone`](https://github.com/Nich-Cebolla/AutoHotkey-Object.Prototype.DeepClone).
+It will deep clone the `Container` object, its own properties, and its items. The return value is a
+`Container` object with the same base, deep cloned own properties, and deep cloned items. It does
+**not** deep clone inherited property values that are objects.
+
+## `Container.StrSplit`
+
+`Container.StrSplit` calls [AutoHotkey's built-in `StrSplit`](https://www.autohotkey.com/docs/v2/lib/StrSplit.htm),
+then sets the base of the array to `Container.Prototype`, effectively allowing your code to instantiate
+a `Container` object using `StrSplit`.
+
+# Comparing strings
+
+Strings are compared using
+[Microsoft's CompareStringEx](https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex).
+When sorting values using string comparison, your code will call `Container.Prototype.SetCompareStringEx`
+or one of the [instantiation helpers](#instantiating-a-container) which calls
+`Container.Prototype.SetCompareStringEx`.
+
+## NlsVersionInfoEx
+
+`NlsVersionInfoEx` is a class used to create an
+[NLSVERSIONINFOEX](https://learn.microsoft.com/en-us/windows/win32/api/winnls/ns-winnls-nlsversioninfoex)
+structure. This is passed to `Container.Prototype.SetCompareStringEx` to specify the National Language
+Support version. For general use cases you can leave the `NlsVersionInfo` parameter as the default
+(0). The NLS version is only needed if your code is working with older datasets or libraries that
+expect a specific version with respect to sort and comparison operations.
+
+# Comparing numbers
+
+Numbers are compared with basic subtraction.
+```
+CompareNumbers(value1, value2) {
+    return value1 - value2
+}
+```
+
+# Comparing dates
 
 This section details how `Container` handles yyyyMMddHHmmss timestamps, date strings, an date values.
 
@@ -475,13 +582,46 @@ Much of this information is available in the [parameter hints](#parameter-hints)
 Note that there is no built-in support for dates prior to year 1, nor support for date systems other
 than the modern [proleptic Gregorian calendar](https://en.wikipedia.org/wiki/Proleptic_Gregorian_calendar).
 
+The methods `Container.Prototype.SetCompareDateStr` and `Container.Prototype.SetDateParser`, have
+a parameter `UseCompareDateEx` which specifies how date values will be compared. (Note that any
+of the [instantiation helpers](#instantiating-a-container) that instantiate a `Container` object with
+a date-related sort type also exposes `UseCompareDateEx`).
+
+When `UseCompareDateEx` is false, date values are compared using AutoHotkey's built-in `DateDiff`.
+When a `Container_Date` object is used, the method `Container_Date.Prototype.Diff` facilitates
+this process.
+
+I added `UseCompareDateEx` to address [this limitation of `DateDiff` - "If *DateTime* contains an
+invalid timestamp or a year prior to 1601, a ValueError is thrown](https://www.autohotkey.com/docs/v2/lib/DateDiff.htm).
+When `UseCompareDateEx` is true, date strings are compared using a "date value", which is an integer
+representing the number of seconds between Jan 01, 1, 00:00:00 and the date associated with the
+`Container_Date` object. The value is returned by the dynamic property
+`Container_Date.Prototype.TotalSeconds` which calls
+`Container_Date.GetSeconds("00010101000000", this.Timestamp)`. A couple things to note:
+- This process is noticeably slower than `DateDiff`, but this is mitigated by calling
+  `Container.Prototype.DatePreprocess` which optimizes date comparisons significantly.
+- Leap years are handled using the following logic which I obtained
+  [from Wikipedia](https://en.wikipedia.org/wiki/Leap_year). I believe I implemented it correctly,
+  and in any case it will work for comparisons, but if accurate measurements are needed you should
+  validate this logic.
+  - Leap years occur every 4 years (Mod(year, 4) = 0) except years that are divisible by 100 and not
+    divisible by 400 are **not** leap years.
+  - This logic is boiled down to the following function to return the number of leap years prior to
+    an input year:
+    ```
+    static LeapCountBefore(Year) {
+        k := Year - 1
+        return Floor(k / 4) - Floor(k / 100) + Floor(k / 400)
+    }
+    ```
+
 ## `Container_Date`
 
 [`Container_Date` and `Container_DateParser`](https://github.com/Nich-Cebolla/AutoHotkey-Container/blob/main/src/Container_Date.ahk)
 is repurposed from my [DateObj](https://github.com/Nich-Cebolla/AutoHotkey-DateObj) class.
 The methods are fully documented in either file, but this section provides a quick rundown.
 
-## Using `Container_Date` with timestamps
+### Using `Container_Date` with timestamps
 
 (By timestamp I mean a yyyyMMddHHmmss string / integer).
 
@@ -489,7 +629,7 @@ The methods are fully documented in either file, but this section provides a qui
 a `Container_Date` object. This is used with any of `Container`'s sort / binary search operations
 involving yyyyMMddHHmmss values.
 
-## Using `Container_DateParser` with time strings
+### Using `Container_DateParser` with time strings
 
 `Container_DateParser` is a regex-based system for parsing dates from arbitray text. It works by
 writing a date format string that the parser can use to identify dates in some input text.
@@ -577,155 +717,6 @@ described on the AHK [`FormatTime` page](https://www.autohotkey.com/docs/v2/lib/
   the maximum value for that property, an error is thrown. For example, if the month is greater
   than 12 or the hour is greater than 24, an error is thrown.
 
-## Comparing dates
-
-The methods `Container.Prototype.SetCompareDateStr` and `Container.Prototype.SetDateParser`, have
-a parameter `UseCompareDateEx` which specifies how date values will be compared. (Note that any
-of the [static method macros](#static-method-macros) and [instance method macros](#instance-method-macros)
-that instantiate a `Container` object with a date-related sort type also exposes `UseCompareDateEx`).
-
-When `UseCompareDateEx` is false, date values are compared using AutoHotkey's built-in `DateDiff`.
-When a `Container_Date` object is used, the method `Container_Date.Prototype.Diff` facilitates
-this process.
-
-I added `UseCompareDateEx` to address [this limitation of `DateDiff` - "If *DateTime* contains an
-invalid timestamp or a year prior to 1601, a ValueError is thrown](https://www.autohotkey.com/docs/v2/lib/DateDiff.htm).
-When `UseCompareDateEx` is true, date values are compared using a "date value", which is an integer
-representing the number of seconds between Jan 01, 1, 00:00:00 and the date associated with the
-`Container_Date` object. The value is returned by the dynamic property
-`Container_Date.Prototype.TotalSeconds` which calls
-`Container_Date.GetSeconds("00010101000000", this.Timestamp)`. A couple things to note:
-- This process is noticeably slower than `DateDiff`, but this is mitigated by calling
-  `Container.Prototype.DatePreprocess` which optimizes date comparisons significantly.
-- Leap years are handled using the following logic which I obtained
-  [from Wikipedia](https://en.wikipedia.org/wiki/Leap_year). I believe I implemented it correctly,
-  and in any case it will work for comparisons, but if accurate measurements are needed you should
-  validate this logic.
-  - Leap years occur every 4 years (Mod(year, 4) = 0) except years that are divisible by 100 and not
-    divisible by 400 are **not** leap years.
-  - This logic is boiled down to the following function to return the number of leap years prior to
-    an input year:
-    ```
-    static LeapCountBefore(Year) {
-        k := Year - 1
-        return Floor(k / 4) - Floor(k / 100) + Floor(k / 400)
-    }
-    ```
-
-# Instantiating a `Container`
-
-The examples in the [Quick start](#quick-start) section demonstrate how to prepare a container the
-long way so you can understand the various components. Typically you will instantiate a container
-using an alternative method.
-
-## Static method macros
-
-Use one of the static methods to instantiate a new container with all the needed properties for
-the specified sort type.
-
-- Container.CbDate
-- Container.CbDateStr
-- Container.CbDateStrFromParser
-- Container.CbNumber
-- Container.CbString
-- Container.CbStringPtr
-- Container.Date
-- Container.DateStr
-- Container.DateStrFromParser
-- Container.DateValue
-- Container.Misc
-- Container.Number
-- Container.String
-- Container.StringPtr
-
-## Instance method macros
-
-Use one of the "ToXXX" instance methods to set the needed properties on an existing instance.
-
-- Container.Prototype.ToCbDate
-- Container.Prototype.ToCbDateStr
-- Container.Prototype.ToCbDateStrFromParser
-- Container.Prototype.ToCbNumber
-- Container.Prototype.ToCbString
-- Container.Prototype.ToCbStringPtr
-- Container.Prototype.ToDate
-- Container.Prototype.ToDateStr
-- Container.Prototype.ToDateStrFromParser
-- Container.Prototype.ToDateValue
-- Container.Prototype.ToMisc
-- Container.Prototype.ToNumber
-- Container.Prototype.ToString
-- Container.Prototype.ToStringPtr
-
-## `Container.Prototype.Copy`
-
-`Container.Prototype.Copy` allows you to use one `Container` object to instantiate another identical
-`Container` object. Unlike `Array.Prototype.Clone` which will also copy the items, `Container.Prototype.Copy`
-only copies the own properties and the base object to the new instance. If your project will be using
-a number `Container` objects with the same setup, you can simply create a template and then any time
-your project needs a new instance, copy the template.
-
-Make the template:
-```
-template_calldate := Container.DateValue(Container_CallbackValue_Calldate, "yyyy-MM-dd HH:mm:ss")
-
-Container_CallbackValue_Calldate(value) {
-    return value.calldate
-}
-```
-
-Make a copy:
-```
-c := template_calldate.Copy()
-```
-
-Any own properties which were added to `template_calldate` will be reflected on `c`, and also if the
-base of `template_calldate` was changed then `c` will have the same base (assuming the base still
-inherits from `Container` and does not override `Container.Prototype.Copy`).
-
-`Container.Prototype.Copy` does **not** deep clone property values that are objects. For object
-property values, the value on the template will be the same object as the one on the new instance.
-
-## `Container.Prototype.DeepClone`
-
-`Container.Prototype.DeepClone` is adapted from my
-[`Object.Prototype.DeepClone`](https://github.com/Nich-Cebolla/AutoHotkey-Object.Prototype.DeepClone).
-It will deep clone the `Container` object, its own properties, and its items. The return value is a
-`Container` object with the same base, deep cloned own properties, and deep cloned items. It does
-**not** deep clone inherited property values that are objects.
-
-## `Container.StrSplit`
-
-`Container.StrSplit` calls [AutoHotkey's built-in `StrSplit`](https://www.autohotkey.com/docs/v2/lib/StrSplit.htm),
-then sets the base of the array to `Container.Prototype`, effectively allowing your code to instantiate
-a `Container` object using `StrSplit`.
-
-# Comparing strings
-
-Strings are compared using
-[Microsoft's CompareStringEx](https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex).
-When sorting values using string comparison, your code will call `Container.Prototype.SetCompareStringEx`
-or one of the [instantiation methods](#instantiating-a-container) which calls
-`Container.Prototype.SetCompareStringEx`.
-
-## NlsVersionInfoEx
-
-`NlsVersionInfoEx` is a class used to create an
-[NLSVERSIONINFOEX](https://learn.microsoft.com/en-us/windows/win32/api/winnls/ns-winnls-nlsversioninfoex)
-structure. This is passed to `Container.Prototype.SetCompareStringEx` to specify the National Language
-Support version. For general use cases you can leave the `NlsVersionInfo` parameter as the default
-(0). The NLS version is only needed if your code is working with older datasets or libraries that
-expect a specific version with respect to sort and comparison operations.
-
-# Comparing numbers
-
-Numbers are compared with basic subtraction.
-```
-CompareNumbers(value1, value2) {
-    return value1 - value2
-}
-```
-
 # Custom comparisons
 
 The `CONTAINER_SORTTYPE_MISC` sort type is for custom comparisons. When using `CONTAINER_SORTTYPE_MISC`,
@@ -734,14 +725,338 @@ your code does **not** call `Container.Prototype.SetCallbackValue`; it only call
 `ContainerObj.CallbackCompare` as-is, and your function is expected to return a number indicating
 the relationship between the two.
 
-# Static methods
+# Class details
 
-The following is a list o
+This section details the class static methods, instance methods, and instance properties. When
+a property or method is listed as `Container.Prototype.<name>`, that property exists on
+`Container.Prototype`. When a property or method is listed as `ContainerObj.<name>`, that property
+is an own property that is added to the `Container` object some time during or after instantiation.
+
+## Static methods
+
+The following is a list of static methods.
+
+- [Instantiation helpers](#instantiating-a-container)
+  - `Container.CbDate`
+  - `Container.CbDateStr`
+  - `Container.CbDateStrFromParser`
+  - `Container.CbNumber`
+  - `Container.CbString`
+  - `Container.CbStringPtr`
+  - `Container.Date`
+  - `Container.DateStr`
+  - `Container.DateStrFromParser`
+  - `Container.DateValue`
+  - `Container.Misc`
+  - `Container.Number`
+  - `Container.String`
+  - `Container.StringPtr`
+- `Container.StrSplit`
+
+## Instance methods - Alphabetized list
+
+In addition to the methods inherited from `Array`, `Container` has the following methods:
+
+- `Container.Prototype.Compare`
+- `Container.Prototype.Condense`
+- `Container.Prototype.Copy`
+- `ContainerObj.DateConvert`
+- `ContainerObj.DateConvertCb`
+- `Container.Prototype.DateInsert`
+- `Container.Prototype.DateInsertIfAbsent`
+- `Container.Prototype.DateInsertIfAbsentSparse`
+- `Container.Prototype.DateInsertSparse`
+- `Container.Prototype.DatePreprocess`
+- `Container.Prototype.DateUpdate`
+- `Container.Prototype.DeepClone`
+- `Container.Prototype.DeleteAll`
+- `Container.Prototype.DeleteAllSparse`
+- `Container.Prototype.DeleteValue`
+- `Container.Prototype.DeleteValueIf`
+- `Container.Prototype.DeleteValueIfSparse`
+- `Container.Prototype.DeleteValueSparse`
+- `Container.Prototype.Every`
+- `Container.Prototype.EverySparse`
+- `Container.Prototype.Find`
+- `Container.Prototype.FindAll`
+- `Container.Prototype.FindAllSparse`
+- `Container.Prototype.FindInequality`
+- `Container.Prototype.FindInequalitySparse`
+- `Container.Prototype.FindSparse`
+- `Container.Prototype.Flat`
+- `Container.Prototype.ForEach`
+- `Container.Prototype.ForEachSparse`
+- `Container.Prototype.HasValue`
+- `Container.Prototype.HasValueSparse`
+- `Container.Prototype.Insert`
+- `Container.Prototype.InsertIfAbsent`
+- `Container.Prototype.InsertIfAbsentSparse`
+- `Container.Prototype.InsertSparse`
+- `Container.Prototype.InsertionSort`
+- `Container.Prototype.Join`
+- `Container.Prototype.JoinEx`
+- `Container.Prototype.Map`
+- `Container.Prototype.MapSparse`
+- `Container.Prototype.Purge`
+- `Container.Prototype.PurgeSparse`
+- `Container.Prototype.PushEx`
+- `Container.Prototype.QuickSort`
+- `Container.Prototype.Reduce`
+- `Container.Prototype.ReduceSparse`
+- `Container.Prototype.Remove`
+- `Container.Prototype.RemoveAll`
+- `Container.Prototype.RemoveAllSparse`
+- `Container.Prototype.RemoveIf`
+- `Container.Prototype.RemoveIfSparse`
+- `Container.Prototype.RemoveSparse`
+- `Container.Prototype.Reverse`
+- `Container.Prototype.ReverseSparse`
+- `Container.Prototype.Search`
+- `Container.Prototype.SearchAll`
+- `Container.Prototype.SearchAllSparse`
+- `Container.Prototype.SearchSparse`
+- `Container.Prototype.SetCallbackCompare`
+- `Container.Prototype.SetCallbackValue`
+- `Container.Prototype.SetCompareStringEx`
+- `Container.Prototype.SetCompareDate`
+- `Container.Prototype.SetCompareDateStr`
+- `Container.Prototype.SetDateParser`
+- `Container.Prototype.SetSortType`
+- `Container.Prototype.Slice`
+- `Container.Prototype.Sort`
+- `Container.Prototype.ToCbDate`
+- `Container.Prototype.ToCbDateStr`
+- `Container.Prototype.ToCbDateStrFromParser`
+- `Container.Prototype.ToCbNumber`
+- `Container.Prototype.ToCbString`
+- `Container.Prototype.ToCbStringPtr`
+- `Container.Prototype.ToDate`
+- `Container.Prototype.ToDateStr`
+- `Container.Prototype.ToDateStrFromParser`
+- `Container.Prototype.ToDateValue`
+- `Container.Prototype.ToMisc`
+- `Container.Prototype.ToNumber`
+- `Container.Prototype.ToString`
+- `Container.Prototype.ToStringPtr`
+
+## Instance methods - Categorized list
+
+This section categorizes the instance methods into the following categories:
+
+- [Sort methods](#instance-methods---sort-methods)
+- [Binary search methods](#instance-methods---binary-search-methods)
+  - [Find methods](#instance-methods---find-methods)
+  - [Insert methods](#instance-methods---insert-methods)
+  - [Delete methods](#instance-methods---delete-methods)
+  - [Remove methods](#instance-methods---remove-methods)
+  - [Date methods](#instance-methods---date-methods)
+  - [Instantiation methods](#instance-methods---instantiation-methods)
+- [Iterative methods](#instance-methods---iterative-methods)
+- [General methods](#instance-methods---general-methods)
+
+### Instance methods - Sort methods
+
+Methods that sort the values in the container.
+
+- `Container.Prototype.InsertionSort`
+- `Container.Prototype.QuickSort`
+- `Container.Prototype.Sort`
+
+### Instance methods - Binary search methods
+
+Methods that implement a binary search.
+
+#### Instance methods - Find methods
+
+Methods that use a binary search to find a value / values in the container.
+
+- `Container.Prototype.Find`
+- `Container.Prototype.FindAll`
+- `Container.Prototype.FindAllSparse`
+- `Container.Prototype.FindInequality`
+- `Container.Prototype.FindInequalitySparse`
+- `Container.Prototype.FindSparse`
+
+#### Instance methods - Insert methods
+
+Methods that use a binary search to insert a value into the container, retaining the sort order.
+
+- `Container.Prototype.DateInsert`
+- `Container.Prototype.DateInsertIfAbsent`
+- `Container.Prototype.DateInsertIfAbsentSparse`
+- `Container.Prototype.DateInsertSparse`
+- `Container.Prototype.Insert`
+- `Container.Prototype.InsertIfAbsent`
+- `Container.Prototype.InsertIfAbsentSparse`
+- `Container.Prototype.InsertSparse`
+
+#### Instance methods - Delete methods
+
+Methods that use a binary search to find, then delete a value / values, leaving the index / indices unset.
+
+- `Container.Prototype.DeleteAll`
+- `Container.Prototype.DeleteAllSparse`
+- `Container.Prototype.DeleteValue`
+- `Container.Prototype.DeleteValueIf`
+- `Container.Prototype.DeleteValueIfSparse`
+- `Container.Prototype.DeleteValueSparse`
+
+#### Instance methods - Remove methods
+
+Methods that use a binary search to find, then remove a value / values, shifting the values to the
+left to fill in the empty index / indices.
+
+- `Container.Prototype.Remove`
+- `Container.Prototype.RemoveAll`
+- `Container.Prototype.RemoveAllSparse`
+- `Container.Prototype.RemoveIf`
+- `Container.Prototype.RemoveIfSparse`
+- `Container.Prototype.RemoveSparse`
+
+#### Instance methods - Date methods
+
+Helper methods involved with using binary search and sort operations on date values.
+
+- `ContainerObj.DateConvert`
+- `ContainerObj.DateConvertCb`
+- `Container.Prototype.DatePreprocess`
+- `Container.Prototype.DateUpdate`
+
+#### Instance methods - Instantiation methods
+
+Methods that define the properties needed to use sort and binary search methods.
+
+- `Container.Prototype.SetCallbackCompare`
+- `Container.Prototype.SetCallbackValue`
+- `Container.Prototype.SetCompareStringEx`
+- `Container.Prototype.SetCompareDate`
+- `Container.Prototype.SetCompareDateStr`
+- `Container.Prototype.SetDateParser`
+- `Container.Prototype.SetSortType`
+- `Container.Prototype.ToCbDate`
+- `Container.Prototype.ToCbDateStr`
+- `Container.Prototype.ToCbDateStrFromParser`
+- `Container.Prototype.ToCbNumber`
+- `Container.Prototype.ToCbString`
+- `Container.Prototype.ToCbStringPtr`
+- `Container.Prototype.ToDate`
+- `Container.Prototype.ToDateStr`
+- `Container.Prototype.ToDateStrFromParser`
+- `Container.Prototype.ToDateValue`
+- `Container.Prototype.ToMisc`
+- `Container.Prototype.ToNumber`
+- `Container.Prototype.ToString`
+- `Container.Prototype.ToStringPtr`
+
+### Instance methods - Iterative methods
+
+Methods that iterate the values in the container, performing some action on them.
+
+- `Container.Prototype.Condense`
+- `Container.Prototype.Every`
+- `Container.Prototype.EverySparse`
+- `Container.Prototype.Flat`
+- `Container.Prototype.ForEach`
+- `Container.Prototype.ForEachSparse`
+- `Container.Prototype.HasValue`
+- `Container.Prototype.HasValueSparse`
+- `Container.Prototype.Join`
+- `Container.Prototype.JoinEx`
+- `Container.Prototype.Map`
+- `Container.Prototype.MapSparse`
+- `Container.Prototype.Purge`
+- `Container.Prototype.PurgeSparse`
+- `Container.Prototype.Reduce`
+- `Container.Prototype.ReduceSparse`
+- `Container.Prototype.Reverse`
+- `Container.Prototype.ReverseSparse`
+- `Container.Prototype.Search`
+- `Container.Prototype.SearchAll`
+- `Container.Prototype.SearchAllSparse`
+- `Container.Prototype.SearchSparse`
+
+### Instance methods - General methods
+
+- `Container.Prototype.Compare`
+- `Container.Prototype.Copy`
+- `Container.Prototype.DeepClone`
+- `Container.Prototype.PushEx`
+- `Container.Prototype.Slice`
+
+## Instance properties - Alphabetized list
+
+In addition to the properties inherited from `Array`, `Container` has the following properties:
+
+- `ContainerObj.CallbackCompare`
+- `ContainerObj.CallbackCompareValue`
+- `ContainerObj.CallbackDateInsert`
+- `ContainerObj.CallbackValue`
+- `ContainerObj.CompareDateCentury`
+- `ContainerObj.CompareStringLocaleName`
+- `ContainerObj.CompareStringNlsVersionInfo`
+- `Container.Prototype.DateParser`
+- `ContainerObj.SortType`
+
+## Instance properties - Categorized list
+
+This section categorizes the instance properties into the following categories:
+
+- [Dynamic properties](#instance-properties---dynamic-properties)
+- [Own properties](#instance-properties---own-properties)
+
+### Instance properties - Dynamic properties
+
+- `Container.Prototype.DateParser`
+
+### Instance properties - Own properties
+
+- `ContainerObj.CallbackCompare`
+- `ContainerObj.CallbackCompareValue`
+- `ContainerObj.CallbackDateInsert`
+- `ContainerObj.CallbackValue`
+- `ContainerObj.CompareDateCentury`
+- `ContainerObj.CompareStringLocaleName`
+- `ContainerObj.CompareStringNlsVersionInfo`
+- `ContainerObj.SortType`
 
 # Miscellaneous info
 
 This section includes miscellaneous info not specifically related to `Container` but that might be
 useful.
+
+## Binary search
+
+The following is a simple binary search written in AHK code. `Container` has many variations of
+this same logic to meet any use case.
+
+```
+BinarySearch(arr, value, comparator) {
+    left := 1
+    rng := right := arr.Length
+    stop := -1
+    while rng * 0.5 ** stop > 4 {
+        stop++
+        i := right - Ceil((right - left) * 0.5)
+        if x := comparator(value, arr[i]) {
+            if x > 0 {
+                left := i
+            } else {
+                right := i
+            }
+        } else {
+            return i
+        }
+    }
+    i := left
+    loop right - i + 1 {
+        if comparator(value, arr[i]) {
+            ++i
+        } else {
+            return i
+        }
+    }
+}
+```
 
 ## Parameter hints
 
@@ -765,3 +1080,8 @@ can be intimidating to use at first, but you will get the hang of it over time. 
 are invoked by the action called "Trigger parameter hints". You can customize the keyboard
 shortcut for this by opening Keyboard Shortcuts (Ctrl+Shift+P > Preferences: Open Keyboard Shortcuts)
 and searching "Trigger parameter hints".
+
+# Changelog
+
+- **2025-10-03** - v1.0.0
+  - Released v1.0.0

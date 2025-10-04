@@ -17,7 +17,7 @@ class Container extends Array {
         proto := this.Prototype
         proto.CallbackCompare := proto.CallbackValue := proto.CompareDateCentury :=
         proto.CallbackCompareValue := proto.CompareStringNlsVersionInfo :=
-        proto.CompareStringLocaleName := proto.__DateParser := proto.__CallbackDateInsert :=
+        proto.CompareStringLocaleName := proto.__DateParser := proto.CallbackDateInsert :=
         ''
         proto.SortType := 0
         if !IsSet(CONTAINER_SORTTYPE_NUMBER) {
@@ -341,7 +341,7 @@ class Container extends Array {
      * @returns {Integer} - The index at which it was inserted.
      */
     DateInsert(Value) {
-        this.__CallbackDateInsert.Call(Value)
+        this.CallbackDateInsert.Call(Value)
         return this.Insert(Value)
     }
     /**
@@ -357,7 +357,7 @@ class Container extends Array {
      * @returns {Integer} - The index at which it was inserted.
      */
     DateInsertIfAbsent(Value) {
-        this.__CallbackDateInsert.Call(Value)
+        this.CallbackDateInsert.Call(Value)
         return this.InsertIfAbsent(Value)
     }
     /**
@@ -373,7 +373,7 @@ class Container extends Array {
      * @returns {Integer} - The index at which it was inserted.
      */
     DateInsertIfAbsentSparse(Value) {
-        this.__CallbackDateInsert.Call(Value)
+        this.CallbackDateInsert.Call(Value)
         return this.InsertIfAbsentSparse(Value)
     }
     /**
@@ -389,7 +389,7 @@ class Container extends Array {
      * @returns {Integer} - The index at which it was inserted.
      */
     DateInsertSparse(Value) {
-        this.__CallbackDateInsert.Call(Value)
+        this.CallbackDateInsert.Call(Value)
         return this.InsertSparse(Value)
     }
     /**
@@ -431,7 +431,7 @@ class Container extends Array {
      *   {@link Container#DateConvertCb}.
      *
      * The following are some additional actions taken by {@link Container.Prototype.DatePreprocess}:
-     * - Sets property {@link Container#__CallbackDateInsert} with a function that sets the property
+     * - Sets property {@link Container#CallbackDateInsert} with a function that sets the property
      *   with the date value.
      * - Sets property {@link Container#DateConvert} with a function that returns the date
      *   value from an input string.
@@ -474,7 +474,7 @@ class Container extends Array {
         } else {
             throw PropertyError('Property "SortType" must be either CONTAINER_SORTTYPE_CB_DATE or CONTAINER_SORTTYPE_CB_DATESTR.')
         }
-        this.__CallbackDateInsert := Container_CallbackDateInsert.Bind(PropertyName, Fn, CallbackValue)
+        this.CallbackDateInsert := Container_CallbackDateInsert.Bind(PropertyName, Fn, CallbackValue)
         this.DefineProp('DateConvert', { Call: Container_ConvertDate.Bind(Fn) })
         this.DefineProp('DateConvertCb', { Call: Container_ConvertDateCb.Bind(Fn, CallbackValue) })
         i := 0
@@ -510,7 +510,7 @@ class Container extends Array {
      * @param {Integer} [IndexEnd = this.Length] - The end index.
      */
     DateUpdate(IndexStart := 1, IndexEnd := this.Length) {
-        Fn := this.__CallbackDateInsert
+        Fn := this.CallbackDateInsert
         IndexStart--
         loop IndexEnd - IndexStart {
             if this.Has(++IndexStart) {

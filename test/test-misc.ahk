@@ -1,7 +1,7 @@
 ﻿
 #include Container_Test.ahk
 
-class test_Misc {
+class test_misc {
     static __New() {
         this.DeleteProp('__New')
         this.Len := 100
