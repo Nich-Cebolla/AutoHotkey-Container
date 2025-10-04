@@ -19,6 +19,7 @@ The last AutoHotkey (AHK) array class you will ever need.
     <li><a href="#use-the-object---binary-search">Use the object - Binary search</a></li>
     <li><a href="#use-the-object---the-value-parameter">Use the object - The `Value` parameter</a></li>
     <li><a href="#use-the-object---more-on-binary-search">Use the object - More on binary search</a></li>
+    <li><a href="#quick-start-summary">Quick start summary</a></li>
   </ol>
   <li><a href="#instantiating-a-container">Instantiating a `Container`</a></li>
   <ol type="A">
@@ -470,6 +471,25 @@ exhaustive.
         ; do something
     }
     ```
+
+## Quick start summary
+
+- A `Container` object requires 2-3 properties to be viable for sort and binary search operations.
+  - `ContainerObj.SortType` - An integer representing the sort type.
+  - `ContainerObj.CallbackCompare` - A function which compares two values.
+    - For string comparisons, call `Container.Prototype.SetCompareStringEx`.
+    - For date comparisons with yyyyMMddHHmmss strings, call `Container.Prototype.SetCompareDate`.
+    - For date comparisons with date strings, call `Container.Prototype.SetCompareDateStr` with a
+      [format string](#using-container_dateparser-with-date-strings).
+    - Number comparisons do not require a comparator.
+  - `ContainerObj.CallbackValue` - A function that returns the sort value, mostly used with objects
+    to return a property value.
+- To use a `Container` like a `Map` object, use sort type `CONTAINER_SORTTYPE_CB_STRING` and always
+  add values to the container using one of the "Insert" methods to keep the values in order.
+- Methods are divided into sparse and non-sparse versions.
+- Iterative methods do not require any preparation; they can always be called.
+
+Don't forget to leave a ⭐ if you think `Container` is pretty awesome!
 
 # Instantiating a `Container`
 
