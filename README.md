@@ -434,6 +434,7 @@ exhaustive.
 - `Map.Prototype.Clone` -
   - Use `Array.Prototype.Clone` (i.e. call `ContainerObj.Clone()`) to include the items in the clone
   - Use `Container.Prototype.Copy` to only copy the own properties and base object.
+  - Use `Container.Prototype.DeepClone` to deep clone the own properties and items and copy the base object.
 - `Map.Prototype.Delete` -
   - Use `Container.Prototype.DeleteAll`, `Container.Prototype.DeleteValue`,
     `Container.Prototype.DeleteValueIf`, `Container.Prototype.Remove`,  `Container.Prototype.RemoveAll`,
