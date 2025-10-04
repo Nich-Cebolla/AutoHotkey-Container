@@ -19,11 +19,10 @@ The last AutoHotkey (AHK) array class you will ever need.
     <li><a href="#use-the-object---the-value-parameter">Use the object - The `Value` parameter</a></li>
     <li><a href="#use-the-object---more-on-binary-search">Use the object - More on binary search</a></li>
   </ol>
-  <li><a href="#binary-search">Binary search</a></li>
   <li><a href="#instantiating-a-container">Instantiating a `Container`</a></li>
   <ol type="A">
-    <li><a href="#static-methods">Static methods</a></li>
-    <li><a href="#instance-methods">Instance methods</a></li>
+    <li><a href="#instantiating-a-container---static-methods">Instantiating a `Container` - Static methods</a></li>
+    <li><a href="#instantiating-a-container---instance-methods">Instantiating a `Container` - Instance methods</a></li>
     <li><a href="#containerprototypecopy">`Container.Prototype.Copy`</a></li>
     <li><a href="#containerprototypedeepclone">`Container.Prototype.DeepClone`</a></li>
     <li><a href="#containerstrsplit">`Container.StrSplit`</a></li>
@@ -44,7 +43,7 @@ The last AutoHotkey (AHK) array class you will ever need.
   <li><a href="#custom-comparisons">Custom comparisons</a></li>
   <li><a href="#class-details">Class details</a></li>
   <ol type="A">
-    <li><a href="#static-methods-1">Static methods</a></li>
+    <li><a href="#static-methods">Static methods</a></li>
     <li><a href="#instance-methods---alphabetized-list">Instance methods - Alphabetized list</a></li>
     <li><a href="#instance-methods---categorized-list">Instance methods - Categorized list</a></li>
     <ol type="1">
@@ -70,6 +69,7 @@ The last AutoHotkey (AHK) array class you will ever need.
   </ol>
   <li><a href="#miscellaneous-info">Miscellaneous info</a></li>
   <ol type="A">
+    <li><a href="#binary-search">Binary search</a></li>
     <li><a href="#parameter-hints">Parameter hints</a></li>
   </ol>
   <li><a href="#changelog">Changelog</a></li>
