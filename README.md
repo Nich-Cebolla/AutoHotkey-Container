@@ -42,6 +42,10 @@ The last AutoHotkey (AHK) array class you will ever need.
     </ol>
   </ol>
   <li><a href="#custom-comparisons">Custom comparisons</a></li>
+  <li><a href="#iterative-methods">Iterative methods</a></li>
+  <ol type="A">
+    <li><a href="#thisarg-parameter">`ThisArg` parameter</a></li>
+  </ol>
   <li><a href="#class-details">Class details</a></li>
   <ol type="A">
     <li><a href="#static-methods">Static methods</a></li>
@@ -730,6 +734,21 @@ your code does **not** call `Container.Prototype.SetCallbackValue`; it only call
 `Container.Prototype.SetCallbackCompare`. When values are compared, the values are passed to
 `ContainerObj.CallbackCompare` as-is, and your function is expected to return a number indicating
 the relationship between the two.
+
+# Iterative methods
+
+Iterative methods iterate over the values in the container sequentially. All of them are adapted
+from Javascript. Like the other methods, there are sparse and non-sparse versions of each method.
+
+Iterative methods have a parameter `Callback`. This is separate from the `ContainerObj.CallbackValue`
+and `ContainerObj.CallbackCompare` functions; `Callback` never gets cached as a property by the
+iterative methods.
+
+## `ThisArg` parameter
+
+Some of the iterative methods have a parameter `ThisArg`. See file
+[test\ThisArg-example.ahk](https://github.com/Nich-Cebolla/AutoHotkey-Container/blob/main/test/ThisArg-example.ahk)
+for details about using the `ThisArg` parameter.
 
 # Class details
 
