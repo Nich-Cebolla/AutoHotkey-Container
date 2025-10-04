@@ -5,10 +5,10 @@
     License: MIT
 */
 
-; Only needed if using the NlsVersionInfo class.
-#include *i NlsVersionInfo.ahk
+; Only needed if using the NlsVersionInfoEx class.
+#include *i NlsVersionInfoEx.ahk
 
-#include Container_DateObj.ahk
+#include Container_Date.ahk
 #include lib.ahk
 
 class Container extends Array {
@@ -16,7 +16,7 @@ class Container extends Array {
         this.DeleteProp('__New')
         proto := this.Prototype
         proto.CallbackCompare := proto.CallbackValue := proto.CompareDateCentury :=
-        proto.CallbackCompareValue := proto.CompareStringVersionInformation :=
+        proto.CallbackCompareValue := proto.CompareStringNlsVersionInfo :=
         proto.CompareStringLocaleName := proto.__DateParser := proto.__CallbackDateInsert :=
         ''
         proto.SortType := 0
@@ -51,18 +51,18 @@ class Container extends Array {
         c.SetCallbackValue(CallbackValue)
         return c
     }
-    static CbString(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    static CbString(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
         c.SetCallbackValue(CallbackValue)
-        c.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        c.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
         return c
     }
-    static CbStringPtr(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    static CbStringPtr(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_CB_STRINGPTR)
         c.SetCallbackValue(CallbackValue)
-        c.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        c.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
         return c
     }
     static Date(UseCompareDateEx := false, Values*) {
@@ -102,16 +102,16 @@ class Container extends Array {
         c.SetSortType(CONTAINER_SORTTYPE_NUMBER)
         return c
     }
-    static String(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    static String(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_STRING)
-        c.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        c.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
         return c
     }
-    static StringPtr(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    static StringPtr(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_STRINGPTR)
-        c.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        c.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
         return c
     }
     static StrSplit(Str, Delimiters?, OmitChars?, MaxParts := -1) {
@@ -161,7 +161,7 @@ class Container extends Array {
                 return this.CallbackCompare.Call(Value, this[Index])
             case CONTAINER_SORTTYPE_DATESTR:
                 if IsNumber(Value) {
-                    return this.CallbackCompareValue.Call(Container_DateObj.FromTimestamp(Value), this[Index])
+                    return this.CallbackCompareValue.Call(Container_Date.FromTimestamp(Value), this[Index])
                 } else {
                     return this.CallbackCompare.Call(Value, this[Index])
                 }
@@ -197,7 +197,7 @@ class Container extends Array {
                 date1 := ''
                 if !IsObject(Value) {
                     if IsNumber(Value) {
-                        date1 := Container_DateObj.FromTimestamp(Value)
+                        date1 := Container_Date.FromTimestamp(Value)
                     } else {
                         date1 := this.DateParser.Call(
                             Value
@@ -468,7 +468,7 @@ class Container extends Array {
             CallbackValue := this.CallbackValue
         }
         if this.SortType = CONTAINER_SORTTYPE_CB_DATE {
-            Fn := ObjBindMethod(Container_DateObj, 'FromTimestamp')
+            Fn := ObjBindMethod(Container_Date, 'FromTimestamp')
         } else if this.SortType = CONTAINER_SORTTYPE_CB_DATESTR {
             Fn := DateParserObj ?? this.__DateParser
         } else {
@@ -516,6 +516,123 @@ class Container extends Array {
             if this.Has(++IndexStart) {
                 Fn(this[IndexStart])
             }
+        }
+    }
+    /**
+     * @description - Recursively copies the {@link Container} object's properties onto a new object. For all new objects,
+     * `ObjDeepClone` attempts to set the new object's base to the same base as the subject. For objects
+     * that inherit from `Map` or `Array`, clones the items in addition to the properties.
+     * @param {*} Self - The object to be deep cloned. If calling this method from an instance,
+     * exclude this parameter.
+     * @param {Map} [ConstructorParams] - A map of constructor parameters, where the key is the class
+     * name (use `ObjToBeCloned.__Class` as the key), and the value is an array of values that will be
+     * passed to the constructor. Using `ConstructorParams` can allow `ObjDeepClone` to create correctly-
+     * typed objects in cases where normally AHK will not allow setting the type using `ObjSetBase()`.
+     * @param {Integer} [Depth = 0] - The maximum depth to clone. A value equal to or less than 0 will
+     * result in no limit.
+     * @returns {*}
+     */
+    DeepClone(ConstructorParams?, Depth := 0) {
+        GetTarget := IsSet(ConstructorParams) ? _GetTarget2 : _GetTarget1
+        Result := GetTarget(this)
+        PtrList := Map(ObjPtr(this), Result)
+        CurrentDepth := 0
+        return _Recurse(Result, this)
+
+        _Recurse(Target, Subject) {
+            CurrentDepth++
+            for Prop in Subject.OwnProps() {
+                Desc := Subject.GetOwnPropDesc(Prop)
+                if Desc.HasOwnProp('Value') {
+                    Target.DefineProp(Prop, { Value: IsObject(Desc.Value) ? _ProcessValue(Desc.Value) : Desc.Value })
+                } else {
+                    Target.DefineProp(Prop, Desc)
+                }
+            }
+            if Target is Array {
+                Target.Length := Subject.Length
+                for item in Subject {
+                    if IsSet(item) {
+                        Target[A_Index] := IsObject(item) ? _ProcessValue(item) : item
+                    }
+                }
+            } else if Target is Map {
+                Target.Capacity := Subject.Capacity
+                for Key, Val in Subject {
+                    if IsObject(Key) {
+                        Target.Set(_ProcessValue(Key), IsObject(Val) ? _ProcessValue(Val) : Val)
+                    } else {
+                        Target.Set(Key, IsObject(Val) ? _ProcessValue(Val) : Val)
+                    }
+                }
+            }
+            CurrentDepth--
+            return Target
+        }
+        _GetTarget1(Subject) {
+            try {
+                Target := GetObjectFromString(Subject.__Class)()
+            } catch {
+                if Subject Is Map {
+                    Target := Map()
+                } else if Subject is Array {
+                    Target := Array()
+                } else {
+                    Target := Object()
+                }
+            }
+            try {
+                ObjSetBase(Target, Subject.Base)
+            }
+            return Target
+        }
+        _GetTarget2(Subject) {
+            if ConstructorParams.Has(Subject.__Class) {
+                Target := GetObjectFromString(Subject.__Class)(ConstructorParams.Get(Subject.__Class)*)
+            } else {
+                try {
+                    Target := GetObjectFromString(Subject.__Class)()
+                } catch {
+                    if Subject Is Map {
+                        Target := Map()
+                    } else if Subject is Array {
+                        Target := Array()
+                    } else {
+                        Target := Object()
+                    }
+                }
+                try {
+                    ObjSetBase(Target, Subject.Base)
+                }
+            }
+            return Target
+        }
+        _ProcessValue(Val) {
+            if Val is ComValue {
+                return Val
+            }
+            if PtrList.Has(ObjPtr(Val)) {
+                return PtrList.Get(ObjPtr(Val))
+            }
+            if CurrentDepth == Depth {
+                return Val
+            } else {
+                PtrList.Set(ObjPtr(Val), _Target := GetTarget(Val))
+                return _Recurse(_Target, Val)
+            }
+        }
+        GetObjectFromString(Path) {
+            Split := StrSplit(Path, '.')
+            if !IsSet(%Split[1]%)
+                return
+            OutObj := %Split[1]%
+            i := 1
+            while ++i <= Split.Length {
+                if !OutObj.HasOwnProp(Split[i])
+                    return
+                OutObj := OutObj.%Split[i]%
+            }
+            return OutObj
         }
     }
     /**
@@ -836,9 +953,9 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := Container_DateObj.FromTimestamp(Value)
+                    Value := Container_Date.FromTimestamp(Value)
                 } else {
-                    Value := Container_DateObj.FromTimestamp(this.CallbackValue.Call(Value))
+                    Value := Container_Date.FromTimestamp(this.CallbackValue.Call(Value))
                 }
             case CONTAINER_SORTTYPE_CB_DATESTR:
                 CallbackCompare := this.CallbackCompareValue
@@ -848,7 +965,7 @@ class Container extends Array {
                     Value := CallbackValue(Value)
                 }
                 if IsNumber(Value) {
-                    Value := Container_DateObj.FromTimestamp(Value)
+                    Value := Container_Date.FromTimestamp(Value)
                 } else {
                     Value := this.__DateParser.Call(
                         Value
@@ -896,7 +1013,7 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := Container_DateObj.FromTimestamp(Value)
+                    Value := Container_Date.FromTimestamp(Value)
                 } else {
                     Value := this.DateParser.Call(
                         Value
@@ -1028,7 +1145,7 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := Container_DateObj.FromTimestamp(Value)
+                    Value := Container_Date.FromTimestamp(Value)
                 } else {
                     Value := this.DateParser.Call(
                         Value
@@ -1073,9 +1190,9 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := Container_DateObj.FromTimestamp(Value)
+                    Value := Container_Date.FromTimestamp(Value)
                 } else {
-                    Value := Container_DateObj.FromTimestamp(this.CallbackValue.Call(Value))
+                    Value := Container_Date.FromTimestamp(this.CallbackValue.Call(Value))
                 }
             case CONTAINER_SORTTYPE_CB_DATESTR:
                 CallbackCompare := this.CallbackCompareValue
@@ -1084,7 +1201,7 @@ class Container extends Array {
                 date := ''
                 if !IsObject(Value) {
                     if IsNumber(Value) {
-                        date := Container_DateObj.FromTimestamp(Value)
+                        date := Container_Date.FromTimestamp(Value)
                     } else {
                         date := this.DateParser.Call(
                             Value
@@ -1230,7 +1347,7 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := Container_DateObj.FromTimestamp(Value)
+                    Value := Container_Date.FromTimestamp(Value)
                 } else {
                     Value := this.DateParser.Call(
                         Value
@@ -1275,9 +1392,9 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := Container_DateObj.FromTimestamp(Value)
+                    Value := Container_Date.FromTimestamp(Value)
                 } else {
-                    Value := Container_DateObj.FromTimestamp(this.CallbackValue.Call(Value))
+                    Value := Container_Date.FromTimestamp(this.CallbackValue.Call(Value))
                 }
             case CONTAINER_SORTTYPE_CB_DATESTR:
                 CallbackCompare := this.CallbackCompareValue
@@ -1286,7 +1403,7 @@ class Container extends Array {
                 date := ''
                 if !IsObject(Value) {
                     if IsNumber(Value) {
-                        date := Container_DateObj.FromTimestamp(Value)
+                        date := Container_Date.FromTimestamp(Value)
                     } else {
                         date := this.DateParser.Call(
                             Value
@@ -1460,7 +1577,7 @@ class Container extends Array {
                 Compare1 := _CompareDate1
                 Compare2 := _CompareValue2
                 if IsNumber(Value) {
-                    Value := Container_DateObj.FromTimestamp(Value)
+                    Value := Container_Date.FromTimestamp(Value)
                 } else {
                     Value := this.DateParser.Call(
                         Value
@@ -1524,7 +1641,7 @@ class Container extends Array {
                 }
                 if !IsObject(Value) {
                     if IsNumber(Value) {
-                        date := Container_DateObj.FromTimestamp(Value)
+                        date := Container_Date.FromTimestamp(Value)
                     } else {
                         date := this.DateParser.Call(
                             Value
@@ -2132,7 +2249,7 @@ class Container extends Array {
                 Compare1 := _CompareDate1
                 Compare2 := _CompareValue2
                 if IsNumber(Value) {
-                    Value := Container_DateObj.FromTimestamp(Value)
+                    Value := Container_Date.FromTimestamp(Value)
                 } else {
                     Value := this.DateParser.Call(
                         Value
@@ -2196,7 +2313,7 @@ class Container extends Array {
                 }
                 if !IsObject(Value) {
                     if IsNumber(Value) {
-                        date := Container_DateObj.FromTimestamp(Value)
+                        date := Container_Date.FromTimestamp(Value)
                     } else {
                         date := this.DateParser.Call(
                             Value
@@ -2848,7 +2965,7 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := Container_DateObj.FromTimestamp(Value)
+                    Value := Container_Date.FromTimestamp(Value)
                 } else {
                     Value := this.DateParser.Call(
                         Value
@@ -2893,9 +3010,9 @@ class Container extends Array {
                 CallbackCompare := this.CallbackCompareValue
                 Compare := _CompareValue
                 if IsNumber(Value) {
-                    Value := Container_DateObj.FromTimestamp(Value)
+                    Value := Container_Date.FromTimestamp(Value)
                 } else {
-                    Value := Container_DateObj.FromTimestamp(this.CallbackValue.Call(Value))
+                    Value := Container_Date.FromTimestamp(this.CallbackValue.Call(Value))
                 }
             case CONTAINER_SORTTYPE_CB_DATESTR:
                 CallbackCompare := this.CallbackCompareValue
@@ -2904,7 +3021,7 @@ class Container extends Array {
                 date := ''
                 if !IsObject(Value) {
                     if IsNumber(Value) {
-                        date := Container_DateObj.FromTimestamp(Value)
+                        date := Container_Date.FromTimestamp(Value)
                     } else {
                         date := this.DateParser.Call(
                             Value
@@ -4576,22 +4693,22 @@ class Container extends Array {
      * The flags each exist as global variables by the same name as indicated in the documentation. To
      * combine flags, use the bitwise "or" ( | ), e.g. `LINGUISTIC_IGNORECASE | NORM_IGNORENONSPACE`.
      *
-     * @param {Integer|NlsVersionInfo|Buffer} [VersionInformation = 0] - Either a pointer to a
-     * NLSVERSIONINFO structure, or an {@link NlsVersionInfo} object, or a buffer containing an
-     * NLSVERSIONINFO structure. If `VersionInformation` is an object, the object is set to
-     * property {@link Container#CompareStringVersionInformation}.
+     * @param {Integer|NlsVersionInfoEx|Buffer} [NlsVersionInfo = 0] - Either a pointer to a
+     * NLSVERSIONINFOEX structure, or an {@link NlsVersionInfoEx} object, or a buffer containing an
+     * NLSVERSIONINFOEX structure. If `NlsVersionInfo` is an object, the object is set to
+     * property {@link Container#CompareStringNlsVersionInfo}.
      */
-    SetCompareStringEx(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING) {
+    SetCompareStringEx(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING) {
         if !IsNumber(LocaleName) {
             buf := this.CompareStringLocaleName := Buffer(StrPut(LocaleName, Encoding))
             StrPut(LocaleName, Buf, Encoding)
             LocaleName := buf.Ptr
         }
-        if IsObject(VersionInformation) {
-            this.CompareStringVersionInformation := VersionInformation
-            VersionInformation := VersionInformation.Ptr
+        if IsObject(NlsVersionInfo) {
+            this.CompareStringNlsVersionInfo := NlsVersionInfo
+            NlsVersionInfo := NlsVersionInfo.Ptr
         }
-        this.CallbackCompare := Container_CompareStringEx.Bind(LocaleName, Flags, VersionInformation)
+        this.CallbackCompare := Container_CompareStringEx.Bind(LocaleName, Flags, NlsVersionInfo)
     }
     /**
      * Defines the comparator for string date operations. This is only valid when dates are formatted
@@ -4616,15 +4733,15 @@ class Container extends Array {
     }
     /**
      * Defines the comparator for date sort operations. This permits sorting dates with any format
-     * of date string that can be interpeted using {@link Container_DateObj}. This requires that the
-     * file Container_DateObj.ahk is included with an `#include` statement, which is already
+     * of date string that can be interpeted using {@link Container_Date}. This requires that the
+     * file Container_Date.ahk is included with an `#include` statement, which is already
      * included at the top of Container.ahk.
      *
-     * For details about {@link Container_DateObj}, see Container_DateObj.ahk.
+     * For details about {@link Container_Date}, see Container_Date.ahk.
      *
      * {@link Container.Prototype.SetCompareDateStr} calls {@link Container.Prototype.SetDateParser}.
      *
-     * @param {String} DateFormat - The format string that {@link Container_DateObj} uses to parse
+     * @param {String} DateFormat - The format string that {@link Container_Date} uses to parse
      * date strings into usable date values.
      *
      * @param {String} [RegExOptions = ""] - The RegEx options to add to the beginning of the pattern.
@@ -4658,7 +4775,7 @@ class Container extends Array {
      * {@link Container.Prototype.SetDateParser} directly.
      *
      * Defines the comparator for date sort operations. This permits sorting dates with any format
-     * of date string that can be interpeted using {@link Container_DateObj}. See the description
+     * of date string that can be interpeted using {@link Container_Date}. See the description
      * above {@link Container.Prototype.SetCompareDateStr} for more info.
      *
      * Sets three properties, {@link Container#__DateParser}, {@link Container#CallbackCompare}
@@ -4668,7 +4785,7 @@ class Container extends Array {
      * {@link Container#CallbackCompareValue}; all other sort types use only
      * {@link Container#CallbackCompare}.
      *
-     * For details about {@link Container_DateObj}, see the Container_DateObj.ahk.
+     * For details about {@link Container_Date}, see the Container_Date.ahk.
      *
      * @param {Container_DateParser} DateParserObj - The {@link Container_DateParser}.
      *
@@ -5228,22 +5345,22 @@ class Container extends Array {
         this.SetCallbackValue(CallbackValue)
         return this
     }
-    ToCbString(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    ToCbString(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
         if Values.Length {
             this.Push(Values*)
         }
         this.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
         this.SetCallbackValue(CallbackValue)
-        this.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
         return this
     }
-    ToCbStringPtr(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    ToCbStringPtr(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
         if Values.Length {
             this.Push(Values*)
         }
         this.SetSortType(CONTAINER_SORTTYPE_CB_STRINGPTR)
         this.SetCallbackValue(CallbackValue)
-        this.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
         return this
     }
     ToDate(UseCompareDateEx := false, Values*) {
@@ -5293,20 +5410,20 @@ class Container extends Array {
         this.SetSortType(CONTAINER_SORTTYPE_NUMBER)
         return this
     }
-    ToString(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    ToString(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
         if Values.Length {
             this.Push(Values*)
         }
         this.SetSortType(CONTAINER_SORTTYPE_STRING)
-        this.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
         return this
     }
-    ToStringPtr(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, VersionInformation := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    ToStringPtr(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
         if Values.Length {
             this.Push(Values*)
         }
         this.SetSortType(CONTAINER_SORTTYPE_STRINGPTR)
-        this.SetCompareStringEx(LocaleName, Flags, VersionInformation, Encoding)
+        this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
         return this
     }
 

@@ -8,9 +8,9 @@ class Container_Test {
         list := Map()
         switch SortType, 0 {
             case CONTAINER_SORTTYPE_DATE:
-                date := Container_DateObj.FromTimestamp()
+                date := Container_Date.FromTimestamp()
                 while c.Length < Len {
-                    d := date.AddToNew(Random(1, CONTAINER_DATEOBJ_SECONDS_IN_YEAR) * (Random() > 0.5 ? 1 : -1), 'S')
+                    d := date.AddToNew(Random(1, CONTAINER_DATE_SECONDS_IN_YEAR) * (Random() > 0.5 ? 1 : -1), 'S')
                     if !list.Has(d.Timestamp) {
                         c.Push(d.Timestamp)
                         list.Set(d.Timestamp, 1)
@@ -19,10 +19,10 @@ class Container_Test {
                 C.SortType := CONTAINER_SORTTYPE_DATE
                 c.SetCompareDate()
             case CONTAINER_SORTTYPE_DATESTR:
-                date := Container_DateObj.FromTimestamp()
+                date := Container_Date.FromTimestamp()
                 format := 'yyyy-MM-dd HH:mm:ss'
                 while c.Length < Len {
-                    d := date.AddToNew(Random(1, CONTAINER_DATEOBJ_SECONDS_IN_YEAR) * (Random() > 0.5 ? 1 : -1), 'S')
+                    d := date.AddToNew(Random(1, CONTAINER_DATE_SECONDS_IN_YEAR) * (Random() > 0.5 ? 1 : -1), 'S')
                     str := d.Get(format)
                     if !list.Has(str) {
                         c.Push(str)
@@ -32,9 +32,9 @@ class Container_Test {
                 C.SortType := CONTAINER_SORTTYPE_DATESTR
                 c.SetCompareDateStr(format)
             case CONTAINER_SORTTYPE_CB_DATE:
-                date := Container_DateObj.FromTimestamp()
+                date := Container_Date.FromTimestamp()
                 while c.Length < Len {
-                    d := date.AddToNew(Random(1, CONTAINER_DATEOBJ_SECONDS_IN_YEAR) * (Random() > 0.5 ? 1 : -1), 'S')
+                    d := date.AddToNew(Random(1, CONTAINER_DATE_SECONDS_IN_YEAR) * (Random() > 0.5 ? 1 : -1), 'S')
                     if !list.Has(d.Timestamp) {
                         c.Push({ timestamp: d.Timestamp })
                         list.Set(d.Timestamp, 1)
@@ -44,10 +44,10 @@ class Container_Test {
                 c.SetCompareDate()
                 c.SetCallbackValue((value) => value.timestamp)
             case CONTAINER_SORTTYPE_CB_DATESTR:
-                date := Container_DateObj.FromTimestamp()
+                date := Container_Date.FromTimestamp()
                 format := 'yyyy-MM-dd HH:mm:ss'
                 while c.Length < Len {
-                    d := date.AddToNew(Random(1, CONTAINER_DATEOBJ_SECONDS_IN_YEAR) * (Random() > 0.5 ? 1 : -1), 'S')
+                    d := date.AddToNew(Random(1, CONTAINER_DATE_SECONDS_IN_YEAR) * (Random() > 0.5 ? 1 : -1), 'S')
                     str := d.Get(format)
                     if !list.Has(str) {
                         c.Push({ time: str })
@@ -121,9 +121,9 @@ class Container_Test {
                 c.SetCallbackValue((self) => self.prop)
                 c.arr := arr
             case CONTAINER_SORTTYPE_MISC:
-                date := Container_DateObj.FromTimestamp()
+                date := Container_Date.FromTimestamp()
                 while c.Length < Len {
-                    d := date.AddToNew(Random(1, CONTAINER_DATEOBJ_SECONDS_IN_YEAR) * (Random() > 0.5 ? 1 : -1), 'S')
+                    d := date.AddToNew(Random(1, CONTAINER_DATE_SECONDS_IN_YEAR) * (Random() > 0.5 ? 1 : -1), 'S')
                     if !list.Has(d.Timestamp) {
                         c.Push(d)
                         list.Set(d.Timestamp, 1)

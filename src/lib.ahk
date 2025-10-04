@@ -56,7 +56,7 @@ Container_SetConstants() {
     SORT_STRINGSORT                     := 0x00001000
 }
 
-Container_CompareStringEx(LocaleName, Flags, VersionInformation, Ptr1, Ptr2) {
+Container_CompareStringEx(LocaleName, Flags, NlsVersionInfo, Ptr1, Ptr2) {
     if result := DllCall(
         g_proc_kernel32_CompareStringEx
       , 'ptr', LocaleName
@@ -65,7 +65,7 @@ Container_CompareStringEx(LocaleName, Flags, VersionInformation, Ptr1, Ptr2) {
       , 'int', -1
       , 'ptr', Ptr2
       , 'int', -1
-      , 'ptr', VersionInformation
+      , 'ptr', NlsVersionInfo
       , 'ptr', 0
       , 'ptr', 0
       , 'int'
@@ -80,7 +80,7 @@ Container_CompareDate(date1, date2) {
     return DateDiff(date1, date2, 'S')
 }
 Container_CompareDateEx(date1, date2) {
-    return Container_DateObj.FromTimestamp(date1).TotalSeconds - Container_DateObj.FromTimestamp(date2).TotalSeconds
+    return Container_Date.FromTimestamp(date1).TotalSeconds - Container_Date.FromTimestamp(date2).TotalSeconds
 }
 Container_CompareDateStr(DateParserObj, dateStr1, dateStr2) {
     return DateParserObj(dateStr1).Diff('S', DateParserObj(dateStr2).Timestamp)

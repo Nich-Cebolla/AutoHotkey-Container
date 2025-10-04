@@ -1,25 +1,28 @@
 ﻿
-class NlsVersionInfo {
+/**
+ * An AHK wrapper for {@link https://learn.microsoft.com/en-us/windows/win32/api/winnls/ns-winnls-nlsversioninfoex}.
+ */
+class NlsVersionInfoEx {
     static __New() {
         this.DeleteProp('__New')
         proto := this.Prototype
         proto.cbSizeInstance :=
         ; Size    Type       Symbol                  OffsetPadding
-        4 +       ; DWORD    dwNLSVersionInfoSize    0
+        4 +       ; DWORD    dwNlsVersionInfoSize    0
         4 +       ; DWORD    dwNLSVersion            4
         4 +       ; DWORD    dwDefinedVersion        8
         4 +       ; DWORD    dwEffectiveId           12
         A_PtrSize ; GUID     guidCustomVersion       16
-        proto.offset_dwNLSVersionInfoSize  := 0
+        proto.offset_dwNlsVersionInfoSize  := 0
         proto.offset_dwNLSVersion          := 4
         proto.offset_dwDefinedVersion      := 8
         proto.offset_dwEffectiveId         := 12
         proto.offset_guidCustomVersion     := 16
     }
-    __New(dwNLSVersionInfoSize?, dwNLSVersion?, dwDefinedVersion?, dwEffectiveId?, guidCustomVersion?) {
+    __New(dwNlsVersionInfoSize?, dwNLSVersion?, dwDefinedVersion?, dwEffectiveId?, guidCustomVersion?) {
         this.Buffer := Buffer(this.cbSizeInstance)
-        if IsSet(dwNLSVersionInfoSize) {
-            this.dwNLSVersionInfoSize := dwNLSVersionInfoSize
+        if IsSet(dwNlsVersionInfoSize) {
+            this.dwNlsVersionInfoSize := dwNlsVersionInfoSize
         }
         if IsSet(dwNLSVersion) {
             this.dwNLSVersion := dwNLSVersion
@@ -34,10 +37,10 @@ class NlsVersionInfo {
             this.guidCustomVersion := guidCustomVersion
         }
     }
-    dwNLSVersionInfoSize {
-        Get => NumGet(this.Buffer, this.offset_dwNLSVersionInfoSize, 'uint')
+    dwNlsVersionInfoSize {
+        Get => NumGet(this.Buffer, this.offset_dwNlsVersionInfoSize, 'uint')
         Set {
-            NumPut('uint', Value, this.Buffer, this.offset_dwNLSVersionInfoSize)
+            NumPut('uint', Value, this.Buffer, this.offset_dwNlsVersionInfoSize)
         }
     }
     dwNLSVersion {

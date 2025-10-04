@@ -44,7 +44,7 @@ class test_Sort {
         }
         ; Check independently from CallbackCompare in case the error is propagated by CallbackCompare itself
         loop c.Length - 1 {
-            if Container_DateObj.FromTimestamp(c[A_Index]).TotalSeconds > Container_DateObj.FromTimestamp(c[A_Index + 1]).TotalSeconds {
+            if Container_Date.FromTimestamp(c[A_Index]).TotalSeconds > Container_Date.FromTimestamp(c[A_Index + 1]).TotalSeconds {
                 throw Error('Out of order values.', -1, 'Index1: ' A_Index '; value1: ' c[A_Index].TotalSeconds '; index2: ' A_Index + 1 '; value2: ' c[A_Index + 1].TotalSeconds)
             }
         }

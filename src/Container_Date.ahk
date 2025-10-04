@@ -6,7 +6,7 @@
     License: MIT
 */
 
-class Container_DateObj {
+class Container_Date {
     static __New() {
         this.DeleteProp('__New')
         proto := this.Prototype
@@ -33,13 +33,13 @@ class Container_DateObj {
           , 30          ; 11
           , 31          ; 12
         ]
-        global Container_DateObj_SECONDS_IN_YEAR := 31536000
-        , Container_DateObj_SECONDS_IN_LEAPYEAR := 31622400
+        global CONTAINER_DATE_SECONDS_IN_YEAR := 31536000
+        , CONTAINER_DATE_SECONDS_IN_LEAPYEAR := 31622400
     }
 
     /**
-     * @description - Creates a {@link Container_DateObj} instance from a date string and date format string. The
-     * parser is created in the process, and is available from the property `Container_DateObjInstance.Parser`.
+     * @description - Creates a {@link Container_Date} instance from a date string and date format string. The
+     * parser is created in the process, and is available from the property `Container_DateInstance.Parser`.
      * @param {String} DateStr - The date string to parse.
      * @param {String} DateFormat - The format of the date string. The format follows the same rules as
      * described on the AHK `FormatTime` page: {@link https://www.autohotkey.com/docs/v2/lib/FormatTime.htm}.
@@ -54,13 +54,13 @@ class Container_DateObj {
      * @example
      *  DateStr := '2024-01-28 19:15'
      *  DateFormat := 'yyyy-MM-dd HH:mm'
-     *  Date := Container_DateObj(DateStr, DateFormat)
+     *  Date := Container_Date(DateStr, DateFormat)
      *  MsgBox(Date.Year '-' Date.Month '-' Date.Day ' ' Date.Hour ':' Date.Minute) ; 2024-01-28 19:15
      * @
      * @example
      *  DateStr := 'Voicemail From <1-555-555-5555> at 2024-01-28 07:15:20'
      *  DateFormat := 'at \t{yyyy-MM-dd HH:mm:ss}'
-     *  Date := Container_DateObj(DateStr, DateFormat)
+     *  Date := Container_Date(DateStr, DateFormat)
      *  MsgBox(Date.Year '-' Date.Month '-' Date.Day ' ' Date.Hour ':' Date.Minute ':' Date.Second) ; 2024-01-28 07:15:20
      * @
      *
@@ -68,7 +68,7 @@ class Container_DateObj {
      * @example
      *  DateStr := 'Voicemail From <1-555-555-5555> Received January 28, 2024 at 12:15:20 AM'
      *  DateFormat := 'Received \t{MMMM dd, yyyy} at \t{hh:mm:ss tt}'
-     *  Date := Container_DateObj(DateStr, DateFormat, 'i)') ; Use case insensitive matching when matching a month by name.
+     *  Date := Container_Date(DateStr, DateFormat, 'i)') ; Use case insensitive matching when matching a month by name.
      *  MsgBox(Date.Year '-' Date.Month '-' Date.Day ' ' Date.Hour ':' Date.Minute ':' Date.Second) ; 2024-01-28 00:15:20
      * @
      *
@@ -77,19 +77,19 @@ class Container_DateObj {
      *  DateStr1 := 'Voicemail From <1-555-555-5555> Received January 28, 2024 at 12:15 AM'
      *  DateStr2 := 'Voicemail From <1-555-555-5555> Received January 28, 2024 at 12:15:12 AM'
      *  DateFormat := 'Received \t{MMMM dd, yyyy} at \t{hh:mm:?ss? tt}'
-     *  Date1 := Container_DateObj(DateStr1, DateFormat, 'i)') ; Use case insensitive matching when matching a month by name.
-     *  Date2 := Container_DateObj(DateStr2, DateFormat, 'i)')
+     *  Date1 := Container_Date(DateStr1, DateFormat, 'i)') ; Use case insensitive matching when matching a month by name.
+     *  Date2 := Container_Date(DateStr2, DateFormat, 'i)')
      *  MsgBox(Date1.Year '-' Date1.Month '-' Date1.Day ' ' Date1.Hour ':' Date1.Minute ':' Date1.Second) ; 2024-01-28 00:15:00
-     *  Date2 := Container_DateObj(DateStr2, DateFormat)
+     *  Date2 := Container_Date(DateStr2, DateFormat)
      *  MsgBox(Date2.Year '-' Date2.Month '-' Date2.Day ' ' Date2.Hour ':' Date2.Minute ':' Date2.Second) ; 2024-01-28 00:15:12
      * @
      *
-     *   - The match object is set to the property `Container_DateObjInstance.Match`. Include any extra subcapture
+     *   - The match object is set to the property `Container_DateInstance.Match`. Include any extra subcapture
      * groups that you are interested in.
      * @example
      *  DateStr := 'The child was born May 2, 1990, the year of the horse'
      *  DateFormat := '\t{MMMM d, yyyy}, the year of the (?<animal>\w+)'
-     *  Date := Container_DateObj(DateStr, DateFormat, 'i)') ; Use case insensitive matching when matching a month by name.
+     *  Date := Container_Date(DateStr, DateFormat, 'i)') ; Use case insensitive matching when matching a month by name.
      *  MsgBox(Date.Year '-' Date.Month '-' Date.Day ' ' Date.Hour ':' Date.Minute ':' Date.Second) ; 1990-05-02 00:00:00
      *  MsgBox(Date.Match['animal']) ; horse
      * @
@@ -105,18 +105,18 @@ class Container_DateObj {
      * before the function completes. The values are validated numerically, and if any value exceeds
      * the maximum value for that property, an error is thrown. For example, if the month is greater
      * than 12 or the hour is greater than 24, an error is thrown.
-     * @returns {Container_DateObj} - The {@link Container_DateObj} object.
+     * @returns {Container_Date} - The {@link Container_Date} object.
      */
     static Call(DateStr, DateFormat, RegExOptions := '', SubcaptureGroup := true, Century?, Validate := false) {
         return Container_DateParser(DateFormat, RegExOptions, SubcaptureGroup)(DateStr, Century ?? unset, Validate)
     }
 
     /**
-     * @description - Creates a {@link Container_DateObj} object from a timestamp string.
-     * @param {String} [Timestamp] - The timestamp string from which to create the {@link Container_DateObj}
+     * @description - Creates a {@link Container_Date} object from a timestamp string.
+     * @param {String} [Timestamp] - The timestamp string from which to create the {@link Container_Date}
      * object. `Timestamp` should at least be 4 characters long containing the year. The rest is
      * optional. If unset, `A_Now` is used.
-     * @returns {Container_DateObj} - The {@link Container_DateObj} object.
+     * @returns {Container_Date} - The {@link Container_Date} object.
      */
     static FromTimestamp(Timestamp?) {
         if !IsSet(Timestamp) {
@@ -190,8 +190,8 @@ class Container_DateObj {
     }
 
     static GetSeconds(StartTimestamp, EndTimestamp) {
-        start := Container_DateObj.FromTimestamp(StartTimestamp)
-        end := Container_DateObj.FromTimestamp(EndTimestamp)
+        start := Container_Date.FromTimestamp(StartTimestamp)
+        end := Container_Date.FromTimestamp(EndTimestamp)
         if end.Year < start.Year || (start.Year = end.Year && end.YearSeconds < start.YearSeconds) {
             throw ValueError('``StartTimestamp`` must specify a time value earlier than ``EndTimestamp``.', -1)
         }
@@ -202,8 +202,8 @@ class Container_DateObj {
         leapYears := this.LeapCountBetween(start.Year, end.Year)
         return start.SecondsRemainingInYear                                     ; remainder of start year
           + end.YearSeconds                                     ; elapsed in end year
-          + (end.Year - start.Year - 1 - leapYears) * Container_DateObj_SECONDS_IN_YEAR   ; 365-day years
-          + leapYears * Container_DateObj_SECONDS_IN_LEAPYEAR             ; 366-day years
+          + (end.Year - start.Year - 1 - leapYears) * CONTAINER_DATE_SECONDS_IN_YEAR   ; 365-day years
+          + leapYears * CONTAINER_DATE_SECONDS_IN_LEAPYEAR             ; 366-day years
     }
 
     static IsLeapYear(Year) => (!Mod(Year, 4) && (Mod(Year, 100) || !Mod(Year, 400))) ? 1 : 0
@@ -243,7 +243,7 @@ class Container_DateObj {
         }
     }
     /**
-     * Sets the default century that is used when the {@link Container_DateObj#Year} property is updated with
+     * Sets the default century that is used when the {@link Container_Date#Year} property is updated with
      * a one- or two-digit year value. Though this property is referred to as "default century",
      * you can specify the decade in the default century value if you expect to work with
      * year values that are single digit. For example, if your code sets the default century to "199"
@@ -251,7 +251,7 @@ class Container_DateObj {
      *
      * The default default century is the current year and decade, i.e. `SubStr(A_Now, 1, 3)`.
      *
-     * If the default century includes the decade, if your code sets {@link Container_DateObj#Year} with a
+     * If the default century includes the decade, if your code sets {@link Container_Date#Year} with a
      * two-digit value, the decade from the input value is used. For example, if your code sets
      * the default century to "199" and then sets `Date.Year := 04`, the year value will be set as
      * "1904".
@@ -275,16 +275,16 @@ class Container_DateObj {
     Add(Time, TimeUnits) => this.Set(DateAdd(this.Timestamp, Time, TimeUnits))
 
     /**
-     * @description - Creates a new {@link Container_DateObj} by adding the time value to this object's
+     * @description - Creates a new {@link Container_Date} by adding the time value to this object's
      * timestamp with {@link https://www.autohotkey.com/docs/v2/lib/DateAdd.htm DateAdd}. Does
      * not modify this object's time value.
      * @param {Integer} Time - The amount of time to add, as an integer or floating-point number.
      * Specify a negative number to perform subtraction.
      * @param {String} TimeUnits - The meaning of the `Time` parameter. TimeUnits may be one of the
      * following strings (or just the first letter): Seconds, Minutes, Hours or Days.
-     * @returns {Container_DateObj} - The new {@link Container_DateObj} object.
+     * @returns {Container_Date} - The new {@link Container_Date} object.
      */
-    AddToNew(Time, TimeUnits) => Container_DateObj.FromTimestamp(DateAdd(this.Timestamp, Time, TimeUnits))
+    AddToNew(Time, TimeUnits) => Container_Date.FromTimestamp(DateAdd(this.Timestamp, Time, TimeUnits))
 
     /**
      * @description - Adds the time value to this object's timestamp with
@@ -299,11 +299,11 @@ class Container_DateObj {
     AddToTimestamp(Time, TimeUnits) => DateAdd(this.Timestamp, Time, TimeUnits)
 
     /**
-     * Calls `Container_DateObj.FromTimestamp(this.Timestamp)`, returning a new {@link Container_DateObj} with the same
+     * Calls `Container_Date.FromTimestamp(this.Timestamp)`, returning a new {@link Container_Date} with the same
      * time value.
-     * @returns {Container_DateObj}
+     * @returns {Container_Date}
      */
-    Clone() => Container_DateObj.FromTimestamp(this.Timestamp)
+    Clone() => Container_Date.FromTimestamp(this.Timestamp)
 
     /**
      * @description - Get the difference between two dates.
@@ -322,11 +322,11 @@ class Container_DateObj {
      * @param {Integer} Month - The month to get the number of days for.
      * @returns {Integer} - The number of days in the month.
      */
-    GetDayCount(Month) => Container_DateObj.GetDayCount(Month, this.Year)
+    GetDayCount(Month) => Container_Date.GetDayCount(Month, this.Year)
 
     /**
      * @description - Get the timestamp from the date object. You can pass default values to
-     * any of the parameters. Also see {@link Container_DateObj.SetDefault}.
+     * any of the parameters. Also see {@link Container_Date.SetDefault}.
      * @param {String} [DefaultYear] - The default year to use if the year is not set.
      * @param {String} [DefaultMonth] - The default month to use if the month is not set.
      * @param {String} [DefaultDay] - The default day to use if the day is not set.
@@ -356,7 +356,7 @@ class Container_DateObj {
     /**
      * Adjusts this object's time value using an input timestamp. The input timestamp does not need
      * to be the full 14 characters representing yyyyMMddHHmmss, but the meaning of the characters
-     * are interpreted in that order. For example, passing "2004" to {@link Container_DateObj.Prototype.Set}
+     * are interpreted in that order. For example, passing "2004" to {@link Container_Date.Prototype.Set}
      * will only update the year to 2004. Passing "200403" will update the year to 2004 and the month
      * to 03. Passing "20040320" will update the year to 2004, the month to 03, and the day to 20.
      * @param {String|Integer} Timestamp - The new time value.
@@ -403,7 +403,7 @@ class Container_DateObj {
                 if StrLen(this.DefaultCentury) >= 3 {
                     this.DefineProp('__Year', { Value: this.DefaultCentury Year })
                 } else {
-                    ; If you get this error, see static method `Container_DateObj.SetDefaultCentury`.
+                    ; If you get this error, see static method `Container_Date.SetDefaultCentury`.
                     throw ValueError('The input ``Year`` is one digit, but the default century'
                     ' value is less than three digits, so the correct year cannot be constructed.'
                     , -1, Year)
@@ -412,7 +412,7 @@ class Container_DateObj {
                 if StrLen(this.DefaultCentury) >= 2 {
                     this.DefineProp('__Year', { Value: SubStr(this.DefaultCentury, 1, 2) Year })
                 } else {
-                    ; If you get this error, see static method `Container_DateObj.SetDefaultCentury`.
+                    ; If you get this error, see static method `Container_Date.SetDefaultCentury`.
                     throw ValueError('The input ``Year`` is two digits, but the default century'
                     ' value is less than two digits, so the correct year cannot be constructed.'
                     , -1, Year)
@@ -438,7 +438,7 @@ class Container_DateObj {
      * @description - Enables the ability to get a numeric value by adding 'N' to the front of a
      * property name.
      * @example
-     *  Date := Container_DateObj('2024-01-28 19:15', 'yyyy-MM-dd HH:mm')
+     *  Date := Container_Date('2024-01-28 19:15', 'yyyy-MM-dd HH:mm')
      *  MsgBox(Type(Date.Minute)) ; String
      *  MsgBox(Type(Date.NMinute)) ; Integer
      *
@@ -462,66 +462,66 @@ class Container_DateObj {
 
     /**
      * The number of seconds from midnight, including the object's current second.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {Integer}
      */
     DaySeconds => this.Hour * 3600 + this.Minute * 60 + this.Second
     /**
      * Returns 1 if the object's year is a leap year, 0 otherwise.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {Integer}
      */
-    IsLeapYear => Container_DateObj.IsLeapYear(this.Year)
+    IsLeapYear => Container_Date.IsLeapYear(this.Year)
     /**
      * The number of seconds since January 01, 00:00:00 of the object's millenia. For example, if the
-     * object's time value is 20240530182020, then {@link Container_DateObj.Prototype.MilleniaSeconds} will
+     * object's time value is 20240530182020, then {@link Container_Date.Prototype.MilleniaSeconds} will
      * return the number of seconds from January 01, 2000, 00:00:00.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {Integer}
      */
-    MilleniaSeconds => Container_DateObj.GetSeconds(SubStr(this.Year, 1, 1) '000' SubStr(this.Timestamp, 5), this.Timestamp)
+    MilleniaSeconds => Container_Date.GetSeconds(SubStr(this.Year, 1, 1) '000' SubStr(this.Timestamp, 5), this.Timestamp)
     /**
      * The total seconds in this object's year. If it is a leap year, returns 31536000. Else,
      * returns 31449600.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {Integer}
      */
-    SecondsInYear => this.IsLeapYear ? Container_DateObj_SECONDS_IN_LEAPYEAR : Container_DateObj_SECONDS_IN_YEAR
+    SecondsInYear => this.IsLeapYear ? CONTAINER_DATE_SECONDS_IN_LEAPYEAR : CONTAINER_DATE_SECONDS_IN_YEAR
     /**
      * The seconds remaining until January 01 of the year following the object's current year.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {Integer}
      */
     SecondsRemainingInYear => this.SecondsInYear - this.YearSeconds
     /**
      * The timestamp of the date object.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
     Timestamp => this.GetTimestamp()
     /**
      * The number of seconds since January 01, 00:00:00 of year 1 in the proleptic Gregorian calendar.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {Integer}
      */
-    TotalSeconds => Container_DateObj.GetSeconds('00010101000000', this.Timestamp)
+    TotalSeconds => Container_Date.GetSeconds('00010101000000', this.Timestamp)
     /**
      * The number of days since January 01 of the object's year, including the object's current day.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {Integer}
      */
     YearDays {
         Get {
             d := 0
-            monthDays := Container_DateObj.MonthDays
+            monthDays := Container_Date.MonthDays
             loop this.Month - 1 {
                 if A_Index == 2 {
                     d += Mod(this.Year, 4) ? 28 : 29
@@ -535,7 +535,7 @@ class Container_DateObj {
     /**
      * The number of seconds since January 01, 00:00:00 of the object's year, including the object's
      * current second.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {Integer}
      */
@@ -555,21 +555,21 @@ class Container_DateObj {
 
     /**
      * Long date representation for the current user's locale, such as Friday, April 23, 2004.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
     LongDate => FormatTime(this.Timestamp ' ' this.Options, 'LongDate')
     /**
      * Short date representation for the current user's locale, such as 02/29/04.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
     ShortDate => FormatTime(this.Timestamp ' ' this.Options, 'ShortDate')
     /**
      * Time representation for the current user's locale, such as 5:26 PM.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
@@ -577,42 +577,42 @@ class Container_DateObj {
     /**
      * "Leave Format blank to produce the time followed by the long date. For example, in some
      * locales it might appear as 4:55 PM Saturday, November 27, 2004"
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
     ToLocale => FormatTime(this.Timestamp)
     /**
      * Day of the week (1 – 7). Sunday is 1.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
     WDay => FormatTime(this.Timestamp ' ' this.Options, 'WDay')
     /**
      * Day of the year without leading zeros (1 – 366).
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
     YDay => FormatTime(this.Timestamp ' ' this.Options, 'YDay')
     /**
      * Day of the year with leading zeros (001 – 366).
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
     YDay0 => FormatTime(this.Timestamp ' ' this.Options, 'YDay0')
     /**
      * Year and month format for the current user's locale, such as February, 2004.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
     YearMonth => FormatTime(this.Timestamp ' ' this.Options, 'YearMonth')
     /**
      * The ISO 8601 full year and week number.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
@@ -620,7 +620,7 @@ class Container_DateObj {
 
     /**
      * The year value.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
@@ -630,7 +630,7 @@ class Container_DateObj {
     }
     /**
      * The month value.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
@@ -640,7 +640,7 @@ class Container_DateObj {
     }
     /**
      * The day value.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
@@ -650,7 +650,7 @@ class Container_DateObj {
     }
     /**
      * The hour value.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
@@ -660,7 +660,7 @@ class Container_DateObj {
     }
     /**
      * The minute value.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
@@ -670,7 +670,7 @@ class Container_DateObj {
     }
     /**
      * The second value.
-     * @memberof Container_DateObj
+     * @memberof Container_Date
      * @instance
      * @type {String}
      */
@@ -701,7 +701,7 @@ class Container_DateParser {
      * "h:m:s" - time by itself, the seconds optional
      *
      * @param {String} DateStr - The date string to parse.
-     * @returns {Container_DateObj} - The {@link Container_DateObj} object.
+     * @returns {Container_Date} - The {@link Container_Date} object.
      */
     static Parse(DateStr) {
         if RegExMatch(DateStr, '(?<Year>\d{4}).(?<Month>\d{1,2}).(?<Day>\d{1,2})(?:.+?(?<Hour>\d{1,2}).(?<Minute>\d{1,2})(?:.(?<Second>\d{1,2}))?)?', &match)
@@ -713,21 +713,21 @@ class Container_DateParser {
               , Hour: match.Len['Hour'] ? (match.Len['Hour'] == 1 ? '0' : '') match['Hour'] : unset
               , Minute: match.Len['Minute'] ? (match.Len['Minute'] == 1 ? '0' : '') match['Minute'] : unset
               , Second: match.Len['Second'] ? (match.Len['Second'] == 1 ? '0' : '') match['Second'] : unset
-            }, Container_DateObj.Prototype)
+            }, Container_Date.Prototype)
         } else if RegExMatch(DateStr, '(?<Hour>\d{1,2}):(?<Minute>\d{1,2})(?::(?<Second>\d{1,2}))?', &match) {
             ObjSetBase(Date := {
                 Hour: (match.Len['Hour'] == 1 ? '0' : '') match['Hour']
               , Minute: (match.Len['Minute'] == 1 ? '0' : '') match['Minute']
               , Second: match['Second'] ? (match.Len['Second'] == 1 ? '0' : '') match['Second'] : unset
-            }, Container_DateObj.Prototype)
+            }, Container_Date.Prototype)
         }
         Date.Match := match
         return Date
     }
 
     /**
-     * @description - Creates a `Container_DateParser` object that can be reused to create {@link Container_DateObj} objects.
-     * @param {String} DateFormat - The format of the date string. See the {@link Container_DateObj.Call}
+     * @description - Creates a `Container_DateParser` object that can be reused to create {@link Container_Date} objects.
+     * @param {String} DateFormat - The format of the date string. See the {@link Container_Date.Call}
      * description for details.
      * @param {String} [RegExOptions=""] - The RegEx options to add to the beginning of the pattern.
      * Include the close parenthesis, e.g. "i)".
@@ -808,7 +808,7 @@ class Container_DateParser {
     }
 
     /**
-     * @description - Parses the input date string and returns a {@link Container_DateObj} object.
+     * @description - Parses the input date string and returns a {@link Container_Date} object.
      * @param {String} DateStr - The date string to parse.
      * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
      * the current century is used.
@@ -816,14 +816,14 @@ class Container_DateParser {
      * before the function completes. The values are validated numerically, and if any value exceeds
      * the maximum value for that property, an error is thrown. For example, if the month is greater
      * than 13 or the hour is greater than 24, an error is thrown.
-     * @returns {Container_DateObj} - The {@link Container_DateObj} object.
+     * @returns {Container_Date} - The {@link Container_Date} object.
      */
     Call(DateStr, Century?, Validate := false) {
         local Match
         if !RegExMatch(DateStr, this.RegExOptions this.Pattern, &match) {
             return ''
         }
-        ObjSetBase(Date := {}, Container_DateObj.Prototype)
+        ObjSetBase(Date := {}, Container_Date.Prototype)
         Date.DefineProp('Parser', { Value: this })
         Date.DefineProp('Match', { Value: match })
         for unit, str in match {
@@ -845,7 +845,7 @@ class Container_DateParser {
                                 Date.DefineProp('__Month', { Value: match['Month'] })
                             }
                         } else {
-                            Date.DefineProp('__Month', { Value: Container_DateObj.GetMonthIndex(match['Month'], true) })
+                            Date.DefineProp('__Month', { Value: Container_Date.GetMonthIndex(match['Month'], true) })
                         }
                     }
                 case 'Hour':
@@ -893,7 +893,7 @@ class Container_DateParser {
             if Date.Month == '02' && !Date.Year {
                 if Date.NDay > 29
                     _ThrowInvalidResultError('Day: ' Date.Day)
-            } else if Date.NDay > Container_DateObj.GetDayCount(Date.NMonth, Date.NYear)
+            } else if Date.NDay > Container_Date.GetDayCount(Date.NMonth, Date.NYear)
                 _ThrowInvalidResultError('Day: ' Date.Day)
             if Date.NHour > 24
                 _ThrowInvalidResultError('Hour: ' Date.Hour)
