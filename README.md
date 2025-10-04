@@ -474,7 +474,7 @@ exhaustive.
 
 ## Quick start summary
 
-- A `Container` object requires 2-3 properties to be viable for sort and binary search operations.
+- A `Container` object requires 1-3 properties to be viable for sort and binary search operations.
   - `ContainerObj.SortType` - An integer representing the sort type.
   - `ContainerObj.CallbackCompare` - A function which compares two values.
     - For string comparisons, call `Container.Prototype.SetCompareStringEx`.
@@ -542,7 +542,7 @@ Use one of the "ToXXX" instance methods to set the needed properties on an exist
 `Container.Prototype.Copy` allows you to use one `Container` object to instantiate another identical
 `Container` object. Unlike `Array.Prototype.Clone` which will also copy the items, `Container.Prototype.Copy`
 only copies the own properties and the base object to the new instance. If your project will be using
-a number `Container` objects with the same setup, you can simply create a template and then any time
+a number of `Container` objects with the same setup, you can simply create a template and then any time
 your project needs a new instance, copy the template.
 
 Make the template:
