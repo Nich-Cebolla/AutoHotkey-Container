@@ -512,7 +512,6 @@ the specified sort type.
 - `Container.DateStr`
 - `Container.DateStrFromParser`
 - `Container.DateValue`
-- `Container.FromArray`
 - `Container.Misc`
 - `Container.Number`
 - `Container.String`
