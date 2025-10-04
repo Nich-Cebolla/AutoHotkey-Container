@@ -91,6 +91,17 @@ class Container extends Array {
         c.DatePreprocess(, , PropertyName)
         return c
     }
+    /**
+     * Converts an existing `Array` object into a `Container` object.
+     *
+     * @param {Array} Arr - The `Array` object to convert.
+     *
+     * @returns {Container} - The same `Arr` after changing the base to `Container.Prototype`.
+     */
+    static FromArray(Arr) {
+        ObjSetBase(Arr, this.Prototype)
+        return Arr
+    }
     static Misc(CallbackCompare, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_MISC)
