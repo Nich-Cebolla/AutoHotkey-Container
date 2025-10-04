@@ -1,6 +1,10 @@
 ﻿
 #include Container_Test.ahk
 
+if A_LineFile == A_ScriptFullPath {
+    test_misc()
+}
+
 class test_misc {
     static __New() {
         this.DeleteProp('__New')
@@ -8,6 +12,7 @@ class test_misc {
     }
     static Call() {
         this.Compare()
+        this.DeepClone()
         this.Insert()
         this.InsertSparse()
     }
@@ -22,6 +27,24 @@ class test_misc {
                 c.InsertAt(1, n)
             } else {
                 c.Push(n)
+            }
+        }
+    }
+    static DeepClone() {
+        c1 := Container_Test(CONTAINER_SORTTYPE_CB_DATESTR, this.Len, true)
+        c2 := c1.DeepClone()
+        for prop in c1.OwnProps() {
+            if !c2.HasOwnProp(prop) {
+                throw PropertyError('Missing property.', , prop)
+            }
+        }
+        callbackValue := c1.CallbackValue
+        for value in c1 {
+            if callbackValue(value) != callbackValue(c2[A_Index]) {
+                throw Error('Values out of order.', , 'Index: ' A_Index)
+            }
+            if ObjPtr(value) = ObjPtr(c2[A_Index]) {
+                throw Error('The objects are the same.', , 'Index: ' A_Index)
             }
         }
     }
