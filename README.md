@@ -90,7 +90,7 @@ object" or `ContainerObj`.
 class Container extends Array
 ```
 
-`Container` inherits from `Array` and exposes **almost 100** additional methods to perform common actions
+`Container` inherits from `Array` and exposes **over 95** additional methods to perform common actions
 such as sorting and finding values.
 
 The class methods can be divided into three categories:
@@ -490,6 +490,7 @@ the specified sort type.
 - `Container.DateStr`
 - `Container.DateStrFromParser`
 - `Container.DateValue`
+- `Container.FromArray`
 - `Container.Misc`
 - `Container.Number`
 - `Container.String`
@@ -550,6 +551,11 @@ property values, the value on the template will be the same object as the one on
 It will deep clone the `Container` object, its own properties, and its items. The return value is a
 `Container` object with the same base, deep cloned own properties, and deep cloned items. It does
 **not** deep clone inherited property values that are objects.
+
+## `Container.FromArray`
+
+`Container.FromArray` takes an existing `Array` object and converts it to a `Container` object, returning
+the original object after changing the base to `Container.Prototype`.
 
 ## `Container.StrSplit`
 
@@ -776,6 +782,7 @@ The following is a list of static methods.
   - `Container.Number`
   - `Container.String`
   - `Container.StringPtr`
+- `Container.FromArray`
 - `Container.StrSplit`
 
 ## Instance methods - Alphabetized list
