@@ -657,7 +657,7 @@ Parameters:
 
 - {String} DateStr - The date string to parse.
 - {String} DateFormat - The format of the date string. The format follows the same rules as
-described on the AHK [`FormatTime` page](https://www.autohotkey.com/docs/v2/lib/FormatTime.htm):
+described on the AHK [`FormatTime`](https://www.autohotkey.com/docs/v2/lib/FormatTime.htm) page:
   - The format string can include any of the following units: 'y', 'M', 'd', 'H', 'h', 'm', 's', 't'.
     See the link for details.
   - Only numeric day units are recognized by this function. This function will not match with
@@ -1065,8 +1065,7 @@ information about a function in a tooltip within the editor.
 
 I've written 95% of my code in [Visual Studio Code](https://apps.microsoft.com/detail/xp9khm4bk9fz7q),
 so I do not know about other editors. If your code editor does not have this functionality, but
-you are interested in trying out a new editor, I recommend
-[Visual Studio Code](https://apps.microsoft.com/detail/xp9khm4bk9fz7q). Be sure to install thqby's
+you are interested in trying out a new editor, I recommend Visual Studio Code. Be sure to install thqby's
 [AutoHotkey v2 Language Support](https://marketplace.visualstudio.com/items?itemName=thqby.vscode-autohotkey2-lsp)
 extension. Also you will want to install a debugger. I have been using
 [vscode-autohotkey-debug](https://marketplace.visualstudio.com/items?itemName=zero-plusplus.vscode-autohotkey-debug)
@@ -1075,11 +1074,10 @@ right now and
 [AutoHotKey Debug](https://marketplace.visualstudio.com/items?itemName=helsmy.autohotkey-debug)
 looks promising.
 
-[Visual Studio Code](https://apps.microsoft.com/detail/xp9khm4bk9fz7q) is massively customizable and
-can be intimidating to use at first, but you will get the hang of it over time. Parameter hints
-are invoked by the action called "Trigger parameter hints". You can customize the keyboard
-shortcut for this by opening Keyboard Shortcuts (Ctrl+Shift+P > Preferences: Open Keyboard Shortcuts)
-and searching "Trigger parameter hints".
+Visual Studio Code is massively customizable and can be intimidating to use at first, but you will
+get the hang of it over time. Parameter hints are invoked by the action called "Trigger parameter
+hints". You can customize the keyboard shortcut for this by opening Keyboard Shortcuts
+(Ctrl+Shift+P > Preferences: Open Keyboard Shortcuts) and searching "Trigger parameter hints".
 
 # Changelog
 
