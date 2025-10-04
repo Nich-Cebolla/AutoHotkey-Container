@@ -470,39 +470,39 @@ using an alternative method.
 Use one of the static methods to instantiate a new container with all the needed properties for
 the specified sort type.
 
-- Container.CbDate
-- Container.CbDateStr
-- Container.CbDateStrFromParser
-- Container.CbNumber
-- Container.CbString
-- Container.CbStringPtr
-- Container.Date
-- Container.DateStr
-- Container.DateStrFromParser
-- Container.DateValue
-- Container.Misc
-- Container.Number
-- Container.String
-- Container.StringPtr
+- `Container.CbDate`
+- `Container.CbDateStr`
+- `Container.CbDateStrFromParser`
+- `Container.CbNumber`
+- `Container.CbString`
+- `Container.CbStringPtr`
+- `Container.Date`
+- `Container.DateStr`
+- `Container.DateStrFromParser`
+- `Container.DateValue`
+- `Container.Misc`
+- `Container.Number`
+- `Container.String`
+- `Container.StringPtr`
 
 ## Instantiating a `Container` - Instance methods
 
 Use one of the "ToXXX" instance methods to set the needed properties on an existing instance.
 
-- Container.Prototype.ToCbDate
-- Container.Prototype.ToCbDateStr
-- Container.Prototype.ToCbDateStrFromParser
-- Container.Prototype.ToCbNumber
-- Container.Prototype.ToCbString
-- Container.Prototype.ToCbStringPtr
-- Container.Prototype.ToDate
-- Container.Prototype.ToDateStr
-- Container.Prototype.ToDateStrFromParser
-- Container.Prototype.ToDateValue
-- Container.Prototype.ToMisc
-- Container.Prototype.ToNumber
-- Container.Prototype.ToString
-- Container.Prototype.ToStringPtr
+- `Container.Prototype.ToCbDate`
+- `Container.Prototype.ToCbDateStr`
+- `Container.Prototype.ToCbDateStrFromParser`
+- `Container.Prototype.ToCbNumber`
+- `Container.Prototype.ToCbString`
+- `Container.Prototype.ToCbStringPtr`
+- `Container.Prototype.ToDate`
+- `Container.Prototype.ToDateStr`
+- `Container.Prototype.ToDateStrFromParser`
+- `Container.Prototype.ToDateValue`
+- `Container.Prototype.ToMisc`
+- `Container.Prototype.ToNumber`
+- `Container.Prototype.ToString`
+- `Container.Prototype.ToStringPtr`
 
 ## `Container.Prototype.Copy`
 
