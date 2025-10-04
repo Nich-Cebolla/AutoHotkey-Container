@@ -121,3 +121,33 @@ Container_ConvertDate(DateObjFunc, Self, Value) {
 Container_ConvertDateCb(DateObjFunc, CallbackValue, Self, Value) {
     return DateObjFunc(CallbackValue(Value)).TotalSeconds
 }
+
+Container_IndexToSymbol(index) {
+    if !Container.HasOwnProp('SortType') {
+        Container_SetSortTypeContainer()
+    }
+    if Container.SortType.Find(index, &value) {
+        return value
+    } else {
+        throw IndexError('``index`` is out of range.', , index)
+    }
+}
+Container_SetSortTypeContainer() {
+    sortType := Container.SortType := Container.CbNumber((value) => value.index)
+    for s in Container.SortTypeSymbolList {
+        if InStr(s, '_CB_') {
+            obj := {
+                index: %s%
+              , name: RegExReplace(s, 'CONTAINER_SORTTYPE_CB_(\w)(\w+)', 'Cb$1$L2')
+              , symbol: s
+            }
+        } else {
+            obj := {
+                index: %s%
+              , name: RegExReplace(s, 'CONTAINER_SORTTYPE_(\w)(\w+)', '$1$L2')
+              , symbol: s
+            }
+        }
+        sortType.Insert(obj)
+    }
+}
