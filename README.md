@@ -635,7 +635,7 @@ representing the number of seconds between Jan 01, 1, 00:00:00 and the date asso
 ## `Container_Date`
 
 [`Container_Date` and `Container_DateParser`](https://github.com/Nich-Cebolla/AutoHotkey-Container/blob/main/src/Container_Date.ahk)
-is repurposed from my [DateObj](https://github.com/Nich-Cebolla/AutoHotkey-DateObj) class.
+are repurposed from my [DateObj](https://github.com/Nich-Cebolla/AutoHotkey-DateObj) class.
 The methods are fully documented in either file, but this section provides a quick rundown.
 
 ### Using `Container_Date` with timestamps
