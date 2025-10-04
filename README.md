@@ -122,7 +122,7 @@ Using `Container` objects' sort and binary search methods requires the property 
 to be set with a valid integer. Set the sort type by calling `Container.Prototype.SetSortType`, or
 any of the static macros (e.g. `Container.CbString`) or instance macros (e.g. `Container.Prototype.ToCbString`).
 
-```
+```ahk
 c := Container(
     { Name: "obj1" }
   , { Name: "obj3" }
@@ -141,7 +141,7 @@ view detailed information about the sort types.
 Finish the method call using the global variable. I would recommend not to use hardcoded numbers as
 it is less readable and the values may be subject to change.
 
-```
+```ahk
 ; ... continuing with our example
 
 c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
@@ -160,7 +160,7 @@ In our example above we set the sort type to `CONTAINER_SORTTYPE_CB_STRING`. The
 "callback". The sort types with "CB" in the symbol direct the relevant methods to call the callback
 to get the sort value of the items in the container.
 
-```
+```ahk
 ; ... continuing with our example
 
 c.SetCallbackValue(ContainerCallbackValue)
@@ -179,7 +179,7 @@ which compare values using subtraction.
 1. If the values will be compared as strings, call `Container.Prototype.SetCompareStringEx`.
 Your code can call it without any parameters if the default values are acceptable. A common flag
 you might want to use is `LINGUISTIC_IGNORECASE`, which you can pass as the global variable.
-    ```
+    ```ahk
     ; ... continuing with our example
 
     c.SetCompareStringEx(, LINGUISTIC_IGNORECASE)
@@ -197,7 +197,7 @@ for more information.
     - Zero to indicate the two parameters are equal.
     - A number greater than zero to indicate the first parameter is greater than the second parameter.
   - Example:
-    ```
+    ```ahk
     c := Container(
         { id: 'CFikHajB' }
       , { id: 'zhLAlxeK' }
@@ -235,11 +235,11 @@ be sparse, there should not be any problem with using the sparse version.
 
 There are three sort methods available:
 - `Container.Prototype.InsertionSort` - Sorts in-place and is appropriate for small containers (n <= 32).
-    ```
+    ```ahk
     c.InsertionSort()
     ```
 - `Container.Prototype.Sort` - Sorts in-place (heap sort) and is appropriate for all containers.
-    ```
+    ```ahk
     c.Sort()
     ```
 - `Container.Prototype.QuickSort` - Does not mutate the original container (returns a new container)
@@ -248,7 +248,7 @@ There are three sort methods available:
   memory is not an issue. You can return the value to the same variable; the returned container will
   have any own properties from the original, including properties added by external code, and will
   have the same base as the original:
-    ```
+    ```ahk
     c := c.QuickSort()
     ```
 
@@ -271,7 +271,7 @@ sorted. Your code should not add values to the container with `Array.Prototype.P
 
 To find the index where a value is located, you can use the "Find" methods. Continuing with our
 earlier example...
-```
+```ahk
 index := c.Find("obj1")
 OutputDebug(index "`n") ; 1
 index := c.Find("obj4")
@@ -281,21 +281,21 @@ OutputDebug(index "`n") ; 3
 ```
 
 To insert a value in-order, use one of the "Insert" methods.
-```
+```ahk
 c.Insert({ Name: "obj4" })
 index := c.Find("obj4")
 OutputDebug(index "`n") ; 4
 ```
 
 To delete a value and leave an unset index, use one of the "DeleteValue" methods.
-```
+```ahk
 index := c.DeleteValue("obj4")
 OutputDebug(index "`n") ; 4
 OutputDebug(c.Has(4) "`n") ; 0
 ```
 
 To remove a value and shift values to the left to fill in the space, use one of the "Remove" methods.
-```
+```ahk
 index := c.RemoveIfSparse("obj4") ; we must use `RemoveIfSparse` because index 4 is unset.
 ; The value is not found because we deleted it, so nothing was removed
 OutputDebug(index "`n") ; 0
@@ -318,15 +318,15 @@ summarized as:
 - `Value` can also be a primitive value as long as the value is valid for the sort type.
 
 Each of the following are valid using our example container:
-```
+```ahk
 val := "obj1"
 c.Find(val)
 ```
-```
+```ahk
 val := { Name: "obj1" }
 c.Find(val)
 ```
-```
+```ahk
 val := c[1]
 c.Find(val)
 ```
@@ -341,32 +341,32 @@ See [Comparing dates](#comparing-dates) for more information.
 
 Here is a comprehensive list:
 
-- CONTAINER_SORTTYPE_CB_DATE:
+- `CONTAINER_SORTTYPE_CB_DATE`:
   - Object : A value that, when passed to `ContainerObj.CallbackValue`, returns a yyyyMMddHHmmss string or integer.
   - Primitive : A yyyyMMddHHmmss string or integer.
-- CONTAINER_SORTTYPE_CB_DATESTR:
+- `CONTAINER_SORTTYPE_CB_DATESTR`:
   - Object : A value that, when passed to `ContainerObj.CallbackValue`, returns a date string that
     can be parsed by `ContainerObj.DateParser`.
   - Primitive : A yyyyMMddHHmmss string or integer.
   - Primitive : A date string that can be parsed by `ContainerObj.DateParser`.
-- CONTAINER_SORTTYPE_CB_NUMBER:
+- `CONTAINER_SORTTYPE_CB_NUMBER`:
   - Object : A value that, when passed to `ContainerObj.CallbackValue`, returns a number or numeric string.
   - Primitive : A number or numeric string.
-- CONTAINER_SORTTYPE_CB_STRING:
+- `CONTAINER_SORTTYPE_CB_STRING`:
   - Object : A value that, when passed to `ContainerObj.CallbackValue`, returns a string.
   - Primitive : An integer representing the ptr to a null-terminated string.
   - Primitive : A string value.
-- CONTAINER_SORTTYPE_CB_STRINGPTR:
+- `CONTAINER_SORTTYPE_CB_STRINGPTR`:
   - Object : A value that, when passed to `ContainerObj.CallbackValue`, returns an integer representing
     the ptr to a null-terminated string.
   - Primitive : An integer representing the ptr to a null-terminated string.
   - Primitive : A string value.
-- CONTAINER_SORTTYPE_DATE:
+- `CONTAINER_SORTTYPE_DATE`:
   - Primitive : A yyyyMMddHHmmss string or integer.
-- CONTAINER_SORTTYPE_DATESTR:
+- `CONTAINER_SORTTYPE_DATESTR`:
   - Primitive : A yyyyMMddHHmmss string or integer.
   - Primitive : A date string that can be parsed by `ContainerObj.DateParser`.
-- CONTAINER_SORTTYPE_DATEVALUE:
+- `CONTAINER_SORTTYPE_DATEVALUE`:
   - Object : A value that, when passed to `ContainerObj.CallbackValue`, returns a date string that
     can be parsed by `ContainerObj.DateParser`.
   - Object : A value that was an item in the container when `Container.Prototype.DatePreprocess` or
@@ -375,14 +375,14 @@ Here is a comprehensive list:
   - Primitive : A date string that can be parsed by `ContainerObj.DateParser`.
   - Primitive : An integer representing the number of seconds between Jan 01, 1, 00:00:00 and
     the date.
-- CONTAINER_SORTTYPE_MISC:
+- `CONTAINER_SORTTYPE_MISC`:
   - Object or primitive : Any value that can be passed to `ContainerObj.CallbackCompare`.
-- CONTAINER_SORTTYPE_NUMBER:
+- `CONTAINER_SORTTYPE_NUMBER`:
   - Primitive : A number.
-- CONTAINER_SORTTYPE_STRING:
+- `CONTAINER_SORTTYPE_STRING`:
   - Primitive : An integer representing the ptr to a null-terminated string.
   - Primitive : A string value.
-- CONTAINER_SORTTYPE_STRINGPTR:
+- `CONTAINER_SORTTYPE_STRINGPTR`:
   - Primitive : An integer representing the ptr to a null-terminated string.
   - Primitive : A string value.
 
@@ -397,7 +397,7 @@ and use operations that are dependent on the values being serialized. I wrote `C
 use case.
 
 Our example container is already set up to be used this way, but let's recreate it for demonstration:
-```
+```ahk
 ; Items must have a property that can be used as the name / key.
 c := Container(
     { Name: "obj1" }
@@ -438,7 +438,7 @@ exhaustive.
   - Use `Container.Prototype.DeleteAll`, `Container.Prototype.DeleteValue`,
     `Container.Prototype.DeleteValueIf`, `Container.Prototype.Remove`,  `Container.Prototype.RemoveAll`,
     `Container.Prototype.RemoveIf`, or their sparse counterparts.
-    ```
+    ```ahk
     if c.DeleteValueIf("obj1") {
         ; do something
     }
@@ -449,14 +449,14 @@ exhaustive.
 - `Map.Prototype.Get` -
   - Use `Containe.Prototype.Find`, `Container.Prototype.FindAll`, `Container.Prototype.FindInequality`,
     or their sparse counterparts.
-    ```
+    ```ahk
     if c.Find("obj3", &value) {
         ; do something, probably with `value`
     }
     ```
 - `Map.Prototype.Has` -
   - Use `Container.Prototype.Find` or `Container.Prototype.FindSparse`.
-    ```
+    ```ahk
     if c.Find("obj3") {
         ; do something
     }
@@ -464,7 +464,7 @@ exhaustive.
 - `Map.Prototype.Set` -
   - Use `Container.Prototype.DateInsert`, `Container.Prototype.Insert`,
     `Container.Prototype.InsertIfAbsent`, or their sparse counterparts.
-    ```
+    ```ahk
     if c.InsertIfAbsentSparse({ Name: "obj1" }) {
         ; do something
     }
@@ -525,7 +525,7 @@ a number `Container` objects with the same setup, you can simply create a templa
 your project needs a new instance, copy the template.
 
 Make the template:
-```
+```ahk
 template_calldate := Container.DateValue(Container_CallbackValue_Calldate, "yyyy-MM-dd HH:mm:ss")
 
 Container_CallbackValue_Calldate(value) {
@@ -534,7 +534,7 @@ Container_CallbackValue_Calldate(value) {
 ```
 
 Make a copy:
-```
+```ahk
 c := template_calldate.Copy()
 ```
 
@@ -584,7 +584,7 @@ expect a specific version with respect to sort and comparison operations.
 # Comparing numbers
 
 Numbers are compared with basic subtraction.
-```
+```ahk
 CompareNumbers(value1, value2) {
     return value1 - value2
 }
@@ -625,7 +625,7 @@ representing the number of seconds between Jan 01, 1, 00:00:00 and the date asso
     divisible by 400 are **not** leap years.
   - This logic is boiled down to the following function to return the number of leap years prior to
     an input year:
-    ```
+    ```ahk
     static LeapCountBefore(Year) {
         k := Year - 1
         return Floor(k / 4) - Floor(k / 100) + Floor(k / 400)
@@ -649,7 +649,7 @@ operations involving yyyyMMddHHmmss values.
 `Container_DateParser` is a regex-based system for parsing dates from arbitray text. To use it, your
 code provides a date format string that the parser can use to identify dates in some input text.
 
-```
+```ahk
 c := Container(
     { calldate: "2025-03-01 12:13:01" }
   , { calldate: "2025-03-01 12:24:15" }
@@ -675,31 +675,35 @@ Follow these guidelines when writing a date format string:
   permit compatibility between the unit characters and RegEx:
   - If the format string contains one or more literal "y", "M", "d", "H", "h", "m", "s" or "t"
     characters, you must escape the date format units using this escape: \t{...}
-      ```
+    - Example without using \t{...}:
+      ```ahk
       DateStr := "2024-01-28 19:15"
       DateFormat := "yyyy-MM-dd HH:mm"
       Date := Container_Date(DateStr, DateFormat)
       MsgBox(Date.Year "-" Date.Month "-" Date.Day " " Date.Hour ":" Date.Minute) ; 2024-01-28 19:15
       ```
-      ```
+    - Example with using \t{...}:
+      ```ahk
       DateStr := "Voicemail From <1-555-555-5555> at 2024-01-28 07:15:20"
       DateFormat := "at \t{yyyy-MM-dd HH:mm:ss}"
       Date := Container_Date(DateStr, DateFormat)
       MsgBox(Date.Year "-" Date.Month "-" Date.Day " " Date.Hour ":" Date.Minute ":" Date.Second) ; 2024-01-28 07:15:20
       ```
   - You can include multiple sets of \t escaped format units.
-      ```
+      ```ahk
       DateStr := "Voicemail From <1-555-555-5555> Received January 28, 2024 at 12:15:20 AM"
       DateFormat := "Received \t{MMMM dd, yyyy} at \t{hh:mm:ss tt}"
-      Date := Container_Date(DateStr, DateFormat, "i)") ; Use case insensitive matching when matching a month by name.
+      ; Use case insensitive matching when matching a month by name.
+      Date := Container_Date(DateStr, DateFormat, "i)")
       MsgBox(Date.Year "-" Date.Month "-" Date.Day " " Date.Hour ":" Date.Minute ":" Date.Second) ; 2024-01-28 00:15:20
       ```
   - You can use the "?" quantifier.
-      ```
+      ```ahk
       DateStr1 := "Voicemail From <1-555-555-5555> Received January 28, 2024 at 12:15 AM"
       DateStr2 := "Voicemail From <1-555-555-5555> Received January 28, 2024 at 12:15:12 AM"
       DateFormat := "Received \t{MMMM dd, yyyy} at \t{hh:mm:?ss? tt}"
-      Date1 := Container_Date(DateStr1, DateFormat, "i)") ; Use case insensitive matching when matching a month by name.
+      ; Use case insensitive matching when matching a month by name.
+      Date1 := Container_Date(DateStr1, DateFormat, "i)")
       Date2 := Container_Date(DateStr2, DateFormat, "i)")
       MsgBox(Date1.Year "-" Date1.Month "-" Date1.Day " " Date1.Hour ":" Date1.Minute ":" Date1.Second) ; 2024-01-28 00:15:00
       Date2 := Container_Date(DateStr2, DateFormat)
@@ -707,10 +711,11 @@ Follow these guidelines when writing a date format string:
       ```
   - The match object is set to the property `Container_DateObj.Match`. Include any extra subcapture
     groups that you are interested in.
-      ```
+      ```ahk
       DateStr := "The child was born May 2, 1990, the year of the horse"
       DateFormat := "\t{MMMM d, yyyy}, the year of the (?<animal>\w+)"
-      Date := Container_Date(DateStr, DateFormat, "i)") ; Use case insensitive matching when matching a month by name.
+      ; Use case insensitive matching when matching a month by name.
+      Date := Container_Date(DateStr, DateFormat, "i)")
       MsgBox(Date.Year "-" Date.Month "-" Date.Day " " Date.Hour ":" Date.Minute ":" Date.Second) ; 1990-05-02 00:00:00
       MsgBox(Date.Match["animal"]) ; horse
       ```
@@ -1042,7 +1047,7 @@ useful.
 The following is a simple binary search written in AHK code. `Container` has many variations of
 this same logic to meet any use case.
 
-```
+```ahk
 BinarySearch(arr, value, comparator) {
     left := 1
     rng := right := arr.Length
