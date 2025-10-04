@@ -7,7 +7,7 @@ The last AutoHotkey (AHK) array class you will ever need.
 
 <ol type="I">
   <li><a href="#introduction">Introduction</a></li>
-  <li><a href="#autohotkey-forum-post">AutoHotkey forum post</a></li>
+  <li><a href="#autohotkey-link">AutoHotkey link</a></li>
   <li><a href="#quick-start">Quick start</a></li>
   <ol type="A">
     <li><a href="#decide-which-sort-type-to-use">Decide which sort type to use</a></li>
@@ -102,7 +102,7 @@ Categories 2 and 3 above can be further divided into two subcategories:
 The sorting methods **always require all indices to have a value**. Use `Container.Prototype.Condense`
 to remove unset indices.
 
-# AutoHotkey forum post
+# AutoHotkey link
 
 Join the discussion on [autohotkey.com](https://www.autohotkey.com/boards/viewtopic.php?f=83&t=139207).
 
