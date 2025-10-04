@@ -4301,11 +4301,11 @@ class Container extends Array {
             if IsSet(OutList) && OutList {
                 OutList := this.Copy()
                 loop lastIndex - i {
-                    OutList.Push(this.RemoveAt(++i))
+                    OutList.Push(this.RemoveAt(i))
                 }
             } else {
                 loop lastIndex - i {
-                    this.RemoveAt(++i)
+                    this.RemoveAt(i)
                 }
             }
             return index
@@ -4345,13 +4345,13 @@ class Container extends Array {
                 OutList := this.Copy()
                 loop lastIndex - i {
                     if this.Has(++i) {
-                        OutList.Push(this.RemoveAt(i))
+                        OutList.Push(this.RemoveAt(i--))
                     }
                 }
             } else {
                 loop lastIndex - i {
                     if this.Has(++i) {
-                        this.RemoveAt(i)
+                        this.RemoveAt(i--)
                     }
                 }
             }
