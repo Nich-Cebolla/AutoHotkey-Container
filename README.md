@@ -671,8 +671,8 @@ is created in the process, and is available from the property `Container_DateObj
 
 Parameters:
 
-- {String} DateStr - The date string to parse.
-- {String} DateFormat - The format of the date string. The format follows the same rules as
+- **{String}** `DateStr` - The date string to parse.
+- **{String}** `DateFormat` - The format of the date string. The format follows the same rules as
 described on the AHK [`FormatTime`](https://www.autohotkey.com/docs/v2/lib/FormatTime.htm) page:
   - The format string can include any of the following units: 'y', 'M', 'd', 'H', 'h', 'm', 's', 't'.
     See the link for details.
@@ -721,14 +721,14 @@ described on the AHK [`FormatTime`](https://www.autohotkey.com/docs/v2/lib/Forma
         MsgBox(Date.Year '-' Date.Month '-' Date.Day ' ' Date.Hour ':' Date.Minute ':' Date.Second) ; 1990-05-02 00:00:00
         MsgBox(Date.Match['animal']) ; horse
         ```
-- {String} [ RegExOptions = "" ] - The RegEx options to add to the beginning of the pattern.
+- **{String}** [ `RegExOptions = ""` ] - The RegEx options to add to the beginning of the pattern.
   Include the close parenthesis, e.g. "i)".
-- {Boolean} [ SubcaptureGroup = true ] - When true, each \t escaped format group is captured
+- **{Boolean}** [ `SubcaptureGroup = true` ] - When true, each \t escaped format group is captured
   in an unnamed subcapture group. When false, the function does not include any additional
   subcapture groups.
-- {Boolean} [ Century ] - The century to use when parsing a 1- or 2-digit year. If not set,
+- **{Boolean}** [ `Century` ] - The century to use when parsing a 1- or 2-digit year. If not set,
   the current century is used.
-- {Boolean} [ Validate = false ] - When true, the values of each property are validated
+- **{Boolean}** [ `Validate = false` ] - When true, the values of each property are validated
   before the function completes. The values are validated numerically, and if any value exceeds
   the maximum value for that property, an error is thrown. For example, if the month is greater
   than 12 or the hour is greater than 24, an error is thrown.
