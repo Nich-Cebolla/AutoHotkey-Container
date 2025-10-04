@@ -26,6 +26,7 @@ The last AutoHotkey (AHK) array class you will ever need.
     <li><a href="#instantiating-a-container---instance-methods">Instantiating a `Container` - Instance methods</a></li>
     <li><a href="#containerprototypecopy">`Container.Prototype.Copy`</a></li>
     <li><a href="#containerprototypedeepclone">`Container.Prototype.DeepClone`</a></li>
+    <li><a href="#containerfromarray">`Container.FromArray`</a></li>
     <li><a href="#containerstrsplit">`Container.StrSplit`</a></li>
   </ol>
   <li><a href="#comparing-strings">Comparing strings</a></li>
@@ -38,7 +39,7 @@ The last AutoHotkey (AHK) array class you will ever need.
     <li><a href="#container_date">`Container_Date`</a></li>
     <ol type="1">
       <li><a href="#using-container_date-with-timestamps">Using `Container_Date` with timestamps</a></li>
-      <li><a href="#using-container_dateparser-with-time-strings">Using `Container_DateParser` with time strings</a></li>
+      <li><a href="#using-container_dateparser-with-date-strings">Using `Container_DateParser` with date strings</a></li>
     </ol>
   </ol>
   <li><a href="#custom-comparisons">Custom comparisons</a></li>
@@ -645,10 +646,10 @@ The methods are fully documented in either file, but this section provides a qui
 a `Container_Date` object. This is used with any of `Container`'s sort / binary search operations
 involving yyyyMMddHHmmss values.
 
-### Using `Container_DateParser` with time strings
+### Using `Container_DateParser` with date strings
 
-`Container_DateParser` is a regex-based system for parsing dates from arbitray text. It works by
-writing a date format string that the parser can use to identify dates in some input text.
+`Container_DateParser` is a regex-based system for parsing dates from arbitray text. To use it, your
+code provides a date format string that the parser can use to identify dates in some input text.
 
 ```
 c := Container(
@@ -664,74 +665,57 @@ c.SetCallbackValue((value) => value.calldate)
 c.Sort()
 ```
 
-The following is a copy of the description above `Container_Date.Call`:
+Follow these guidelines when writing a date format string:
 
-Creates a `Container_Date` instance from a date string and date format string. The `Container_DateParser`
-is created in the process, and is available from the property `Container_DateObj.Parser`.
-
-Parameters:
-
-- **{String}** `DateStr` - The date string to parse.
-- **{String}** `DateFormat` - The format of the date string. The format follows the same rules as
-described on the AHK [`FormatTime`](https://www.autohotkey.com/docs/v2/lib/FormatTime.htm) page:
-  - The format string can include any of the following units: 'y', 'M', 'd', 'H', 'h', 'm', 's', 't'.
-    See the link for details.
-  - Only numeric day units are recognized by this function. This function will not match with
-    days like 'Mon', 'Tuesday', etc.
-  - In addition to the units, RegEx is viable within the format string. To permit compatibility
-    between the unit characters and RegEx, please adhere to these guidelines:
-    - If the format string contains one or more literal "y", "M", "d", "H", "h", "m", "s" or "t"
-      characters, you must escape the date format units using this escape: \t{...}
-        ```
-        DateStr := '2024-01-28 19:15'
-        DateFormat := 'yyyy-MM-dd HH:mm'
-        Date := Container_Date(DateStr, DateFormat)
-        MsgBox(Date.Year '-' Date.Month '-' Date.Day ' ' Date.Hour ':' Date.Minute) ; 2024-01-28 19:15
-        ```
-        ```
-        DateStr := 'Voicemail From <1-555-555-5555> at 2024-01-28 07:15:20'
-        DateFormat := 'at \t{yyyy-MM-dd HH:mm:ss}'
-        Date := Container_Date(DateStr, DateFormat)
-        MsgBox(Date.Year '-' Date.Month '-' Date.Day ' ' Date.Hour ':' Date.Minute ':' Date.Second) ; 2024-01-28 07:15:20
-        ```
-    - You can include multiple sets of \t escaped format units.
-        ```
-        DateStr := 'Voicemail From <1-555-555-5555> Received January 28, 2024 at 12:15:20 AM'
-        DateFormat := 'Received \t{MMMM dd, yyyy} at \t{hh:mm:ss tt}'
-        Date := Container_Date(DateStr, DateFormat, 'i)') ; Use case insensitive matching when matching a month by name.
-        MsgBox(Date.Year '-' Date.Month '-' Date.Day ' ' Date.Hour ':' Date.Minute ':' Date.Second) ; 2024-01-28 00:15:20
-        ```
-    - You can use the "?" quantifier.
-        ```
-        DateStr1 := 'Voicemail From <1-555-555-5555> Received January 28, 2024 at 12:15 AM'
-        DateStr2 := 'Voicemail From <1-555-555-5555> Received January 28, 2024 at 12:15:12 AM'
-        DateFormat := 'Received \t{MMMM dd, yyyy} at \t{hh:mm:?ss? tt}'
-        Date1 := Container_Date(DateStr1, DateFormat, 'i)') ; Use case insensitive matching when matching a month by name.
-        Date2 := Container_Date(DateStr2, DateFormat, 'i)')
-        MsgBox(Date1.Year '-' Date1.Month '-' Date1.Day ' ' Date1.Hour ':' Date1.Minute ':' Date1.Second) ; 2024-01-28 00:15:00
-        Date2 := Container_Date(DateStr2, DateFormat)
-        MsgBox(Date2.Year '-' Date2.Month '-' Date2.Day ' ' Date2.Hour ':' Date2.Minute ':' Date2.Second) ; 2024-01-28 00:15:12
-        ```
-    - The match object is set to the property `Container_DateInstance.Match`. Include any extra subcapture
-      groups that you are interested in.
-        ```
-        DateStr := 'The child was born May 2, 1990, the year of the horse'
-        DateFormat := '\t{MMMM d, yyyy}, the year of the (?<animal>\w+)'
-        Date := Container_Date(DateStr, DateFormat, 'i)') ; Use case insensitive matching when matching a month by name.
-        MsgBox(Date.Year '-' Date.Month '-' Date.Day ' ' Date.Hour ':' Date.Minute ':' Date.Second) ; 1990-05-02 00:00:00
-        MsgBox(Date.Match['animal']) ; horse
-        ```
-- **{String}** [ `RegExOptions = ""` ] - The RegEx options to add to the beginning of the pattern.
-  Include the close parenthesis, e.g. "i)".
-- **{Boolean}** [ `SubcaptureGroup = true` ] - When true, each \t escaped format group is captured
-  in an unnamed subcapture group. When false, the function does not include any additional
-  subcapture groups.
-- **{Boolean}** [ `Century` ] - The century to use when parsing a 1- or 2-digit year. If not set,
-  the current century is used.
-- **{Boolean}** [ `Validate = false` ] - When true, the values of each property are validated
-  before the function completes. The values are validated numerically, and if any value exceeds
-  the maximum value for that property, an error is thrown. For example, if the month is greater
-  than 12 or the hour is greater than 24, an error is thrown.
+- The units "y", "M", "d", "H", "h", "m", "s", and "t" each can be used to match with specific values
+  in a date string. See [`FormatTime`](https://www.autohotkey.com/docs/v2/lib/FormatTime.htm) for
+  details about the units.
+- Only numeric day units are recognized; names like "Mon", "Tuesday", etc., are not recognized by
+  `Container_DateParser`.
+- `Container_DateParser` will match with both numeric month units and month names.
+- In addition to the units, RegEx is viable within the format string. The following restrictions
+  permit compatibility between the unit characters and RegEx:
+  - If the format string contains one or more literal "y", "M", "d", "H", "h", "m", "s" or "t"
+    characters, you must escape the date format units using this escape: \t{...}
+      ```
+      DateStr := "2024-01-28 19:15"
+      DateFormat := "yyyy-MM-dd HH:mm"
+      Date := Container_Date(DateStr, DateFormat)
+      MsgBox(Date.Year "-" Date.Month "-" Date.Day " " Date.Hour ":" Date.Minute) ; 2024-01-28 19:15
+      ```
+      ```
+      DateStr := "Voicemail From <1-555-555-5555> at 2024-01-28 07:15:20"
+      DateFormat := "at \t{yyyy-MM-dd HH:mm:ss}"
+      Date := Container_Date(DateStr, DateFormat)
+      MsgBox(Date.Year "-" Date.Month "-" Date.Day " " Date.Hour ":" Date.Minute ":" Date.Second) ; 2024-01-28 07:15:20
+      ```
+  - You can include multiple sets of \t escaped format units.
+      ```
+      DateStr := "Voicemail From <1-555-555-5555> Received January 28, 2024 at 12:15:20 AM"
+      DateFormat := "Received \t{MMMM dd, yyyy} at \t{hh:mm:ss tt}"
+      Date := Container_Date(DateStr, DateFormat, "i)") ; Use case insensitive matching when matching a month by name.
+      MsgBox(Date.Year "-" Date.Month "-" Date.Day " " Date.Hour ":" Date.Minute ":" Date.Second) ; 2024-01-28 00:15:20
+      ```
+  - You can use the "?" quantifier.
+      ```
+      DateStr1 := "Voicemail From <1-555-555-5555> Received January 28, 2024 at 12:15 AM"
+      DateStr2 := "Voicemail From <1-555-555-5555> Received January 28, 2024 at 12:15:12 AM"
+      DateFormat := "Received \t{MMMM dd, yyyy} at \t{hh:mm:?ss? tt}"
+      Date1 := Container_Date(DateStr1, DateFormat, "i)") ; Use case insensitive matching when matching a month by name.
+      Date2 := Container_Date(DateStr2, DateFormat, "i)")
+      MsgBox(Date1.Year "-" Date1.Month "-" Date1.Day " " Date1.Hour ":" Date1.Minute ":" Date1.Second) ; 2024-01-28 00:15:00
+      Date2 := Container_Date(DateStr2, DateFormat)
+      MsgBox(Date2.Year "-" Date2.Month "-" Date2.Day " " Date2.Hour ":" Date2.Minute ":" Date2.Second) ; 2024-01-28 00:15:12
+      ```
+  - The match object is set to the property `Container_DateObj.Match`. Include any extra subcapture
+    groups that you are interested in.
+      ```
+      DateStr := "The child was born May 2, 1990, the year of the horse"
+      DateFormat := "\t{MMMM d, yyyy}, the year of the (?<animal>\w+)"
+      Date := Container_Date(DateStr, DateFormat, "i)") ; Use case insensitive matching when matching a month by name.
+      MsgBox(Date.Year "-" Date.Month "-" Date.Day " " Date.Hour ":" Date.Minute ":" Date.Second) ; 1990-05-02 00:00:00
+      MsgBox(Date.Match["animal"]) ; horse
+      ```
 
 # Custom comparisons
 
@@ -767,22 +751,21 @@ is an own property that is added to the `Container` object some time during or a
 
 The following is a list of static methods.
 
-- [Instantiation helpers](#instantiating-a-container)
-  - `Container.CbDate`
-  - `Container.CbDateStr`
-  - `Container.CbDateStrFromParser`
-  - `Container.CbNumber`
-  - `Container.CbString`
-  - `Container.CbStringPtr`
-  - `Container.Date`
-  - `Container.DateStr`
-  - `Container.DateStrFromParser`
-  - `Container.DateValue`
-  - `Container.Misc`
-  - `Container.Number`
-  - `Container.String`
-  - `Container.StringPtr`
+- `Container.CbDate`
+- `Container.CbDateStr`
+- `Container.CbDateStrFromParser`
+- `Container.CbNumber`
+- `Container.CbString`
+- `Container.CbStringPtr`
+- `Container.Date`
+- `Container.DateStr`
+- `Container.DateStrFromParser`
+- `Container.DateValue`
 - `Container.FromArray`
+- `Container.Misc`
+- `Container.Number`
+- `Container.String`
+- `Container.StringPtr`
 - `Container.StrSplit`
 
 ## Instance methods - Alphabetized list
