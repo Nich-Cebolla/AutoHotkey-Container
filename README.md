@@ -791,6 +791,12 @@ The following is a list of static methods.
 - `Container.StringPtr`
 - `Container.StrSplit`
 
+## Static properties
+
+The following is a list of static properties.
+
+- `Container.SortTypeSymbolList`
+
 ## Instance methods - Alphabetized list
 
 In addition to the methods inherited from `Array`, `Container` has the following methods:
@@ -803,6 +809,8 @@ In addition to the methods inherited from `Array`, `Container` has the following
 - `Container.Prototype.DateInsert`
 - `Container.Prototype.DateInsertIfAbsent`
 - `Container.Prototype.DateInsertIfAbsentSparse`
+- `Container.Prototype.DateInsertList`
+- `Container.Prototype.DateInsertListSparse`
 - `Container.Prototype.DateInsertSparse`
 - `Container.Prototype.DatePreprocess`
 - `Container.Prototype.DateUpdate`
@@ -829,6 +837,8 @@ In addition to the methods inherited from `Array`, `Container` has the following
 - `Container.Prototype.Insert`
 - `Container.Prototype.InsertIfAbsent`
 - `Container.Prototype.InsertIfAbsentSparse`
+- `Container.Prototype.InsertList`
+- `Container.Prototype.InsertListSparse`
 - `Container.Prototype.InsertSparse`
 - `Container.Prototype.InsertionSort`
 - `Container.Prototype.Join`
@@ -876,6 +886,7 @@ In addition to the methods inherited from `Array`, `Container` has the following
 - `Container.Prototype.ToNumber`
 - `Container.Prototype.ToString`
 - `Container.Prototype.ToStringPtr`
+- `Container.Prototype.ValidateSort`
 
 ## Instance methods - Categorized list
 
@@ -922,10 +933,14 @@ Methods that use a binary search to insert a value into the container, retaining
 - `Container.Prototype.DateInsert`
 - `Container.Prototype.DateInsertIfAbsent`
 - `Container.Prototype.DateInsertIfAbsentSparse`
+- `Container.Prototype.DateInsertList`
+- `Container.Prototype.DateInsertListSparse`
 - `Container.Prototype.DateInsertSparse`
 - `Container.Prototype.Insert`
 - `Container.Prototype.InsertIfAbsent`
 - `Container.Prototype.InsertIfAbsentSparse`
+- `Container.Prototype.InsertList`
+- `Container.Prototype.InsertListSparse`
 - `Container.Prototype.InsertSparse`
 
 #### Instance methods - Delete methods
@@ -1020,6 +1035,7 @@ Methods that iterate the values in the container, performing some action on them
 - `Container.Prototype.DeepClone`
 - `Container.Prototype.PushEx`
 - `Container.Prototype.Slice`
+- `Container.Prototype.ValidateSort`
 
 ## Instance properties - Alphabetized list
 
@@ -1118,6 +1134,21 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
 (Ctrl+Shift+P > Preferences: Open Keyboard Shortcuts) and searching "Trigger parameter hints".
 
 # Changelog
+
+- **2025-10-04** - v1.0.1
+  - Added methods:
+    - `Container.Prototype.DateInsertList`
+    - `Container.Prototype.DateInsertListSparse`
+    - `Container.Prototype.InsertList`
+    - `Container.Prototype.InsertListSparse`
+    - `Container.Prototype.ValidateSort`
+  - Added property:
+    - `Container.SortTypeSymbolList`
+  - Added global functions:
+    - `Container_IndexToSymbol`
+    - `Container_SetSortTypeContainer`
+  - Added file:
+    - test\performance-test-InsertAll.ahk
 
 - **2025-10-03** - v1.0.0
   - Released v1.0.0
