@@ -1125,10 +1125,7 @@ class Container extends Array {
                 }
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
-        stop := -1
-        rng := IndexEnd - IndexStart + 1
-        while rng * 0.5 ** stop > 4 {
-            stop++
+        while IndexEnd - IndexStart > 4 {
             i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)
             if x := Compare() {
                 if x > 0 {
@@ -1304,10 +1301,7 @@ class Container extends Array {
                 Compare := _CompareDateValue
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
-        stop := -1
-        rng := IndexEnd - IndexStart + 1
-        while rng * 0.5 ** stop > 4 {
-            stop++
+        while IndexEnd - IndexStart > 4 {
             i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)
             if x := Compare() {
                 if x > 0 {
@@ -1506,10 +1500,7 @@ class Container extends Array {
                 Compare := _CompareDateValue
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
-        stop := -1
-        rng := IndexEnd - IndexStart + 1
-        while rng * 0.5 ** stop > 4 {
-            stop++
+        while IndexEnd - IndexStart > 4 {
             if !this.Has(i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)) {
                 if !_GetNearest() {
                     return 0
@@ -1940,11 +1931,8 @@ class Container extends Array {
         }
         ;@endregion
 
-        stop := -1
-        rng := IndexEnd - IndexStart + 1
         ;@region Process
-        while rng * 0.5 ** stop > 4 {
-            stop++
+        while IndexEnd - IndexStart > 4 {
             i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)
             x := Compare1()
             if x = 0 {
@@ -3124,10 +3112,7 @@ class Container extends Array {
                 Compare := _CompareDateValue
             default: throw ValueError('Invalid SortType.', -1, this.SortType)
         }
-        stop := -1
-        rng := IndexEnd - IndexStart + 1
-        while rng * 0.5 ** stop > 4 {
-            stop++
+        while IndexEnd - IndexStart > 4 {
             if !this.Has(i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)) {
                 if !_GetNearest() {
                     return 0
