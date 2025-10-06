@@ -1,5 +1,5 @@
 
-# AutoHotkey-Container - v1.0.0
+# AutoHotkey-Container - v1.0.2
 
 The last AutoHotkey (AHK) array class you will ever need.
 
@@ -449,8 +449,8 @@ exhaustive.
     }
     ```
 - `Map.Prototype.Get` -
-  - Use `Containe.Prototype.Find`, `Container.Prototype.FindAll`, `Container.Prototype.FindInequality`,
-    or their sparse counterparts.
+  - Use `Container.Prototype.Find`, `Container.Prototype.FindAll`, `Container.Prototype.FindInequality`,
+    `Container.Prototype.GetValue` or their sparse counterparts.
     ```ahk
     if c.Find("obj3", &value) {
         ; do something, probably with `value`
@@ -832,6 +832,8 @@ In addition to the methods inherited from `Array`, `Container` has the following
 - `Container.Prototype.Flat`
 - `Container.Prototype.ForEach`
 - `Container.Prototype.ForEachSparse`
+- `Container.Prototype.GetValue`
+- `Container.Prototype.GetValueSparse`
 - `Container.Prototype.HasValue`
 - `Container.Prototype.HasValueSparse`
 - `Container.Prototype.Insert`
@@ -925,6 +927,8 @@ Methods that use a binary search to find a value / values in the container.
 - `Container.Prototype.FindInequality`
 - `Container.Prototype.FindInequalitySparse`
 - `Container.Prototype.FindSparse`
+- `Container.Prototype.GetValue`
+- `Container.Prototype.GetValueSparse`
 
 #### Instance methods - Insert methods
 
@@ -1134,6 +1138,11 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
 (Ctrl+Shift+P > Preferences: Open Keyboard Shortcuts) and searching "Trigger parameter hints".
 
 # Changelog
+
+- **2025-10-04** - v1.0.2
+  - Added methods:
+    - `Container.Prototype.GetValue`
+    - `Container.Prototype.GetValueSparse`
 
 - **2025-10-04** - v1.0.1
   - Added methods:
