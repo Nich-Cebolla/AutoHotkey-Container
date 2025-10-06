@@ -12,23 +12,38 @@ The last AutoHotkey (AHK) array class you will ever need.
   <ol type="A">
     <li><a href="#decide-which-sort-type-to-use">Decide which sort type to use</a></li>
     <li><a href="#set-the-sort-type">Set the sort type</a></li>
-    <li><a href="#set-containerobjcallbackvalue">Set `ContainerObj.CallbackValue`</a></li>
-    <li><a href="#set-containerobjcallbackcompare">Set `ContainerObj.CallbackCompare`</a></li>
+    <li><a href="#set-containerobjcallbackvalue">Set ContainerObj.CallbackValue</a></li>
+    <li><a href="#set-containerobjcallbackcompare">Set ContainerObj.CallbackCompare</a></li>
     <li><a href="#use-the-object---introduction">Use the object - Introduction</a></li>
     <li><a href="#use-the-object---sort-the-container">Use the object - Sort the container</a></li>
     <li><a href="#use-the-object---binary-search">Use the object - Binary search</a></li>
-    <li><a href="#use-the-object---the-value-parameter">Use the object - The `Value` parameter</a></li>
+    <li><a href="#use-the-object---the-value-parameter">Use the object - The Value parameter</a></li>
     <li><a href="#use-the-object---more-on-binary-search">Use the object - More on binary search</a></li>
     <li><a href="#quick-start-summary">Quick start summary</a></li>
   </ol>
-  <li><a href="#instantiating-a-container">Instantiating a `Container`</a></li>
+  <li><a href="#sort-type">Sort type</a></li>
   <ol type="A">
-    <li><a href="#instantiating-a-container---static-methods">Instantiating a `Container` - Static methods</a></li>
-    <li><a href="#instantiating-a-container---instance-methods">Instantiating a `Container` - Instance methods</a></li>
-    <li><a href="#containerprototypecopy">`Container.Prototype.Copy`</a></li>
-    <li><a href="#containerprototypedeepclone">`Container.Prototype.DeepClone`</a></li>
-    <li><a href="#containerfromarray">`Container.FromArray`</a></li>
-    <li><a href="#containerstrsplit">`Container.StrSplit`</a></li>
+    <li><a href="#container_sorttype_cb_date">CONTAINER_SORTTYPE_CB_DATE</a></li>
+    <li><a href="#container_sorttype_cb_datestr">CONTAINER_SORTTYPE_CB_DATESTR</a></li>
+    <li><a href="#container_sorttype_cb_number">CONTAINER_SORTTYPE_CB_NUMBER</a></li>
+    <li><a href="#container_sorttype_cb_string">CONTAINER_SORTTYPE_CB_STRING</a></li>
+    <li><a href="#container_sorttype_cb_stringptr">CONTAINER_SORTTYPE_CB_STRINGPTR</a></li>
+    <li><a href="#container_sorttype_date">CONTAINER_SORTTYPE_DATE</a></li>
+    <li><a href="#container_sorttype_datestr">CONTAINER_SORTTYPE_DATESTR</a></li>
+    <li><a href="#container_sorttype_datevalue">CONTAINER_SORTTYPE_DATEVALUE</a></li>
+    <li><a href="#container_sorttype_misc">CONTAINER_SORTTYPE_MISC</a></li>
+    <li><a href="#container_sorttype_number">CONTAINER_SORTTYPE_NUMBER</a></li>
+    <li><a href="#container_sorttype_string">CONTAINER_SORTTYPE_STRING</a></li>
+    <li><a href="#container_sorttype_stringptr">CONTAINER_SORTTYPE_STRINGPTR</a></li>
+  </ol>
+  <li><a href="#instantiating-a-container">Instantiating a Container</a></li>
+  <ol type="A">
+    <li><a href="#instantiating-a-container---static-methods">Instantiating a Container - Static methods</a></li>
+    <li><a href="#instantiating-a-container---instance-methods">Instantiating a Container - Instance methods</a></li>
+    <li><a href="#containerprototypecopy">Container.Prototype.Copy</a></li>
+    <li><a href="#containerprototypedeepclone">Container.Prototype.DeepClone</a></li>
+    <li><a href="#containerfromarray">Container.FromArray</a></li>
+    <li><a href="#containerstrsplit">Container.StrSplit</a></li>
   </ol>
   <li><a href="#comparing-strings">Comparing strings</a></li>
   <ol type="A">
@@ -37,20 +52,21 @@ The last AutoHotkey (AHK) array class you will ever need.
   <li><a href="#comparing-numbers">Comparing numbers</a></li>
   <li><a href="#comparing-dates">Comparing dates</a></li>
   <ol type="A">
-    <li><a href="#container_date">`Container_Date`</a></li>
+    <li><a href="#container_date">Container_Date</a></li>
     <ol type="1">
-      <li><a href="#using-container_date-with-timestamps">Using `Container_Date` with timestamps</a></li>
-      <li><a href="#using-container_dateparser-with-date-strings">Using `Container_DateParser` with date strings</a></li>
+      <li><a href="#using-container_date-with-timestamps">Using Container_Date with timestamps</a></li>
+      <li><a href="#using-container_dateparser-with-date-strings">Using Container_DateParser with date strings</a></li>
     </ol>
   </ol>
   <li><a href="#custom-comparisons">Custom comparisons</a></li>
   <li><a href="#iterative-methods">Iterative methods</a></li>
   <ol type="A">
-    <li><a href="#thisarg-parameter">`ThisArg` parameter</a></li>
+    <li><a href="#thisarg-parameter">ThisArg parameter</a></li>
   </ol>
   <li><a href="#class-details">Class details</a></li>
   <ol type="A">
     <li><a href="#static-methods">Static methods</a></li>
+    <li><a href="#static-properties">Static properties</a></li>
     <li><a href="#instance-methods---alphabetized-list">Instance methods - Alphabetized list</a></li>
     <li><a href="#instance-methods---categorized-list">Instance methods - Categorized list</a></li>
     <ol type="1">
@@ -135,7 +151,9 @@ c.SetSortType(
 
 If your editor supports jsdoc-style parameter hints,
 [press your keyboard shortcut for parameter hints](#parameter-hints) after the open parenthesis to
-view detailed information about the sort types.
+view detailed information about the sort types. You can also find this information in the code
+file directly above the method `Container.Prototype.SetSortType`, or in this readme in section
+[Sort type](#sort-type).
 
 ## Set the sort type
 
@@ -490,6 +508,253 @@ exhaustive.
 - Iterative methods do not require any preparation; they can always be called.
 
 Don't forget to leave a ⭐ if you think `Container` is pretty awesome!
+
+# Sort type
+
+This section lists the sort types, which properties they require, and provides an example of each.
+
+<ol type="A">Jump to:
+  <li><a href="#container_sorttype_cb_date">CONTAINER_SORTTYPE_CB_DATE</a></li>
+  <li><a href="#container_sorttype_cb_datestr">CONTAINER_SORTTYPE_CB_DATESTR</a></li>
+  <li><a href="#container_sorttype_cb_number">CONTAINER_SORTTYPE_CB_NUMBER</a></li>
+  <li><a href="#container_sorttype_cb_string">CONTAINER_SORTTYPE_CB_STRING</a></li>
+  <li><a href="#container_sorttype_cb_stringptr">CONTAINER_SORTTYPE_CB_STRINGPTR</a></li>
+  <li><a href="#container_sorttype_date">CONTAINER_SORTTYPE_DATE</a></li>
+  <li><a href="#container_sorttype_datestr">CONTAINER_SORTTYPE_DATESTR</a></li>
+  <li><a href="#container_sorttype_datevalue">CONTAINER_SORTTYPE_DATEVALUE</a></li>
+  <li><a href="#container_sorttype_misc">CONTAINER_SORTTYPE_MISC</a></li>
+  <li><a href="#container_sorttype_number">CONTAINER_SORTTYPE_NUMBER</a></li>
+  <li><a href="#container_sorttype_string">CONTAINER_SORTTYPE_STRING</a></li>
+  <li><a href="#container_sorttype_stringptr">CONTAINER_SORTTYPE_STRINGPTR</a></li>
+</ol>
+
+## CONTAINER_SORTTYPE_CB_DATE
+
+- **CallbackValue**: Provided by your code and returns a string in the format yyyyMMddHHmmss.
+- **CallbackCompare**: Set by calling `Container.Prototype.SetCompareDate`.
+
+```ahk
+c := Container(
+    { timestamp: '20250312122930' }
+  , { timestamp: '20250411122900' }
+  , { timestamp: '20251015091805' }
+)
+c.SetSortType(CONTAINER_SORTTYPE_CB_DATE)
+c.SetCallbackValue((value) => value.timestamp)
+c.SetCompareDate()
+c.Sort()
+```
+
+## CONTAINER_SORTTYPE_CB_DATESTR
+
+- **CallbackValue**: Provided by your code and returns a date string in any format recognized by the
+`Container_DateParser` set to `ContainerObj.DateParser`.
+- **CallbackCompare**: Set by calling `Container.Prototype.SetCompareDateStr` or
+`Container.Prototype.SetDateParser`.
+
+```ahk
+c := Container(
+    { date: '2025-03-12 12:29:30' }
+  , { date: '2025-04-11 12:29:00' }
+  , { date: '2025-10-15 09:18:05' }
+)
+c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
+c.SetCallbackValue((value) => value.date)
+c.SetCompareDateStr('yyyy-MM-dd HH:mm:ss')
+c.Sort()
+```
+
+## CONTAINER_SORTTYPE_CB_NUMBER
+
+- **CallbackValue**: Provided by your code and returns a number.
+- **CallbackCompare**: Not used.
+
+```ahk
+c := Container(
+    { value: 298581 }
+  , { value: 195801 }
+  , { value: 585929 }
+)
+c.SetSortType(CONTAINER_SORTTYPE_CB_NUMBER)
+c.SetCallbackValue((value) => value.value)
+c.Sort()
+```
+
+## CONTAINER_SORTTYPE_CB_STRING
+
+- **CallbackValue**: Provided by your code and returns a string.
+- **CallbackCompare**: Set by calling `Container.Prototype.SetCompareStringEx`.
+
+```ahk
+c := Container(
+    { name: 'obj4' }
+  , { name: 'obj3' }
+  , { name: 'obj1' }
+)
+c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
+c.SetCallbackValue((value) => value.name)
+c.SetCompareStringEx()
+c.Sort()
+```
+
+## CONTAINER_SORTTYPE_CB_STRINGPTR
+
+- **CallbackValue**: Provided by your code and returns a pointer to a null-terminated string.
+- **CallbackCompare**: Set by calling `Container.Prototype.SetCompareStringEx`.
+
+```ahk
+class SomeStruct {
+    static __New() {
+        this.DeleteProp('__New')
+        proto := this.Prototype
+        proto.CbSize := 16 ; arbitrary size for example
+        proto.__pszText_offset := 8 ; arbitrary offset for example
+    }
+    __New(pszText) {
+        this.Buffer := Buffer(this.cbSize)
+        this.__pszText := Buffer(StrPut(pszText, 'cp1200'))
+        StrPut(pszText, this.__pszText, 'cp1200')
+        NumPut('ptr', this.__pszText.Ptr, this, this.__pszText_offset)
+    }
+    pszText {
+        Get => StrGet(this.__pszText, 'cp1200')
+        Set {
+            bytes := StrPut(Value, 'cp1200')
+            if bytes > this.__pszText.Size {
+                this.__pszText.Size := bytes
+                NumPut('ptr', this.__pszText.Ptr, this, this.__pszText_offset)
+            }
+            StrPut(Value, this.__pszText, 'cp1200')
+        }
+    }
+    Ptr => this.Buffer.Ptr
+    Size => this.Buffer.Size
+}
+
+c := Container(
+    SomeStruct("obj4")
+  , SomeStruct("obj3")
+  , SomeStruct("obj1")
+)
+c.SetSortType(CONTAINER_SORTTYPE_CB_STRINGPTR)
+c.SetCallbackValue((value) => value.__pszText.Ptr)
+c.SetCompareStringEx()
+c.Sort()
+```
+
+## CONTAINER_SORTTYPE_DATE
+
+- **CallbackValue**: Not used. Values in the container are date strings in the format yyyyMMddHHmmss.
+- **CallbackCompare**: Set by calling `Container.Prototype.SetCompareDate`.
+
+```ahk
+c := Container(
+    '20250312122930'
+  , '20250411122900'
+  , '20251015091805'
+)
+c.SetSortType(CONTAINER_SORTTYPE_DATE)
+c.SetCompareDate()
+c.Sort()
+```
+
+## CONTAINER_SORTTYPE_DATESTR
+
+- **CallbackValue**: Not used. Values in the container are date strings in any format recognized by the
+`Container_DateParser` set to `ContainerObj.DateParser`.
+- **CallbackCompare**: Set by calling `Container.Prototype.SetCompareDateStr` or
+`Container.Prototype.SetDateParser`.
+
+```ahk
+c := Container(
+    '2025-03-12 12:29:30'
+  , '2025-04-11 12:29:00'
+  , '2025-10-15 09:18:05'
+)
+c.SetSortType(CONTAINER_SORTTYPE_DATESTR)
+c.SetCompareDateStr('yyyy-MM-dd HH:mm:ss')
+c.Sort()
+```
+
+## CONTAINER_SORTTYPE_DATEVALUE
+
+Your code does not assign this sort type directly. See the description for `Container.Prototype.DatePreprocess`
+for details about this sort type.
+
+## CONTAINER_SORTTYPE_MISC
+
+- **CallbackValue**: Not used. Values in the container are any kind of value.
+- **CallbackCompare**: Provided by your code and implements custom logic to return the comparison value.
+
+```ahk
+c := Container(
+    { id: 'CFikHajB' }
+  , { id: 'zhLAlxeK' }
+  , { id: 'RwaedOSw' }
+)
+c.SetSortType(CONTAINER_SORTTYPE_MISC)
+c.SetCallbackCompare(MyCallbackCompare)
+MyCallbackCompare(value1, value2) {
+    ; Implements some logic and returns a number indicating the relationship of the two values
+}
+c.Sort()
+```
+
+## CONTAINER_SORTTYPE_NUMBER
+
+- **CallbackValue**: Not used. Values in the container are numbers.
+- **CallbackCompare**: Not used.
+
+```ahk
+c := Container(
+    298581
+  , 195801
+  , 585929
+)
+c.SetSortType(CONTAINER_SORTTYPE_NUMBER)
+c.Sort()
+```
+
+## CONTAINER_SORTTYPE_STRING
+
+- **CallbackValue**: Not used. Values in the container are strings.
+- **CallbackCompare**: Set by calling `Container.Prototype.SetCompareStringEx`.
+
+```ahk
+c := Container(
+    'string4'
+  , 'string3'
+  , 'string1'
+)
+c.SetSortType(CONTAINER_SORTTYPE_STRING)
+c.SetCompareStringEx()
+c.Sort()
+```
+
+## CONTAINER_SORTTYPE_STRINGPTR
+
+- **CallbackValue**: Not used. Values in the container are pointers to null-terminated strings.
+- **CallbackCompare**: Set by calling `Container.Prototype.SetCompareStringEx`.
+
+```ahk
+buf1 := StrBuf('string4')
+buf2 := StrBuf('string3')
+buf3 := StrBuf('string1')
+c := Container(
+    buf1.Ptr
+  , buf2.Ptr
+  , buf3.Ptr
+)
+c.SetSortType(CONTAINER_SORTTYPE_STRINGPTR)
+c.SetCompareStringEx()
+c.Sort()
+
+StrBuf(str) {
+    buf := Buffer(StrPut(str, 'cp1200'))
+    StrPut(str, buf, 'cp1200')
+    return buf
+}
+```
 
 # Instantiating a `Container`
 
