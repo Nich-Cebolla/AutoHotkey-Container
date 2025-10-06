@@ -612,7 +612,7 @@ CompareNumbers(value1, value2) {
 
 # Comparing dates
 
-This section details how `Container` handles yyyyMMddHHmmss timestamps, date strings, an date values.
+This section details how `Container` handles yyyyMMddHHmmss timestamps, date strings, and date values.
 
 Much of this information is available in the [parameter hints](#parameter-hints) for the relevant methods.
 
@@ -661,8 +661,7 @@ The methods are fully documented in either file, but this section provides a qui
 ### Using `Container_Date` with timestamps
 
 `Container_Date.FromTimestamp` accepts a whole or partial timestamp (yyyyMMddHHmmss) string / integer
-and returns a `Container_Date` object. This is used with any of `Container`'s sort / binary search
-operations involving yyyyMMddHHmmss values.
+and returns a `Container_Date` object.
 
 ### Using `Container_DateParser` with date strings
 
@@ -1143,6 +1142,10 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
   - Added methods:
     - `Container.Prototype.GetValue`
     - `Container.Prototype.GetValueSparse`
+  - Changed:
+    - test\run-tests.ahk - Changed the name `test` to `Container_RunTests`, added in tooltips,
+      and added in a `if A_LineFile == A_ScriptFullPath` condition to run the tests.
+    - Simplified the `while` condition in all of the "Find" methods.
 
 - **2025-10-04** - v1.0.1
   - Added methods:
