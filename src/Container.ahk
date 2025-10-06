@@ -39,6 +39,41 @@ class Container extends Array {
           , 'CONTAINER_SORTTYPE_END'
         ]
     }
+    /**
+     * - **CallbackValue**: Provided by your code and returns a string in the format yyyyMMddHHmmss.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDate}.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.timestamp
+     * }
+     *
+     * c := Container.CbDate(CallbackValue)
+     * c.InsertList([
+     *     { timestamp: "20250312122930" }
+     *   , { timestamp: "20250411122900" }
+     *   , { timestamp: "20251015091805" }
+     * ])
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateEx} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     static CbDate(CallbackValue, UseCompareDateEx := false, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_CB_DATE)
@@ -46,6 +81,56 @@ class Container extends Array {
         c.SetCompareDate(UseCompareDateEx)
         return c
     }
+    /**
+     * - **CallbackValue**: Provided by your code and returns a date string in any format recognized by the
+     * {@link Container_DateParser} set to {@link Container#DateParser}.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDateStr}.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.date
+     * }
+     *
+     * c := Container.CbDateStr(CallbackValue, "yyyy-MM-dd HH:mm:ss")
+     * c.InsertList([
+     *     { date: "2025-03-12 12:29:30" }
+     *   , { date: "2025-04-11 12:29:00" }
+     *   , { date: "2025-10-15 09:18:05" }
+     * ])
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {String} DateFormat - The format string that {@link Container_Date} uses to parse
+     * date strings into usable date values.
+     *
+     * @param {String} [RegExOptions = ""] - The RegEx options to add to the beginning of the pattern.
+     * Include the close parenthesis, e.g. "i)".
+     *
+     * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
+     * the current century is used. If the date strings have 4-digit years, this option is ignored.
+     * Sets property {@link Container#CompareDateCentury}.
+     *
+     * Note that you must call {@link Container.Prototype.SetDateParser} or {@link Container.Prototype.SetCompareDateStr}
+     * to change the value of property {@link Container#CompareDateCentury}; changing the value directly
+     * will cause unexpected behavior.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateEx} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     static CbDateStr(CallbackValue, DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
@@ -53,51 +138,383 @@ class Container extends Array {
         c.SetCompareDateStr(DateFormat, RegExOptions, Century ?? unset, UseCompareDateEx)
         return c
     }
-    static CbDateStrFromParser(CallbackValue, DateParser, Century?, UseCompareDateEx := false, Values*) {
+    /**
+     * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
+     * by the {@link Container_DateParser} set to {@link Container#DateParser}.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetDateParser}.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.date
+     * }
+     *
+     * dateParser := Container_DateParser("yyyy-MM-dd HH:mm:ss")
+     * c := Container.CbDateStrFromParser(CallbackValue, dateParser)
+     * c.InsertList([
+     *     { date: "2025-03-12 12:29:30" }
+     *   , { date: "2025-04-11 12:29:00" }
+     *   , { date: "2025-10-15 09:18:05" }
+     * ])
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {Container_DateParser} DateParserObj - The {@link Container_DateParser}.
+     *
+     * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
+     * the current century is used. If the date strings have 4-digit years, this option is ignored.
+     * Sets property {@link Container#CompareDateCentury}.
+     *
+     * Note that you must call {@link Container.Prototype.SetDateParser} or {@link Container.Prototype.SetCompareDateStr}
+     * to change the value of property {@link Container#CompareDateCentury}; changing the value directly
+     * will cause unexpected behavior.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateStr} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
+    static CbDateStrFromParser(CallbackValue, DateParserObj, Century?, UseCompareDateEx := false, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
         c.SetCallbackValue(CallbackValue)
-        c.SetDateParser(DateParser, Century ?? unset, UseCompareDateEx)
+        c.SetDateParser(DateParserObj, Century ?? unset, UseCompareDateEx)
         return c
     }
+    /**
+     * - **CallbackValue**: Provided by your code and returns a number.
+     * - **CallbackCompare**: Not used.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.value
+     * }
+     *
+     * c := Container.CbNumber(CallbackValue)
+     * c.InsertList([
+     *     { value: 298581 }
+     *   , { value: 195801 }
+     *   , { value: 585929 }
+     * ])
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     static CbNumber(CallbackValue, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_CB_NUMBER)
         c.SetCallbackValue(CallbackValue)
         return c
     }
-    static CbString(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    /**
+     * - **CallbackValue**: Provided by your code and returns a string.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.name
+     * }
+     *
+     * c := Container.CbString(CallbackValue)
+     * c.InsertList([
+     *     { name: "obj4" }
+     *   , { name: "obj3" }
+     *   , { name: "obj1" }
+     * ])
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {String|Integer} [LocaleName = LOCALE_NAME_USER_DEFAULT] - Pointer to a locale name,
+     * or one of the following predefined values. If `LocaleName` is a string, a buffer object
+     * will be created to store the string value. The buffer object is set to property
+     * {@link Container#CompareStringLocaleName}.
+     * - LOCALE_NAME_INVARIANT
+     * - LOCALE_NAME_SYSTEM_DEFAULT
+     * - LOCALE_NAME_USER_DEFAULT
+     *
+     * @param {Integer} [Flag = 0] - See the description of the flags on
+     * {@link https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex}.
+     * The flags each exist as global variables by the same name as indicated in the documentation. To
+     * combine flags, use the bitwise "or" ( | ), e.g. `LINGUISTIC_IGNORECASE | NORM_IGNORENONSPACE`.
+     *
+     * @param {Integer|NlsVersionInfoEx|Buffer} [NlsVersionInfo = 0] - Either a pointer to a
+     * NLSVERSIONINFOEX structure, or an {@link NlsVersionInfoEx} object, or a buffer containing an
+     * NLSVERSIONINFOEX structure. If `NlsVersionInfo` is an object, the object is set to
+     * property {@link Container#CompareStringNlsVersionInfo}.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
+    static CbString(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
         c.SetCallbackValue(CallbackValue)
-        c.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
+        c.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo)
         return c
     }
-    static CbStringPtr(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    /**
+     * - **CallbackValue**: Provided by your code and returns a pointer to a null-terminated string.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
+     *
+     * If you know your code will be used for a lot of sorting and finding operations, you can
+     * improve performance by storing the name / key in a buffer.
+     *
+     * @example
+     * class ImageSamples {
+     *     __New(Name, ImageData) {
+     *         this.NameBuffer := Buffer(StrPut(Name, "cp1200"))
+     *         StrPut(Name, this.NameBuffer, "cp1200")
+     *         this.ImageData := ImageData
+     *     }
+     *     Name => StrGet(this.NameBuffer, "cp1200")
+     * }
+     *
+     * CallbackValue(value) {
+     *     return value.NameBuffer.Ptr
+     * }
+     *
+     * c := Container.CbStringPtr(CallbackValue)
+     * c.InsertList([
+     *     ImageSamples("obj4", data4)
+     *   , ImageSamples("obj3", data3)
+     *   , ImageSamples("obj1", data1)
+     * ])
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {String|Integer} [LocaleName = LOCALE_NAME_USER_DEFAULT] - Pointer to a locale name,
+     * or one of the following predefined values. If `LocaleName` is a string, a buffer object
+     * will be created to store the string value. The buffer object is set to property
+     * {@link Container#CompareStringLocaleName}.
+     * - LOCALE_NAME_INVARIANT
+     * - LOCALE_NAME_SYSTEM_DEFAULT
+     * - LOCALE_NAME_USER_DEFAULT
+     *
+     * @param {Integer} [Flag = 0] - See the description of the flags on
+     * {@link https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex}.
+     * The flags each exist as global variables by the same name as indicated in the documentation. To
+     * combine flags, use the bitwise "or" ( | ), e.g. `LINGUISTIC_IGNORECASE | NORM_IGNORENONSPACE`.
+     *
+     * @param {Integer|NlsVersionInfoEx|Buffer} [NlsVersionInfo = 0] - Either a pointer to a
+     * NLSVERSIONINFOEX structure, or an {@link NlsVersionInfoEx} object, or a buffer containing an
+     * NLSVERSIONINFOEX structure. If `NlsVersionInfo` is an object, the object is set to
+     * property {@link Container#CompareStringNlsVersionInfo}.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
+    static CbStringPtr(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_CB_STRINGPTR)
         c.SetCallbackValue(CallbackValue)
-        c.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
+        c.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo)
         return c
     }
+    /**
+     * - **CallbackValue**: Not used.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDate}.
+     *
+     * @example
+     * c := Container.Date()
+     * c.InsertList([
+     *     "20250312122930"
+     *   , "20250411122900"
+     *   , "20251015091805"
+     * ])
+     * @
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateEx} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     static Date(UseCompareDateEx := false, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_DATE)
         c.SetCompareDate(UseCompareDateEx)
         return c
     }
+    /**
+     * - **CallbackValue**: Not used.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDateStr}.
+     *
+     * @example
+     * c := Container.DateStr("yyyy-MM-dd HH:mm:ss")
+     * c.InsertList([
+     *     "2025-03-12 12:29:30"
+     *   , "2025-04-11 12:29:00"
+     *   , "2025-10-15 09:18:05"
+     * ])
+     * @
+     *
+     * @param {String} DateFormat - The format string that {@link Container_Date} uses to parse
+     * date strings into usable date values.
+     *
+     * @param {String} [RegExOptions = ""] - The RegEx options to add to the beginning of the pattern.
+     * Include the close parenthesis, e.g. "i)".
+     *
+     * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
+     * the current century is used. If the date strings have 4-digit years, this option is ignored.
+     * Sets property {@link Container#CompareDateCentury}.
+     *
+     * Note that you must call {@link Container.Prototype.SetDateParser} or {@link Container.Prototype.SetCompareDateStr}
+     * to change the value of property {@link Container#CompareDateCentury}; changing the value directly
+     * will cause unexpected behavior.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateEx} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     static DateStr(DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_DATESTR)
         c.SetCompareDateStr(DateFormat, RegExOptions, Century ?? unset, UseCompareDateEx)
         return c
     }
-    static DateStrFromParser(DateParser, Century?, UseCompareDateEx := false, Values*) {
+    /**
+     * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
+     * by the {@link Container_DateParser} set to {@link Container#DateParser}.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetDateParser}.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.date
+     * }
+     *
+     * dateParser := Container_DateParser("yyyy-MM-dd HH:mm:ss")
+     * c := Container.DateStrFromParser(dateParser)
+     * c.InsertList([
+     *     "2025-03-12 12:29:30"
+     *   , "2025-04-11 12:29:00"
+     *   , "2025-10-15 09:18:05"
+     * ])
+     * @
+     *
+     * @param {Container_DateParser} DateParserObj - The {@link Container_DateParser}.
+     *
+     * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
+     * the current century is used. If the date strings have 4-digit years, this option is ignored.
+     * Sets property {@link Container#CompareDateCentury}.
+     *
+     * Note that you must call {@link Container.Prototype.SetDateParser} or {@link Container.Prototype.SetCompareDateStr}
+     * to change the value of property {@link Container#CompareDateCentury}; changing the value directly
+     * will cause unexpected behavior.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateStr} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
+    static DateStrFromParser(DateParserObj, Century?, UseCompareDateEx := false, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_DATESTR)
-        c.SetDateParser(DateParser, Century ?? unset, UseCompareDateEx)
+        c.SetDateParser(DateParserObj, Century ?? unset, UseCompareDateEx)
         return c
     }
+    /**
+     * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
+     * by the {@link Container_DateParser} set to {@link Container#DateParser}.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.DatePreprocess}.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.date
+     * }
+     *
+     * c := Container.DateValue(CallbackValue, "yyyy-MM-dd HH:mm:ss")
+     * ; Use DateInsertList (not InsertList)
+     * c.DateInsertList([
+     *     { date: "2025-03-12 12:29:30" }
+     *   , { date: "2025-04-11 12:29:00" }
+     *   , { date: "2025-10-15 09:18:05" }
+     * ])
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {String} DateFormat - The format string that {@link Container_Date} uses to parse
+     * date strings into usable date values.
+     *
+     * @param {String} [RegExOptions = ""] - The RegEx options to add to the beginning of the pattern.
+     * Include the close parenthesis, e.g. "i)".
+     *
+     * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
+     * the current century is used. If the date strings have 4-digit years, this option is ignored.
+     * Sets property {@link Container#CompareDateCentury}.
+     *
+     * Note that you must call {@link Container.Prototype.SetDateParser} or {@link Container.Prototype.SetCompareDateStr}
+     * to change the value of property {@link Container#CompareDateCentury}; changing the value directly
+     * will cause unexpected behavior.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateEx} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     static DateValue(CallbackValue, DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false, PropertyName := '__Container_DateValue', Values*) {
         c := this.CbDateStr(CallbackValue, DateFormat, RegExOptions, Century ?? unset, UseCompareDateEx)
         if Values.Length {
@@ -117,32 +534,201 @@ class Container extends Array {
         ObjSetBase(Arr, this.Prototype)
         return Arr
     }
+    /**
+     * - **CallbackValue**: Not used.
+     * - **CallbackCompare**: Provided by your code and implements custom logic to return the comparison
+     * value.
+     *
+     * @example
+     * CallbackCompare(value1, value2) {
+     *     ; Implements some logic and returns a number
+     *     ; indicating the relationship of the two values
+     * }
+     *
+     * c := Container.Misc(CallbackCompare)
+     * c.InsertList([
+     *     { id: "CFikHajB" }
+     *   , { id: "zhLAlxeK" }
+     *   , { id: "RwaedOSw" }
+     * ])
+     * @
+     *
+     * @param {*} CallbackCompare - The callback to use as a comparator for sorting operations. Sets
+     * the property {@link Container#CallbackCompare}.
+     *
+     * Parameters:
+     * 1. A value to be compared.
+     * 2. A value to be compared.
+     *
+     * Returns {Number} - If sorting in ascending order:
+     * - If the number is less than zero it indicates the first parameter is less than the second parameter.
+     * - If the number is zero it indicates the two parameters are equal.
+     * - If the number is greater than zero it indicates the first parameter is greater than the second parameter.
+     *
+     * Invert the return value (multiply by -1) to sort in descending order.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     static Misc(CallbackCompare, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_MISC)
         c.SetCallbackCompare(CallbackCompare)
         return c
     }
+    /**
+     * - **CallbackValue**: Not used.
+     * - **CallbackCompare**: Not used.
+     *
+     * @example
+     * c := Container.Number()
+     * c.InsertList([
+     *     298581
+     *   , 195801
+     *   , 585929
+     * ])
+     * @
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     static Number(Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_NUMBER)
         return c
     }
-    static String(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    /**
+     * - **CallbackValue**: Not used.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
+     *
+     * @example
+     * c := Container.String()
+     * c.InsertList([
+     *     "string4"
+     *   , "string3"
+     *   , "string1"
+     * ])
+     * @
+     *
+     * @param {String|Integer} [LocaleName = LOCALE_NAME_USER_DEFAULT] - Pointer to a locale name,
+     * or one of the following predefined values. If `LocaleName` is a string, a buffer object
+     * will be created to store the string value. The buffer object is set to property
+     * {@link Container#CompareStringLocaleName}.
+     * - LOCALE_NAME_INVARIANT
+     * - LOCALE_NAME_SYSTEM_DEFAULT
+     * - LOCALE_NAME_USER_DEFAULT
+     *
+     * @param {Integer} [Flag = 0] - See the description of the flags on
+     * {@link https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex}.
+     * The flags each exist as global variables by the same name as indicated in the documentation. To
+     * combine flags, use the bitwise "or" ( | ), e.g. `LINGUISTIC_IGNORECASE | NORM_IGNORENONSPACE`.
+     *
+     * @param {Integer|NlsVersionInfoEx|Buffer} [NlsVersionInfo = 0] - Either a pointer to a
+     * NLSVERSIONINFOEX structure, or an {@link NlsVersionInfoEx} object, or a buffer containing an
+     * NLSVERSIONINFOEX structure. If `NlsVersionInfo` is an object, the object is set to
+     * property {@link Container#CompareStringNlsVersionInfo}.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
+    static String(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_STRING)
-        c.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
+        c.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo)
         return c
     }
-    static StringPtr(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    /**
+     * - **CallbackValue**: Not used.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
+     *
+     * @example
+     * StrBuf(str) {
+     *     buf := Buffer(StrPut(str, "cp1200"))
+     *     StrPut(str, buf, "cp1200")
+     *     return buf
+     * }
+     *
+     * buf1 := StrBuf("string4")
+     * buf2 := StrBuf("string3")
+     * buf3 := StrBuf("string1")
+     *
+     * c := Container.StringPtr()
+     * c.InsertList([
+     *     buf1.Ptr
+     *   , buf2.Ptr
+     *   , buf3.Ptr
+     * ])
+     * @
+     *
+     * @param {String|Integer} [LocaleName = LOCALE_NAME_USER_DEFAULT] - Pointer to a locale name,
+     * or one of the following predefined values. If `LocaleName` is a string, a buffer object
+     * will be created to store the string value. The buffer object is set to property
+     * {@link Container#CompareStringLocaleName}.
+     * - LOCALE_NAME_INVARIANT
+     * - LOCALE_NAME_SYSTEM_DEFAULT
+     * - LOCALE_NAME_USER_DEFAULT
+     *
+     * @param {Integer} [Flag = 0] - See the description of the flags on
+     * {@link https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex}.
+     * The flags each exist as global variables by the same name as indicated in the documentation. To
+     * combine flags, use the bitwise "or" ( | ), e.g. `LINGUISTIC_IGNORECASE | NORM_IGNORENONSPACE`.
+     *
+     * @param {Integer|NlsVersionInfoEx|Buffer} [NlsVersionInfo = 0] - Either a pointer to a
+     * NLSVERSIONINFOEX structure, or an {@link NlsVersionInfoEx} object, or a buffer containing an
+     * NLSVERSIONINFOEX structure. If `NlsVersionInfo` is an object, the object is set to
+     * property {@link Container#CompareStringNlsVersionInfo}.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
+    static StringPtr(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Values*) {
         c := Container(Values*)
         c.SetSortType(CONTAINER_SORTTYPE_STRINGPTR)
-        c.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
+        c.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo)
         return c
     }
-    static StrSplit(Str, Delimiters?, OmitChars?, MaxParts := -1) {
+    /**
+     * Calls {@link https://www.autohotkey.com/docs/v2/lib/StrSplit.htm StrSplit} and converts
+     * the return value to a {@link Container}. Calls {@link Container.Prototype.ToString} from
+     * the new container.
+     *
+     * @param {String} Str - The string to pass to {@link https://www.autohotkey.com/docs/v2/lib/StrSplit.htm StrSplit}.
+     *
+     * @param {String} [Delimiters] - If blank or omitted, each character of the input string will
+     * be treated as a separate substring.
+     *
+     * Otherwise, specify either a single string or an array of strings (case-sensitive), each of
+     * which is used to determine where the boundaries between substrings occur. Since the
+     * delimiters are not considered to be part of the substrings themselves, they are never
+     * included in the returned array. Also, if there is nothing between a pair of delimiters
+     * within the input string, the corresponding array element will be blank.
+     *
+     * For example: "," would divide the string based on every occurrence of a comma. Similarly,
+     * `[A_Space, A_Tab]` would create a new array element every time a space or tab is encountered
+     * in the input string.
+     *
+     * @param {String} [OmitChars] - If blank or omitted, no characters will be excluded. Otherwise,
+     * specify a list of characters (case-sensitive) to exclude from the beginning and end of each
+     * array element. For example, if OmitChars is " `t", spaces and tabs will be removed from the
+     * beginning and end (but not the middle) of every element.
+     *
+     * If Delimiters is blank, OmitChars indicates which characters should be excluded from the array.
+     *
+     * @param {Integer} [MaxParts = -1] - If omitted, it defaults to -1, which means "no limit".
+     * Otherwise, specify the maximum number of substrings to return. If non-zero, the string is
+     * split a maximum of MaxParts-1 times and the remainder of the string is returned in the last
+     * substring (excluding any leading or trailing OmitChars).
+     *
+     * @returns {Container}
+     */
+    static StrSplit(Str, Delimiters?, OmitChars?, MaxParts := -1, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0) {
         split := StrSplit(Str, Delimiters ?? unset, OmitChars ?? unset, MaxParts)
         ObjSetBase(split, Container.Prototype)
+        split.ToString(LocaleName, Flags, NlsVersionInfo)
         return split
     }
     /**
@@ -4779,9 +5365,9 @@ class Container extends Array {
     }
     /**
      * Defines the comparator for sorting operations. Sets the property
-     * {@link Containe#CallbackCompare}.
+     * {@link Container#CallbackCompare}.
      *
-     * @param {*} Callback - The callback to use as a comparator for sorting operations.
+     * @param {*} CallbackCompare - The callback to use as a comparator for sorting operations.
      *
      * Parameters:
      * 1. A value to be compared.
@@ -4794,41 +5380,37 @@ class Container extends Array {
      *
      * Invert the return value (multiply by -1) to sort in descending order.
      */
-    SetCallbackCompare(Callback) {
-        this.CallbackCompare := Callback
+    SetCallbackCompare(CallbackCompare) {
+        this.CallbackCompare := CallbackCompare
     }
     /**
      * Defines the function used to associate a value in the container with a value used for
      * sorting. Sets the function to property {@link Container#CallbackValue}.
      *
      * @example
+     * CallbackValue(value) {
+     *     return value.Name
+     * }
+     *
      * c := Container(
      *     { Name: "obj4" }
      *   , { Name: "obj1" }
      *   , { Name: "obj3" }
      *   , { Name: "obj2" }
      * )
-     * c.SetCompareStringEx()
-     * c.SetCallbackValue((value) => value.Name)
-     * c.SortType := CONTAINER_SORTTYPE_CB_STRING
-     * c.Sort()
+     * c.SetCallbackValue(CallbackValue)
      * @
      *
-     * @param {*} Callback - The callback to use as a comparator for sorting operations.
+     * @param {*} CallbackValue - The function that returns the sort value from items in the container.
      *
      * Parameters:
      * 1. A value to be compared.
-     * 2. A value to be compared.
      *
-     * Returns {Number} - If sorting in ascending order:
-     * - If the number is less than zero it indicates the first parameter is less than the second parameter.
-     * - If the number is zero it indicates the two parameters are equal.
-     * - If the number is greater than zero it indicates the first parameter is greater than the second parameter.
-     *
-     * Invert the return value (multiply by -1) to sort in descending order.
+     * Returns:
+     * The value used for sorting.
      */
-    SetCallbackValue(Callback) {
-        this.CallbackValue := Callback
+    SetCallbackValue(CallbackValue) {
+        this.CallbackValue := CallbackValue
     }
     /**
      * Defines the comparator for string sort operations.
@@ -4853,10 +5435,10 @@ class Container extends Array {
      * NLSVERSIONINFOEX structure. If `NlsVersionInfo` is an object, the object is set to
      * property {@link Container#CompareStringNlsVersionInfo}.
      */
-    SetCompareStringEx(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING) {
+    SetCompareStringEx(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0) {
         if !IsNumber(LocaleName) {
-            buf := this.CompareStringLocaleName := Buffer(StrPut(LocaleName, Encoding))
-            StrPut(LocaleName, Buf, Encoding)
+            buf := this.CompareStringLocaleName := Buffer(StrPut(LocaleName, CONTAINER_DEFAULT_ENCODING))
+            StrPut(LocaleName, Buf, CONTAINER_DEFAULT_ENCODING)
             LocaleName := buf.Ptr
         }
         if IsObject(NlsVersionInfo) {
@@ -4935,10 +5517,6 @@ class Container extends Array {
      *
      * Sets three properties, {@link Container#__DateParser}, {@link Container#CallbackCompare}
      * and {@link Container#CallbackCompareValue}.
-     *
-     * Sorting by date is the only sort type that has the extra comparator
-     * {@link Container#CallbackCompareValue}; all other sort types use only
-     * {@link Container#CallbackCompare}.
      *
      * For details about {@link Container_Date}, see the Container_Date.ahk.
      *
@@ -5465,6 +6043,42 @@ class Container extends Array {
         _CompareCbValue2(a) => CallbackCompare(CallbackValue(a), CallbackValue(b))
         _CompareValue2(a) => Callbackcompare(a, b)
     }
+    /**
+     * - **CallbackValue**: Provided by your code and returns a string in the format yyyyMMddHHmmss.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDate}.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.timestamp
+     * }
+     *
+     * c := Container(
+     *     { timestamp: "20250312122930" }
+     *   , { timestamp: "20250411122900" }
+     *   , { timestamp: "20251015091805" }
+     * )
+     *
+     * c.ToCbDate(CallbackValue)
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateEx} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     ToCbDate(CallbackValue, UseCompareDateEx := false, Values*) {
         if Values.Length {
             this.Push(Values*)
@@ -5474,6 +6088,57 @@ class Container extends Array {
         this.SetCompareDate(UseCompareDateEx)
         return this
     }
+    /**
+     * - **CallbackValue**: Provided by your code and returns a date string in any format recognized by the
+     * {@link Container_DateParser} set to {@link Container#DateParser}.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDateStr}.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.date
+     * }
+     *
+     * c := Container(
+     *     { date: "2025-03-12 12:29:30" }
+     *   , { date: "2025-04-11 12:29:00" }
+     *   , { date: "2025-10-15 09:18:05" }
+     * )
+     *
+     * c.ToCbDateStr(CallbackValue, "yyyy-MM-dd HH:mm:ss")
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {String} DateFormat - The format string that {@link Container_Date} uses to parse
+     * date strings into usable date values.
+     *
+     * @param {String} [RegExOptions = ""] - The RegEx options to add to the beginning of the pattern.
+     * Include the close parenthesis, e.g. "i)".
+     *
+     * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
+     * the current century is used. If the date strings have 4-digit years, this option is ignored.
+     * Sets property {@link Container#CompareDateCentury}.
+     *
+     * Note that you must call {@link Container.Prototype.SetDateParser} or {@link Container.Prototype.SetCompareDateStr}
+     * to change the value of property {@link Container#CompareDateCentury}; changing the value directly
+     * will cause unexpected behavior.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateEx} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     ToCbDateStr(CallbackValue, DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false, Values*) {
         if Values.Length {
             this.Push(Values*)
@@ -5483,6 +6148,54 @@ class Container extends Array {
         this.SetCompareDateStr(DateFormat, RegExOptions, Century ?? unset, UseCompareDateEx)
         return this
     }
+    /**
+     * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
+     * by the {@link Container_DateParser} set to {@link Container#DateParser}.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetDateParser}.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.date
+     * }
+     *
+     * c := Container(
+     *     { date: "2025-03-12 12:29:30" }
+     *   , { date: "2025-04-11 12:29:00" }
+     *   , { date: "2025-10-15 09:18:05" }
+     * )
+     *
+     * dateParser := Container_DateParser("yyyy-MM-dd HH:mm:ss")
+     * c.ToCbDateStrFromParser(CallbackValue, dateParser)
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {Container_DateParser} DateParserObj - The {@link Container_DateParser}.
+     *
+     * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
+     * the current century is used. If the date strings have 4-digit years, this option is ignored.
+     * Sets property {@link Container#CompareDateCentury}.
+     *
+     * Note that you must call {@link Container.Prototype.SetDateParser} or {@link Container.Prototype.SetCompareDateStr}
+     * to change the value of property {@link Container#CompareDateCentury}; changing the value directly
+     * will cause unexpected behavior.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateStr} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     ToCbDateStrFromParser(CallbackValue, DateParser, Century?, UseCompareDateEx := false, Values*) {
         if Values.Length {
             this.Push(Values*)
@@ -5492,6 +6205,31 @@ class Container extends Array {
         this.SetDateParser(DateParser, Century ?? unset, UseCompareDateEx)
         return this
     }
+    /**
+     * - **CallbackValue**: Provided by your code and returns a number.
+     * - **CallbackCompare**: Not used.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.value
+     * }
+     *
+     * c := Container(
+     *     { value: 298581 }
+     *   , { value: 195801 }
+     *   , { value: 585929 }
+     * )
+     *
+     * c.ToCbNumber(CallbackValue)
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     ToCbNumber(CallbackValue, Values*) {
         if Values.Length {
             this.Push(Values*)
@@ -5500,24 +6238,151 @@ class Container extends Array {
         this.SetCallbackValue(CallbackValue)
         return this
     }
-    ToCbString(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    /**
+     * - **CallbackValue**: Provided by your code and returns a string.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.name
+     * }
+     *
+     * c := Container(
+     *     { name: "obj4" }
+     *   , { name: "obj3" }
+     *   , { name: "obj1" }
+     * )
+     *
+     * c.ToCbString(CallbackValue)
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {String|Integer} [LocaleName = LOCALE_NAME_USER_DEFAULT] - Pointer to a locale name,
+     * or one of the following predefined values. If `LocaleName` is a string, a buffer object
+     * will be created to store the string value. The buffer object is set to property
+     * {@link Container#CompareStringLocaleName}.
+     * - LOCALE_NAME_INVARIANT
+     * - LOCALE_NAME_SYSTEM_DEFAULT
+     * - LOCALE_NAME_USER_DEFAULT
+     *
+     * @param {Integer} [Flag = 0] - See the description of the flags on
+     * {@link https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex}.
+     * The flags each exist as global variables by the same name as indicated in the documentation. To
+     * combine flags, use the bitwise "or" ( | ), e.g. `LINGUISTIC_IGNORECASE | NORM_IGNORENONSPACE`.
+     *
+     * @param {Integer|NlsVersionInfoEx|Buffer} [NlsVersionInfo = 0] - Either a pointer to a
+     * NLSVERSIONINFOEX structure, or an {@link NlsVersionInfoEx} object, or a buffer containing an
+     * NLSVERSIONINFOEX structure. If `NlsVersionInfo` is an object, the object is set to
+     * property {@link Container#CompareStringNlsVersionInfo}.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
+    ToCbString(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Values*) {
         if Values.Length {
             this.Push(Values*)
         }
         this.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
         this.SetCallbackValue(CallbackValue)
-        this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
+        this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo)
         return this
     }
-    ToCbStringPtr(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    /**
+     * - **CallbackValue**: Provided by your code and returns a pointer to a null-terminated string.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
+     *
+     * If you know your code will be used for a lot of sorting and finding operations, you can
+     * improve performance by storing the name / key in a buffer.
+     *
+     * @example
+     * class ImageSamples {
+     *     __New(Name, ImageData) {
+     *         this.NameBuffer := Buffer(StrPut(Name, "cp1200"))
+     *         StrPut(Name, this.NameBuffer, "cp1200")
+     *         this.ImageData := ImageData
+     *     }
+     *     Name => StrGet(this.NameBuffer, "cp1200")
+     * }
+     *
+     * CallbackValue(value) {
+     *     return value.NameBuffer.Ptr
+     * }
+     *
+     * c := Container(
+     *     ImageSamples("obj4", data4)
+     *   , ImageSamples("obj3", data3)
+     *   , ImageSamples("obj1", data1)
+     * )
+     *
+     * c.ToCbStringPtr(CallbackValue)
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {String|Integer} [LocaleName = LOCALE_NAME_USER_DEFAULT] - Pointer to a locale name,
+     * or one of the following predefined values. If `LocaleName` is a string, a buffer object
+     * will be created to store the string value. The buffer object is set to property
+     * {@link Container#CompareStringLocaleName}.
+     * - LOCALE_NAME_INVARIANT
+     * - LOCALE_NAME_SYSTEM_DEFAULT
+     * - LOCALE_NAME_USER_DEFAULT
+     *
+     * @param {Integer} [Flag = 0] - See the description of the flags on
+     * {@link https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex}.
+     * The flags each exist as global variables by the same name as indicated in the documentation. To
+     * combine flags, use the bitwise "or" ( | ), e.g. `LINGUISTIC_IGNORECASE | NORM_IGNORENONSPACE`.
+     *
+     * @param {Integer|NlsVersionInfoEx|Buffer} [NlsVersionInfo = 0] - Either a pointer to a
+     * NLSVERSIONINFOEX structure, or an {@link NlsVersionInfoEx} object, or a buffer containing an
+     * NLSVERSIONINFOEX structure. If `NlsVersionInfo` is an object, the object is set to
+     * property {@link Container#CompareStringNlsVersionInfo}.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
+    ToCbStringPtr(CallbackValue, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Values*) {
         if Values.Length {
             this.Push(Values*)
         }
         this.SetSortType(CONTAINER_SORTTYPE_CB_STRINGPTR)
         this.SetCallbackValue(CallbackValue)
-        this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
+        this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo)
         return this
     }
+    /**
+     * - **CallbackValue**: Not used.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDate}.
+     *
+     * @example
+     * c := Container(
+     *     "20250312122930"
+     *   , "20250411122900"
+     *   , "20251015091805"
+     * )
+     *
+     * c.ToDate()
+     * @
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateEx} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     ToDate(UseCompareDateEx := false, Values*) {
         if Values.Length {
             this.Push(Values*)
@@ -5526,6 +6391,49 @@ class Container extends Array {
         this.SetCompareDate(UseCompareDateEx)
         return this
     }
+    /**
+     * - **CallbackValue**: Not used.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDateStr}.
+     *
+     * @example
+     * c := Container(
+     *     "2025-03-12 12:29:30"
+     *   , "2025-04-11 12:29:00"
+     *   , "2025-10-15 09:18:05"
+     * )
+     *
+     * c.ToDateStr("yyyy-MM-dd HH:mm:ss")
+     * @
+     *
+     * @param {String} DateFormat - The format string that {@link Container_Date} uses to parse
+     * date strings into usable date values.
+     *
+     * @param {String} [RegExOptions = ""] - The RegEx options to add to the beginning of the pattern.
+     * Include the close parenthesis, e.g. "i)".
+     *
+     * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
+     * the current century is used. If the date strings have 4-digit years, this option is ignored.
+     * Sets property {@link Container#CompareDateCentury}.
+     *
+     * Note that you must call {@link Container.Prototype.SetDateParser} or {@link Container.Prototype.SetCompareDateStr}
+     * to change the value of property {@link Container#CompareDateCentury}; changing the value directly
+     * will cause unexpected behavior.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateEx} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     ToDateStr(DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false, Values*) {
         if Values.Length {
             this.Push(Values*)
@@ -5534,6 +6442,51 @@ class Container extends Array {
         this.SetCompareDateStr(DateFormat, RegExOptions, Century ?? unset, UseCompareDateEx)
         return this
     }
+    /**
+     * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
+     * by the {@link Container_DateParser} set to {@link Container#DateParser}.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetDateParser}.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.date
+     * }
+     *
+     * c := Container(
+     *     "2025-03-12 12:29:30"
+     *   , "2025-04-11 12:29:00"
+     *   , "2025-10-15 09:18:05"
+     * )
+     *
+     * dateParser := Container_DateParser("yyyy-MM-dd HH:mm:ss")
+     * c.ToDateStrFromParser(dateParser)
+     * @
+     *
+     * @param {Container_DateParser} DateParserObj - The {@link Container_DateParser}.
+     *
+     * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
+     * the current century is used. If the date strings have 4-digit years, this option is ignored.
+     * Sets property {@link Container#CompareDateCentury}.
+     *
+     * Note that you must call {@link Container.Prototype.SetDateParser} or {@link Container.Prototype.SetCompareDateStr}
+     * to change the value of property {@link Container#CompareDateCentury}; changing the value directly
+     * will cause unexpected behavior.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateStr} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     ToDateStrFromParser(DateParser, Century?, UseCompareDateEx := false, Values*) {
         if Values.Length {
             this.Push(Values*)
@@ -5542,6 +6495,56 @@ class Container extends Array {
         this.SetDateParser(DateParser, Century ?? unset, UseCompareDateEx)
         return this
     }
+    /**
+     * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
+     * by the {@link Container_DateParser} set to {@link Container#DateParser}.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.DatePreprocess}.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.date
+     * }
+     *
+     * c := Container(
+     *     { date: "2025-03-12 12:29:30" }
+     *   , { date: "2025-04-11 12:29:00" }
+     *   , { date: "2025-10-15 09:18:05" }
+     * )
+     * c.ToDateValue(CallbackValue, "yyyy-MM-dd HH:mm:ss")
+     * @
+     *
+     * @param {*} CallbackValue - Defines the function used to associate a value in the container
+     * with a value used for sorting. Sets the function to property {@link Container#CallbackValue}.
+     *
+     * @param {String} DateFormat - The format string that {@link Container_Date} uses to parse
+     * date strings into usable date values.
+     *
+     * @param {String} [RegExOptions = ""] - The RegEx options to add to the beginning of the pattern.
+     * Include the close parenthesis, e.g. "i)".
+     *
+     * @param {String} [Century] - The century to use when parsing a 1- or 2-digit year. If not set,
+     * the current century is used. If the date strings have 4-digit years, this option is ignored.
+     * Sets property {@link Container#CompareDateCentury}.
+     *
+     * Note that you must call {@link Container.Prototype.SetDateParser} or {@link Container.Prototype.SetCompareDateStr}
+     * to change the value of property {@link Container#CompareDateCentury}; changing the value directly
+     * will cause unexpected behavior.
+     *
+     * @param {Boolean} [UseCompareDateEx = false] - If true, sets {@link Container#CallbackCompare}
+     * with {@link Container_CompareDateEx}, which will perform more slowly but is not subject
+     * to the same limitation as {@link Container_CompareDate} because {@link Container_CompareDateEx}
+     * does not use {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm DateDiff}.
+     * {@link https://www.autohotkey.com/docs/v2/lib/DateDiff.htm#Remarks DateDiff} has the following
+     * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
+     * is thrown."
+     *
+     * If false, {@link Container_CompareDateEx} is used which will perform more quickly but cannot
+     * handle dates prior to year 1601.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     ToDateValue(CallbackValue, DateFormat, RegExOptions := '', Century?, UseCompareDateEx := false, PropertyName := '__Container_DateValue', Values*) {
         if Values.Length {
             this.Push(Values*)
@@ -5550,6 +6553,44 @@ class Container extends Array {
         this.DatePreprocess(, , PropertyName)
         return this
     }
+    /**
+     * - **CallbackValue**: Not used.
+     * - **CallbackCompare**: Provided by your code and implements custom logic to return the comparison
+     * value.
+     *
+     * @example
+     * CallbackCompare(value1, value2) {
+     *     ; Implements some logic and returns a number
+     *     ; indicating the relationship of the two values
+     * }
+     *
+     * c := Container(
+     *     { id: "CFikHajB" }
+     *   , { id: "zhLAlxeK" }
+     *   , { id: "RwaedOSw" }
+     * )
+     *
+     * c.ToMisc(CallbackCompare)
+     * @
+     *
+     * @param {*} CallbackCompare - The callback to use as a comparator for sorting operations. Sets
+     * the property {@link Container#CallbackCompare}.
+     *
+     * Parameters:
+     * 1. A value to be compared.
+     * 2. A value to be compared.
+     *
+     * Returns {Number} - If sorting in ascending order:
+     * - If the number is less than zero it indicates the first parameter is less than the second parameter.
+     * - If the number is zero it indicates the two parameters are equal.
+     * - If the number is greater than zero it indicates the first parameter is greater than the second parameter.
+     *
+     * Invert the return value (multiply by -1) to sort in descending order.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     ToMisc(CallbackCompare, Values*) {
         if Values.Length {
             this.Push(Values*)
@@ -5558,6 +6599,24 @@ class Container extends Array {
         this.SetCallbackCompare(CallbackCompare)
         return this
     }
+    /**
+     * - **CallbackValue**: Not used.
+     * - **CallbackCompare**: Not used.
+     *
+     * @example
+     * c := Container(
+     *     298581
+     *   , 195801
+     *   , 585929
+     * )
+     *
+     * c.ToNumber()
+     * @
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
     ToNumber(Values*) {
         if Values.Length {
             this.Push(Values*)
@@ -5565,20 +6624,102 @@ class Container extends Array {
         this.SetSortType(CONTAINER_SORTTYPE_NUMBER)
         return this
     }
-    ToString(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    /**
+     * - **CallbackValue**: Not used.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
+     *
+     * @example
+     * c := Container(
+     *     "string4"
+     *   , "string3"
+     *   , "string1"
+     * )
+     *
+     * c.ToString()
+     * @
+     *
+     * @param {String|Integer} [LocaleName = LOCALE_NAME_USER_DEFAULT] - Pointer to a locale name,
+     * or one of the following predefined values. If `LocaleName` is a string, a buffer object
+     * will be created to store the string value. The buffer object is set to property
+     * {@link Container#CompareStringLocaleName}.
+     * - LOCALE_NAME_INVARIANT
+     * - LOCALE_NAME_SYSTEM_DEFAULT
+     * - LOCALE_NAME_USER_DEFAULT
+     *
+     * @param {Integer} [Flag = 0] - See the description of the flags on
+     * {@link https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex}.
+     * The flags each exist as global variables by the same name as indicated in the documentation. To
+     * combine flags, use the bitwise "or" ( | ), e.g. `LINGUISTIC_IGNORECASE | NORM_IGNORENONSPACE`.
+     *
+     * @param {Integer|NlsVersionInfoEx|Buffer} [NlsVersionInfo = 0] - Either a pointer to a
+     * NLSVERSIONINFOEX structure, or an {@link NlsVersionInfoEx} object, or a buffer containing an
+     * NLSVERSIONINFOEX structure. If `NlsVersionInfo` is an object, the object is set to
+     * property {@link Container#CompareStringNlsVersionInfo}.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
+    ToString(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Values*) {
         if Values.Length {
             this.Push(Values*)
         }
         this.SetSortType(CONTAINER_SORTTYPE_STRING)
-        this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
+        this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo)
         return this
     }
-    ToStringPtr(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Encoding := CONTAINER_DEFAULT_ENCODING, Values*) {
+    /**
+     * - **CallbackValue**: Not used.
+     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
+     *
+     * @example
+     * StrBuf(str) {
+     *     buf := Buffer(StrPut(str, "cp1200"))
+     *     StrPut(str, buf, "cp1200")
+     *     return buf
+     * }
+     *
+     * buf1 := StrBuf("string4")
+     * buf2 := StrBuf("string3")
+     * buf3 := StrBuf("string1")
+     *
+     * c := Container(
+     *     buf1.Ptr
+     *   , buf2.Ptr
+     *   , buf3.Ptr
+     * )
+     *
+     * c.ToStringPtr()
+     * @
+     *
+     * @param {String|Integer} [LocaleName = LOCALE_NAME_USER_DEFAULT] - Pointer to a locale name,
+     * or one of the following predefined values. If `LocaleName` is a string, a buffer object
+     * will be created to store the string value. The buffer object is set to property
+     * {@link Container#CompareStringLocaleName}.
+     * - LOCALE_NAME_INVARIANT
+     * - LOCALE_NAME_SYSTEM_DEFAULT
+     * - LOCALE_NAME_USER_DEFAULT
+     *
+     * @param {Integer} [Flag = 0] - See the description of the flags on
+     * {@link https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex}.
+     * The flags each exist as global variables by the same name as indicated in the documentation. To
+     * combine flags, use the bitwise "or" ( | ), e.g. `LINGUISTIC_IGNORECASE | NORM_IGNORENONSPACE`.
+     *
+     * @param {Integer|NlsVersionInfoEx|Buffer} [NlsVersionInfo = 0] - Either a pointer to a
+     * NLSVERSIONINFOEX structure, or an {@link NlsVersionInfoEx} object, or a buffer containing an
+     * NLSVERSIONINFOEX structure. If `NlsVersionInfo` is an object, the object is set to
+     * property {@link Container#CompareStringNlsVersionInfo}.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
+     * @returns {Container}
+     */
+    ToStringPtr(LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0, Values*) {
         if Values.Length {
             this.Push(Values*)
         }
         this.SetSortType(CONTAINER_SORTTYPE_STRINGPTR)
-        this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo, Encoding)
+        this.SetCompareStringEx(LocaleName, Flags, NlsVersionInfo)
         return this
     }
     /**

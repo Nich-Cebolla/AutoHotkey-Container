@@ -1,5 +1,5 @@
 
-# AutoHotkey-Container - v1.0.2
+# AutoHotkey-Container - v1.0.3
 
 The last AutoHotkey (AHK) array class you will ever need.
 
@@ -534,13 +534,18 @@ This section lists the sort types, which properties they require, and provides a
 - **CallbackCompare**: Set by calling `Container.Prototype.SetCompareDate`.
 
 ```ahk
+CallbackValue(value) {
+    return value.timestamp
+}
+
 c := Container(
-    { timestamp: '20250312122930' }
-  , { timestamp: '20250411122900' }
-  , { timestamp: '20251015091805' }
+    { timestamp: "20250312122930" }
+  , { timestamp: "20250411122900" }
+  , { timestamp: "20251015091805" }
 )
+
 c.SetSortType(CONTAINER_SORTTYPE_CB_DATE)
-c.SetCallbackValue((value) => value.timestamp)
+c.SetCallbackValue(CallbackValue)
 c.SetCompareDate()
 c.Sort()
 ```
@@ -553,14 +558,19 @@ c.Sort()
 `Container.Prototype.SetDateParser`.
 
 ```ahk
+CallbackValue(value) {
+    return value.date
+}
+
 c := Container(
-    { date: '2025-03-12 12:29:30' }
-  , { date: '2025-04-11 12:29:00' }
-  , { date: '2025-10-15 09:18:05' }
+    { date: "2025-03-12 12:29:30" }
+  , { date: "2025-04-11 12:29:00" }
+  , { date: "2025-10-15 09:18:05" }
 )
+
 c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
-c.SetCallbackValue((value) => value.date)
-c.SetCompareDateStr('yyyy-MM-dd HH:mm:ss')
+c.SetCallbackValue(CallbackValue)
+c.SetCompareDateStr("yyyy-MM-dd HH:mm:ss")
 c.Sort()
 ```
 
@@ -570,13 +580,18 @@ c.Sort()
 - **CallbackCompare**: Not used.
 
 ```ahk
+CallbackValue(value) {
+    return value.value
+}
+
 c := Container(
     { value: 298581 }
   , { value: 195801 }
   , { value: 585929 }
 )
+
 c.SetSortType(CONTAINER_SORTTYPE_CB_NUMBER)
-c.SetCallbackValue((value) => value.value)
+c.SetCallbackValue(CallbackValue)
 c.Sort()
 ```
 
@@ -586,58 +601,52 @@ c.Sort()
 - **CallbackCompare**: Set by calling `Container.Prototype.SetCompareStringEx`.
 
 ```ahk
+CallbackValue(value) {
+    return value.name
+}
+
 c := Container(
-    { name: 'obj4' }
-  , { name: 'obj3' }
-  , { name: 'obj1' }
+    { name: "obj4" }
+  , { name: "obj3" }
+  , { name: "obj1" }
 )
+
 c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
-c.SetCallbackValue((value) => value.name)
+c.SetCallbackValue(CallbackValue)
 c.SetCompareStringEx()
 c.Sort()
 ```
 
 ## CONTAINER_SORTTYPE_CB_STRINGPTR
 
+If you know your code will be used for a lot of sorting and finding operations, you can improve
+performance by storing the name / key in a buffer.
+
 - **CallbackValue**: Provided by your code and returns a pointer to a null-terminated string.
 - **CallbackCompare**: Set by calling `Container.Prototype.SetCompareStringEx`.
 
 ```ahk
-class SomeStruct {
-    static __New() {
-        this.DeleteProp('__New')
-        proto := this.Prototype
-        proto.CbSize := 16 ; arbitrary size for example
-        proto.__pszText_offset := 8 ; arbitrary offset for example
+class ImageSamples {
+    __New(Name, ImageData) {
+        this.NameBuffer := Buffer(StrPut(Name, "cp1200"))
+        StrPut(Name, this.NameBuffer, "cp1200")
+        this.ImageData := ImageData
     }
-    __New(pszText) {
-        this.Buffer := Buffer(this.cbSize)
-        this.__pszText := Buffer(StrPut(pszText, 'cp1200'))
-        StrPut(pszText, this.__pszText, 'cp1200')
-        NumPut('ptr', this.__pszText.Ptr, this, this.__pszText_offset)
-    }
-    pszText {
-        Get => StrGet(this.__pszText, 'cp1200')
-        Set {
-            bytes := StrPut(Value, 'cp1200')
-            if bytes > this.__pszText.Size {
-                this.__pszText.Size := bytes
-                NumPut('ptr', this.__pszText.Ptr, this, this.__pszText_offset)
-            }
-            StrPut(Value, this.__pszText, 'cp1200')
-        }
-    }
-    Ptr => this.Buffer.Ptr
-    Size => this.Buffer.Size
+    Name => StrGet(this.NameBuffer, "cp1200")
+}
+
+CallbackValue(value) {
+    return value.NameBuffer.Ptr
 }
 
 c := Container(
-    SomeStruct("obj4")
-  , SomeStruct("obj3")
-  , SomeStruct("obj1")
+    ImageSamples("obj4", data4)
+  , ImageSamples("obj3", data3)
+  , ImageSamples("obj1", data1)
 )
+
 c.SetSortType(CONTAINER_SORTTYPE_CB_STRINGPTR)
-c.SetCallbackValue((value) => value.__pszText.Ptr)
+c.SetCallbackValue(CallbackValue)
 c.SetCompareStringEx()
 c.Sort()
 ```
@@ -649,10 +658,11 @@ c.Sort()
 
 ```ahk
 c := Container(
-    '20250312122930'
-  , '20250411122900'
-  , '20251015091805'
+    "20250312122930"
+  , "20250411122900"
+  , "20251015091805"
 )
+
 c.SetSortType(CONTAINER_SORTTYPE_DATE)
 c.SetCompareDate()
 c.Sort()
@@ -667,12 +677,13 @@ c.Sort()
 
 ```ahk
 c := Container(
-    '2025-03-12 12:29:30'
-  , '2025-04-11 12:29:00'
-  , '2025-10-15 09:18:05'
+    "2025-03-12 12:29:30"
+  , "2025-04-11 12:29:00"
+  , "2025-10-15 09:18:05"
 )
+
 c.SetSortType(CONTAINER_SORTTYPE_DATESTR)
-c.SetCompareDateStr('yyyy-MM-dd HH:mm:ss')
+c.SetCompareDateStr("yyyy-MM-dd HH:mm:ss")
 c.Sort()
 ```
 
@@ -688,13 +699,14 @@ for details about this sort type.
 
 ```ahk
 c := Container(
-    { id: 'CFikHajB' }
-  , { id: 'zhLAlxeK' }
-  , { id: 'RwaedOSw' }
+    { id: "CFikHajB" }
+  , { id: "zhLAlxeK" }
+  , { id: "RwaedOSw" }
 )
+
 c.SetSortType(CONTAINER_SORTTYPE_MISC)
-c.SetCallbackCompare(MyCallbackCompare)
-MyCallbackCompare(value1, value2) {
+c.SetCallbackCompare(CallbackCompare)
+CallbackCompare(value1, value2) {
     ; Implements some logic and returns a number indicating the relationship of the two values
 }
 c.Sort()
@@ -711,6 +723,7 @@ c := Container(
   , 195801
   , 585929
 )
+
 c.SetSortType(CONTAINER_SORTTYPE_NUMBER)
 c.Sort()
 ```
@@ -722,10 +735,11 @@ c.Sort()
 
 ```ahk
 c := Container(
-    'string4'
-  , 'string3'
-  , 'string1'
+    "string4"
+  , "string3"
+  , "string1"
 )
+
 c.SetSortType(CONTAINER_SORTTYPE_STRING)
 c.SetCompareStringEx()
 c.Sort()
@@ -737,23 +751,24 @@ c.Sort()
 - **CallbackCompare**: Set by calling `Container.Prototype.SetCompareStringEx`.
 
 ```ahk
-buf1 := StrBuf('string4')
-buf2 := StrBuf('string3')
-buf3 := StrBuf('string1')
+StrBuf(str) {
+    buf := Buffer(StrPut(str, "cp1200"))
+    StrPut(str, buf, "cp1200")
+    return buf
+}
+
+buf1 := StrBuf("string4")
+buf2 := StrBuf("string3")
+buf3 := StrBuf("string1")
 c := Container(
     buf1.Ptr
   , buf2.Ptr
   , buf3.Ptr
 )
+
 c.SetSortType(CONTAINER_SORTTYPE_STRINGPTR)
 c.SetCompareStringEx()
 c.Sort()
-
-StrBuf(str) {
-    buf := Buffer(StrPut(str, 'cp1200'))
-    StrPut(str, buf, 'cp1200')
-    return buf
-}
 ```
 
 # Instantiating a `Container`
@@ -1400,6 +1415,21 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
 (Ctrl+Shift+P > Preferences: Open Keyboard Shortcuts) and searching "Trigger parameter hints".
 
 # Changelog
+
+- **2025-10-06** - v1.0.3
+  - **BREAKING CHANGES**
+    - Removed parameter `Encoding` from all methods that previously had it. Any code that called
+      a method with a parameter `Encoding` that used that parameter will need to delete that parameter.
+      Any code that called a method with a parameter `Encoding` that used a parameter that occurred
+      after `Encoding` will need to shift those parameters to the left by 1.
+  - Changed:
+    - `Container.StrSplit` now calls `Container.Prototype.ToString` from the new `Container` instance.
+      The parameters for `Container.Prototype.ToString` were added to `Container.StrSplit`.
+  - Documentation:
+    - Added parameter hints to the remaining methods that did not yet have parameter hints.
+    - Fixed the parameter hint above `Container.Prototype.SetCallbackValue`. Previously, it displayed
+      the parameter hint details for `Container.Prototype.SetCallbackCompare`. It now displays the
+      correct information.
 
 - **2025-10-04** - v1.0.2
   - Added methods:
