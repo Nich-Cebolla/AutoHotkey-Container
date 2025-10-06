@@ -3339,6 +3339,68 @@ class Container extends Array {
         }
     }
     /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: no.
+     *
+     * Uses {@link Container.Prototype.Find} to return a value.
+     *
+     * @param {*} Value - The value passed to {@link Container.Prototype.Find}.
+     *
+     * @param {*} [Default] - The value to return if {@link Container.Prototype.Find} returns 0.
+     *
+     * @returns {*} -  If found, returns the found value. If not found, and if `Default` is set,
+     * returns `Default`. If `Default` is not set, and if the container has a
+     * {@link https://www.autohotkey.com/docs/v2/lib/Array.htm#Default "Default"} property, returns
+     * `this.Default`. Else, throws an error.
+     *
+     * @throws {UnsetItemError} - "Value not found."
+     */
+    GetValue(Value, Default?) {
+        if this.Find(Value, &outValue) {
+            return outValue
+        } else {
+            if IsSet(Default) {
+                return Default
+            } else if HasProp(this, 'Default') {
+                return this.Default
+            } else {
+                throw UnsetItemError('Value not found.')
+            }
+        }
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: yes.
+     *
+     * Uses {@link Container.Prototype.Find} to return a value.
+     *
+     * @param {*} Value - The value passed to {@link Container.Prototype.Find}.
+     *
+     * @param {*} [Default] - The value to return if {@link Container.Prototype.Find} returns 0.
+     *
+     * @returns {*} -  If found, returns the found value. If not found, and if `Default` is set,
+     * returns `Default`. If `Default` is not set, and if the container has a
+     * {@link https://www.autohotkey.com/docs/v2/lib/Array.htm#Default "Default"} property, returns
+     * `this.Default`. Else, throws an error.
+     *
+     * @throws {UnsetItemError} - "Value not found."
+     */
+    GetValueSparse(Value, Default?) {
+        if this.FindSparse(Value, &outValue) {
+            return outValue
+        } else {
+            if IsSet(Default) {
+                return Default
+            } else if HasProp(this, 'Default') {
+                return this.Default
+            } else {
+                throw UnsetItemError('Value not found.')
+            }
+        }
+    }
+    /**
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
