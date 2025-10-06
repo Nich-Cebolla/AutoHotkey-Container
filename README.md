@@ -1089,10 +1089,8 @@ this same logic to meet any use case.
 ```ahk
 BinarySearch(arr, value, comparator) {
     left := 1
-    rng := right := arr.Length
-    stop := -1
-    while rng * 0.5 ** stop > 4 {
-        stop++
+    right := arr.Length
+    while right - left > 4 {
         i := right - Ceil((right - left) * 0.5)
         if x := comparator(value, arr[i]) {
             if x > 0 {
