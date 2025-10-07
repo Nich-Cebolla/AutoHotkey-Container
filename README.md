@@ -209,8 +209,8 @@ you might want to use is `LINGUISTIC_IGNORECASE`, which you can pass as the glob
 for more information.
 3. Define your own function to use custom logic.
   - Parameters:
-    1. Value1 - A value from the container.
-    2. Value2 - A value from the container.
+    1. A value to be compared.
+    2. A value to be compared.
   - Returns:
     - A number less than zero to indicate the first parameter is less than the second parameter.
     - Zero to indicate the two parameters are equal.
