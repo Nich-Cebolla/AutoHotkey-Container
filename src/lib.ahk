@@ -15,8 +15,16 @@ CONTAINER_SORTTYPE_STRING
 CONTAINER_SORTTYPE_STRINGPTR
 */
 
-Container_SetConstants() {
+/**
+ * @param {Boolean} [force = false] - If false, and if {@link Container_SetConstants} has been called
+ * before, returns immediately and does not set the values. If true, executes the entire function
+ * whether or not {@link Container_SetConstants} has been called before.
+ */
+Container_SetConstants(force := false) {
     global
+    if IsSet(container_flag_constants_set) && !force {
+        return
+    }
     g_proc_kernel32_CompareStringEx := DllCall('GetProcAddress', 'Ptr', DllCall('GetModuleHandle', 'Str', 'kernel32', 'Ptr'), 'AStr', 'CompareStringEx', 'Ptr')
 
     if !IsSet(PTR_EMPTY_STRING) {
@@ -54,6 +62,8 @@ Container_SetConstants() {
     NORM_LINGUISTIC_CASING              := 0x08000000
     SORT_DIGITSASNUMBERS                := 0x00000008
     SORT_STRINGSORT                     := 0x00001000
+
+    container_flag_constants_set := true
 }
 
 Container_CompareStringEx(LocaleName, Flags, NlsVersionInfo, Ptr1, Ptr2) {
