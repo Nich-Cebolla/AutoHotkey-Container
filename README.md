@@ -698,6 +698,10 @@ for details about this sort type.
 - **CallbackCompare**: Provided by your code and implements custom logic to return the comparison value.
 
 ```ahk
+CallbackCompare(value1, value2) {
+    ; Implements some logic and returns a number indicating the relationship of the two values
+}
+
 c := Container(
     { id: "CFikHajB" }
   , { id: "zhLAlxeK" }
@@ -706,9 +710,6 @@ c := Container(
 
 c.SetSortType(CONTAINER_SORTTYPE_MISC)
 c.SetCallbackCompare(CallbackCompare)
-CallbackCompare(value1, value2) {
-    ; Implements some logic and returns a number indicating the relationship of the two values
-}
 c.Sort()
 ```
 
@@ -1421,7 +1422,17 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
     - Removed parameter `Encoding` from all methods that previously had it. Any code that called
       a method with a parameter `Encoding` that used that parameter will need to delete that parameter.
       Any code that called a method with a parameter `Encoding` that used a parameter that occurred
-      after `Encoding` will need to shift those parameters to the left by 1.
+      after `Encoding` will need to shift those parameters to the left by 1. The following are
+      affected methods:
+        - `Container.StringPtr`
+        - `Container.String`
+        - `Container.CbStringPtr`
+        - `Container.CbString`
+        - `Container.Prototype.SetCompareStringEx`
+        - `Container.Prototype.ToStringPtr`
+        - `Container.Prototype.ToString`
+        - `Container.Prototype.ToCbStringPtr`
+        - `Container.Prototype.ToCbString`
   - Changed:
     - `Container.StrSplit` now calls `Container.Prototype.ToString` from the new `Container` instance.
       The parameters for `Container.Prototype.ToString` were added to `Container.StrSplit`.
