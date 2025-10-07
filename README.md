@@ -1,5 +1,5 @@
 
-# AutoHotkey-Container - v1.0.3
+# AutoHotkey-Container - v1.0.4
 
 The last AutoHotkey (AHK) array class you will ever need.
 
@@ -159,6 +159,9 @@ file directly above the method `Container.Prototype.SetSortType`, or in this rea
 
 Finish the method call using the global variable. I would recommend not to use hardcoded numbers as
 it is less readable and the values may be subject to change.
+
+If you encounter a var unset error, call `Container_SetConstants()` at any point prior to your
+usage of the global variables.
 
 ```ahk
 ; ... continuing with our example
@@ -1419,6 +1422,13 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
 (Ctrl+Shift+P > Preferences: Open Keyboard Shortcuts) and searching "Trigger parameter hints".
 
 # Changelog
+
+- **2025-10-06** - v1.0.4
+  - Changed:
+    - `Container_SetConstants` now sets a global variable `container_flag_constants_set` to indicate
+      that `Container_SetConstants` has already been called. `Container_SetConstants` now has a
+      parameter `force` which allows the caller to force execution even if `Container_SetConstants`
+      has previously been called.
 
 - **2025-10-06** - v1.0.3
   - **BREAKING CHANGES**
