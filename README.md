@@ -236,8 +236,8 @@ for more information.
 
 ## Use the object - Introduction
 
-At the top of the description of each method is a line that says "Requires a sorted container: yes/no"
-and a line that says "Allows unset indices: yes/no".
+At the top of the description of most instance methods is a line that says "Requires a sorted container:
+yes/no" and a line that says "Allows unset indices: yes/no".
 
 [Methods that require a sorted container](#instance-methods---binary-search-methods) are methods
 that implement a [binary search](#binary-search). A binary search is when you split a range in half
@@ -307,7 +307,7 @@ if ObjPtr(c.GetValue("obj2")) == ObjPtr(c[2]) {
 }
 ```
 
-To insert a value in-order, use one of the "Insert" methods.
+To insert a value in order, use one of the "Insert" methods.
 ```ahk
 c.Insert({ Name: "obj4" })
 index := c.Find("obj4")
@@ -452,8 +452,7 @@ Using the `CONTAINER_SORTTYPE_CB_STRING` sort type allows us to define an object
 source of the name. As long as each object in the container has the same property that returns
 a string value, then we can use the container container in a manner similar to a `Map` object.
 
-The following is a list of methods that are analagous to `Map` instance methods. This list is not
-exhaustive.
+The following is a list of methods that are analagous to `Map` instance methods.
 - `Map.Prototype.Clear` -
   - Use `ContainerObj.Length := 0`.
 - `Map.Prototype.Clone` -
@@ -468,6 +467,8 @@ exhaustive.
     if c.DeleteValueIf("obj1") {
         ; do something
     }
+    ```
+    ```ahk
     if c.RemoveIf("obj2") {
         ; do something
     }
@@ -488,7 +489,8 @@ exhaustive.
     }
     ```
 - `Map.Prototype.Set` -
-  - Use `Container.Prototype.DateInsert`, `Container.Prototype.Insert`,
+  - Use `Container.Prototype.DateInsert`, `Container.Prototype.DateInsertIfAbsent`,
+    `Container.Prototype.DateInsertList`, `Container.Prototype.Insert`, `Container.Prototype.InsertList`,
     `Container.Prototype.InsertIfAbsent`, or their sparse counterparts.
     ```ahk
     if c.InsertIfAbsentSparse({ Name: "obj1" }) {
