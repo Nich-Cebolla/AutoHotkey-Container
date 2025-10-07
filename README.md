@@ -217,16 +217,18 @@ for more information.
     - A number greater than zero to indicate the first parameter is greater than the second parameter.
   - Example:
     ```ahk
-    c := Container(
-        { id: 'CFikHajB' }
-      , { id: 'zhLAlxeK' }
-      , { id: 'RwaedOSw' }
-    )
-    c.SetCallbackCompare(Comparator)
-
-    Comparator(Value1, Value2) {
-        ; custom logic
+    ; Sort words by string length
+    Comparator(value1, value2) {
+        return StrLen(value1) - StrLen(value2)
     }
+
+    c := Container(
+        "cat"
+      , "elephant"
+      , "kale"
+    )
+
+    c.SetCallbackCompare(Comparator)
     ```
 
 ## Use the object - Introduction
@@ -234,21 +236,17 @@ for more information.
 At the top of the description of each method is a line that says "Requires a sorted container: yes/no"
 and a line that says "Allows unset indices: yes/no".
 
-Methods that require a sorted container are methods that implement a [binary search](#binary-search).
-A binary search is when you split a range in half repeatedly to narrow in on an
-input value, significantly reducing the amount of processing time spent finding the value (compared
-to a linear search).
+[Methods that require a sorted container](#instance-methods---binary-search-methods) are methods
+that implement a [binary search](#binary-search). A binary search is when you split a range in half
+repeatedly to narrow in on an input value.
 
-Methods that do not require a sorted container are methods that implement a linear search, or methods
-that iterate over each item in the container sequentially. These are each adapted from javascript
-array methods.
+[Methods that do not require a sorted container](#instance-methods---iterative-methods) are methods
+that iterate over items in the container sequentially. These are each adapted from javascript array
+methods.
 
 Methods that allow unset indices are designed to check whether an index has a value before performing
 the action on that index. These methods typically have the word "Sparse" at the end of the method name,
-e.g. `Container.Prototype.FindSparse`. If your code knows that every index in a container has a value,
-your code should use the non-sparse version. However, the difference in performance will only be
-noticeable over thousands of consecutive operations, and so if there is a chance a container might
-be sparse, there should not be any problem with using the sparse version.
+e.g. `Container.Prototype.FindSparse`.
 
 ## Use the object - Sort the container
 
@@ -286,10 +284,10 @@ including actions such as finding, deleting, an inserting values in order. They 
 
 Understand that, if your code will be using the binary search methods, the container must stay
 sorted. Your code should not add values to the container with `Array.Prototype.Push` or
-`Container.Prototype.PushEx`. Instead, use any of the "Insert" methods to insert values in order.
+`Container.Prototype.PushEx`. Instead, use any of the ["Insert" methods](#instance-methods---insert-methods)
+to insert values in order.
 
-To find the index where a value is located, you can use the "Find" methods. Continuing with our
-earlier example...
+To find the index where a value is located, use the "Find" methods. Continuing with our earlier example...
 ```ahk
 index := c.Find("obj1")
 OutputDebug(index "`n") ; 1
@@ -297,6 +295,13 @@ index := c.Find("obj4")
 OutputDebug(index "`n") ; 0
 index := c.Find(c[3])
 OutputDebug(index "`n") ; 3
+```
+
+To get a value as a return value, use "GetValue" or "GetValueSparse".
+```ahk
+if ObjPtr(c.GetValue("obj2")) == ObjPtr(c[2]) {
+    OutputDebug("obj2 is in the correct position.`n")
+}
 ```
 
 To insert a value in-order, use one of the "Insert" methods.
@@ -315,14 +320,12 @@ OutputDebug(c.Has(4) "`n") ; 0
 
 To remove a value and shift values to the left to fill in the space, use one of the "Remove" methods.
 ```ahk
-index := c.RemoveIfSparse("obj4") ; we must use `RemoveIfSparse` because index 4 is unset.
-; The value is not found because we deleted it, so nothing was removed
-OutputDebug(index "`n") ; 0
-; In this example we know the index is 4, but we can just call Condense
-; to shift values left to fill in the unset indices.
-c.Condense()
-; Index 4 now has a value.
-OutputDebug(c.Has(4) "`n") ; 1
+index := c.Remove("obj3")
+OutputDebug(index "`n") ; 3
+; The empty index from deleting "obj4" is now at index 3
+OutputDebug(c.Has(3) "`n") ; 0
+; "obj5" is now at index 4
+OutputDebug(c[4].Name "`n") ; obj5
 ```
 
 ## Use the object - The `Value` parameter
@@ -429,9 +432,9 @@ c := Container(
 c.SetSortType(CONTAINER_SORTTYPE_CB_STRING)
 
 ; Set CallbackValue with a function that returns the name / key.
-c.SetCallbackValue(ContainerCallbackValue)
+c.SetCallbackValue(CallbackValue)
 
-ContainerCallbackValue(value) {
+CallbackValue(value) {
     return value.Name
 }
 
