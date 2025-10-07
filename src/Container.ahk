@@ -540,16 +540,16 @@ class Container extends Array {
      * value.
      *
      * @example
-     * CallbackCompare(value1, value2) {
-     *     ; Implements some logic and returns a number
-     *     ; indicating the relationship of the two values
+     * Comparator(value1, value2) {
+     *     return StrLen(value1) - StrLen(value2)
      * }
      *
-     * c := Container.Misc(CallbackCompare)
+     * c := Container.Misc(Comparator)
+     *
      * c.InsertList([
-     *     { id: "CFikHajB" }
-     *   , { id: "zhLAlxeK" }
-     *   , { id: "RwaedOSw" }
+     *     "cat"
+     *   , "elephant"
+     *   , "kale"
      * ])
      * @
      *
@@ -5379,6 +5379,19 @@ class Container extends Array {
      * - If the number is greater than zero it indicates the first parameter is greater than the second parameter.
      *
      * Invert the return value (multiply by -1) to sort in descending order.
+     * @example
+     * Comparator(value1, value2) {
+     *     return StrLen(value1) - StrLen(value2)
+     * }
+     *
+     * c := Container(
+     *     "cat"
+     *   , "elephant"
+     *   , "kale"
+     * )
+     *
+     * c.SetCallbackCompare(Comparator)
+     * @
      */
     SetCallbackCompare(CallbackCompare) {
         this.CallbackCompare := CallbackCompare
@@ -6560,14 +6573,13 @@ class Container extends Array {
      *
      * @example
      * CallbackCompare(value1, value2) {
-     *     ; Implements some logic and returns a number
-     *     ; indicating the relationship of the two values
+     *     return StrLen(value1) - StrLen(value2)
      * }
      *
      * c := Container(
-     *     { id: "CFikHajB" }
-     *   , { id: "zhLAlxeK" }
-     *   , { id: "RwaedOSw" }
+     *     "cat"
+     *   , "elepehant"
+     *   , "kale"
      * )
      *
      * c.ToMisc(CallbackCompare)
