@@ -185,9 +185,9 @@ to get the sort value of the items in the container.
 ```ahk
 ; ... continuing with our example
 
-c.SetCallbackValue(ContainerCallbackValue)
+c.SetCallbackValue(CallbackValue)
 
-ContainerCallbackValue(value) {
+CallbackValue(value) {
     return value.Name
 }
 ```
