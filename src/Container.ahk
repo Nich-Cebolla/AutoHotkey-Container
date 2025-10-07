@@ -5852,7 +5852,7 @@ class Container extends Array {
      *
      * Creates a new {@link Container} by calling {@link Container.Prototype.Copy} on this container,
      * then fills the new container with the values between range (IndexStart, IndexEnd) of this
-     * container.
+     * container. Unset indices are skipped entirely.
      *
      * @param {Integer} [IndexStart = 1] - The initial index.
      * @param {Integer} [IndexEnd = this.Length] - The final index.
