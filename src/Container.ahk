@@ -20,9 +20,7 @@ class Container extends Array {
         proto.CompareStringLocaleName := proto.__DateParser := proto.CallbackDateInsert :=
         ''
         proto.SortType := 0
-        if !IsSet(CONTAINER_SORTTYPE_NUMBER) {
-            Container_SetConstants()
-        }
+        Container_SetConstants()
         this.SortTypeSymbolList := [
             'CONTAINER_SORTTYPE_CB_DATE'
           , 'CONTAINER_SORTTYPE_CB_DATESTR'
