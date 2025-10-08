@@ -1425,7 +1425,7 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
 
 # Changelog
 
-- **2025-10-06** - v1.0.4
+- **2025-10-07** - v1.0.4
   - Changed:
     - `Container_SetConstants` now sets a global variable `container_flag_constants_set` to indicate
       that `Container_SetConstants` has already been called. `Container_SetConstants` now has a
