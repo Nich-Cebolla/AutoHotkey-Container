@@ -964,8 +964,8 @@ c := Container(
   , { calldate: "2025-03-01 12:30:30" }
 )
 
-; When we call `Container.Prototype.SetCompareDateStr` we include the date format
 c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
+; When we call `Container.Prototype.SetCompareDateStr` we include the date format
 c.SetCompareDateStr("yyyy-MM-dd HH:mm:ss")
 c.SetCallbackValue((value) => value.calldate)
 c.Sort()
