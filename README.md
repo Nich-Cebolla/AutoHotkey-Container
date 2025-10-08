@@ -218,22 +218,7 @@ for more information.
     - Zero to indicate the two parameters are equal.
     - A number greater than zero to indicate the first parameter is greater than the second parameter.
   - Example:
-    ```ahk
-    ; Sort words by string length
-    CallbackCompare(value1, value2) {
-        return StrLen(value1) - StrLen(value2)
-    }
-
-    c := Container(
-        "cat"
-      , "elephant"
-      , "kale"
-    )
-
-    c.SetSortType(CONTAINER_SORTTYPE_MISC)
-
-    c.SetCallbackCompare(CallbackCompare)
-    ```
+    - See [`CONTAINER_SORTTYPE_MISC`](#container_sorttype_misc)
 
 ## Use the object - Introduction
 
@@ -704,19 +689,19 @@ for details about this sort type.
 - **CallbackCompare**: Provided by your code and implements custom logic to return the comparison value.
 
 ```ahk
+; Sort words by string length
 CallbackCompare(value1, value2) {
-    ; Implements some logic and returns a number indicating the relationship of the two values
+    return StrLen(value1) - StrLen(value2)
 }
 
 c := Container(
-    { id: "CFikHajB" }
-  , { id: "zhLAlxeK" }
-  , { id: "RwaedOSw" }
+    "cat"
+  , "elephant"
+  , "kale"
 )
 
 c.SetSortType(CONTAINER_SORTTYPE_MISC)
 c.SetCallbackCompare(CallbackCompare)
-c.Sort()
 ```
 
 ## CONTAINER_SORTTYPE_NUMBER
@@ -1034,7 +1019,8 @@ The `CONTAINER_SORTTYPE_MISC` sort type is for custom comparisons. When using `C
 your code only calls `Container.Prototype.SetCallbackCompare`; it does **not** call
 `Container.Prototype.SetCallbackValue`. When values are compared, the values are passed to
 `ContainerObj.CallbackCompare` as-is, and your function is expected to return a number indicating
-the relationship between the two.
+the relationship between the two. See [`CONTAINER_SORTTYPE_MISC`](#container_sorttype_misc) for an
+example.
 
 # Iterative methods
 
