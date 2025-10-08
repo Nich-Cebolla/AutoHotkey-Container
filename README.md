@@ -157,11 +157,9 @@ file directly above the method `Container.Prototype.SetSortType`, or in this rea
 
 ## Set the sort type
 
-Finish the method call using the global variable. I would recommend not to use hardcoded numbers as
-it is less readable and the values may be subject to change.
-
-If you encounter a var unset error, call `Container_SetConstants()` at any point prior to your
-usage of the global variables.
+Finish the method call using the global variable. I would recommend using the global variables instead
+of hardcoding the values because it is more readable. If you encounter a var unset error, call
+`Container_SetConstants()` at any point prior to your usage of the global variables.
 
 ```ahk
 ; ... continuing with our example
@@ -221,7 +219,7 @@ for more information.
   - Example:
     ```ahk
     ; Sort words by string length
-    Comparator(value1, value2) {
+    CallbackCompare(value1, value2) {
         return StrLen(value1) - StrLen(value2)
     }
 
@@ -231,7 +229,7 @@ for more information.
       , "kale"
     )
 
-    c.SetCallbackCompare(Comparator)
+    c.SetCallbackCompare(CallbackCompare)
     ```
 
 ## Use the object - Introduction
@@ -243,8 +241,8 @@ yes/no" and a line that says "Allows unset indices: yes/no".
 that implement a [binary search](#binary-search). A binary search is when you split a range in half
 repeatedly to narrow in on an input value.
 
-[Methods that do not require a sorted container](#instance-methods---iterative-methods) are methods
-that iterate over items in the container sequentially. These are each adapted from javascript array
+Most methods that do not require a sorted container are [methods that iterate over items in the
+container sequentially](#instance-methods---iterative-methods). These are adapted from javascript array
 methods.
 
 Methods that allow unset indices are designed to check whether an index has a value before performing
@@ -460,40 +458,37 @@ The following is a list of methods that are analagous to `Map` instance methods.
   - Use `Container.Prototype.Copy` to only copy the own properties and base object.
   - Use `Container.Prototype.DeepClone` to deep clone the own properties and items and copy the base object.
 - `Map.Prototype.Delete` -
-  - Use `Container.Prototype.DeleteAll`, `Container.Prototype.DeleteValue`,
-    `Container.Prototype.DeleteValueIf`, `Container.Prototype.Remove`,  `Container.Prototype.RemoveAll`,
-    `Container.Prototype.RemoveIf`, or their sparse counterparts.
+  - Use [delete](#instance-methods---delete-methods) or [remove](#instance-methods---remove-methods) methods.
     ```ahk
-    if c.DeleteValueIf("obj1") {
-        ; do something
-    }
+    c.DeleteValue("obj1")
     ```
     ```ahk
-    if c.RemoveIf("obj2") {
-        ; do something
-    }
+    c.Remove("obj2")
     ```
 - `Map.Prototype.Get` -
-  - Use `Container.Prototype.Find`, `Container.Prototype.FindAll`, `Container.Prototype.FindInequality`,
-    `Container.Prototype.GetValue` or their sparse counterparts.
+  - Use [find](#instance-methods---find-methods") methods.
     ```ahk
     if c.Find("obj3", &value) {
         ; do something, probably with `value`
     }
     ```
+    ```ahk
+    obj := c.GetValue("obj1")
+    ```
 - `Map.Prototype.Has` -
-  - Use `Container.Prototype.Find` or `Container.Prototype.FindSparse`.
+  - Use [find](#instance-methods---find-methods") methods.
     ```ahk
     if c.Find("obj3") {
         ; do something
     }
     ```
 - `Map.Prototype.Set` -
-  - Use `Container.Prototype.DateInsert`, `Container.Prototype.DateInsertIfAbsent`,
-    `Container.Prototype.DateInsertList`, `Container.Prototype.Insert`, `Container.Prototype.InsertList`,
-    `Container.Prototype.InsertIfAbsent`, or their sparse counterparts.
+  - Use [insert](#instance-methods---insert-methods) methods.
     ```ahk
-    if c.InsertIfAbsentSparse({ Name: "obj1" }) {
+    c.Insert({ Name: "obj4" })
+    ```
+    ```ahk
+    if c.InsertIfAbsent({ Name: "obj1" }) {
         ; do something
     }
     ```
@@ -808,7 +803,7 @@ the specified sort type.
 
 ## Instantiating a `Container` - Instance methods
 
-Use one of the "ToXXX" instance methods to set the needed properties on an existing instance.
+Use one of the "To&lt;Name>" instance methods to set the needed properties on an existing instance.
 
 - `Container.Prototype.ToCbDate`
 - `Container.Prototype.ToCbDateStr`
@@ -950,7 +945,8 @@ The methods are fully documented in either file, but this section provides a qui
 ### Using `Container_Date` with timestamps
 
 `Container_Date.FromTimestamp` accepts a whole or partial timestamp (yyyyMMddHHmmss) string / integer
-and returns a `Container_Date` object.
+and returns a `Container_Date` object. `Container_Date.FromTimestamp` is used with sort type
+`CONTAINER_SORTTYPE_CB_DATE` and `CONTAINER_SORTTYPE_DATE`.
 
 ### Using `Container_DateParser` with date strings
 
@@ -1031,15 +1027,15 @@ Follow these guidelines when writing a date format string:
 # Custom comparisons
 
 The `CONTAINER_SORTTYPE_MISC` sort type is for custom comparisons. When using `CONTAINER_SORTTYPE_MISC`,
-your code does **not** call `Container.Prototype.SetCallbackValue`; it only calls
-`Container.Prototype.SetCallbackCompare`. When values are compared, the values are passed to
+your code only calls `Container.Prototype.SetCallbackCompare`; it does **not** call
+`Container.Prototype.SetCallbackValue`. When values are compared, the values are passed to
 `ContainerObj.CallbackCompare` as-is, and your function is expected to return a number indicating
 the relationship between the two.
 
 # Iterative methods
 
-Iterative methods iterate over the values in the container sequentially. All of them are adapted
-from javascript. Like the other methods, there are sparse and non-sparse versions of each method.
+Iterative methods iterate over the values in the container sequentially. Like the other methods, there
+are sparse and non-sparse versions of each method.
 
 Iterative methods have a parameter `Callback`. This is separate from the `ContainerObj.CallbackValue`
 and `ContainerObj.CallbackCompare` functions; `Callback` never gets cached as a property by the
@@ -1053,9 +1049,9 @@ for details about using the `ThisArg` parameter.
 
 # Class details
 
-This section details the class static methods, instance methods, and instance properties. When
-a property or method is listed as `Container.Prototype.<name>`, that property exists on
-`Container.Prototype`. When a property or method is listed as `ContainerObj.<name>`, that property
+This section lists the class static methods, instance methods, and instance properties. When
+a property or method is listed as `Container.Prototype.<Name>`, that property exists on
+`Container.Prototype`. When a property or method is listed as `ContainerObj.<Name>`, that property
 is an own property that is added to the `Container` object some time during or after instantiation.
 
 ## Static methods
