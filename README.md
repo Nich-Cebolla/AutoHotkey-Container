@@ -451,7 +451,7 @@ c := c.QuickSort()
 
 Using the `CONTAINER_SORTTYPE_CB_STRING` sort type allows us to define an object property as the
 source of the name. As long as each object in the container has the same property that returns
-a string value, then we can use the container container in a manner similar to a `Map` object.
+a string value, then we can use the container in a manner similar to a `Map` object.
 
 The following is a list of methods that are analagous to `Map` instance methods.
 - `Map.Prototype.Clear` -
