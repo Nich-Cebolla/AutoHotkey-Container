@@ -261,7 +261,7 @@ There are three sort methods available:
 ## Use the object - Binary search
 
 Binary search requires a sorted container. There are over twenty binary search methods available,
-including actions such as finding, deleting, an inserting values in order. They all rely on the various
+including actions such as finding, deleting, and inserting values in order. They all rely on the various
 "Find" methods. The following is a brief description of the "Find" methods available:
 - Find : Finds a value and returns the index.
 - FindAll : Finds a value and returns the first index with the value and has a `VarRef` parameter
@@ -910,9 +910,7 @@ representing the number of seconds between Jan 01, 1, 00:00:00 and the date asso
 - This process is noticeably slower than `DateDiff`, but this is mitigated by calling
   `Container.Prototype.DatePreprocess` which optimizes date comparisons significantly.
 - Leap years are handled using the following logic which I obtained
-  [from Wikipedia](https://en.wikipedia.org/wiki/Leap_year). I believe I implemented it correctly,
-  and in any case it will work for comparisons, but if accurate measurements are needed you should
-  validate this logic.
+  [from Wikipedia](https://en.wikipedia.org/wiki/Leap_year).
   - Leap years occur every 4 years (Mod(year, 4) = 0) except years that are divisible by 100 and not
     divisible by 400 are **not** leap years.
   - This logic is boiled down to the following function to return the number of leap years prior to
@@ -934,7 +932,7 @@ The methods are fully documented in either file, but this section provides a qui
 
 `Container_Date.FromTimestamp` accepts a whole or partial timestamp (yyyyMMddHHmmss) string / integer
 and returns a `Container_Date` object. `Container_Date.FromTimestamp` is used with sort type
-`CONTAINER_SORTTYPE_CB_DATE` and `CONTAINER_SORTTYPE_DATE`.
+`CONTAINER_SORTTYPE_CB_DATE` and `CONTAINER_SORTTYPE_DATE` when `UseCompareDateEx` is true.
 
 ### Using `Container_DateParser` with date strings
 
