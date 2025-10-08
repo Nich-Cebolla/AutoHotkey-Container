@@ -965,6 +965,7 @@ c := Container(
 )
 
 ; When we call `Container.Prototype.SetCompareDateStr` we include the date format
+c.SetSortType(CONTAINER_SORTTYPE_CB_DATESTR)
 c.SetCompareDateStr("yyyy-MM-dd HH:mm:ss")
 c.SetCallbackValue((value) => value.calldate)
 c.Sort()
