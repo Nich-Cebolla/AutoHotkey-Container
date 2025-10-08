@@ -538,11 +538,11 @@ class Container extends Array {
      * value.
      *
      * @example
-     * Comparator(value1, value2) {
+     * CallbackCompare(value1, value2) {
      *     return StrLen(value1) - StrLen(value2)
      * }
      *
-     * c := Container.Misc(Comparator)
+     * c := Container.Misc(CallbackCompare)
      *
      * c.InsertList([
      *     "cat"
