@@ -158,8 +158,8 @@ file directly above the method `Container.Prototype.SetSortType`, or in this rea
 ## Set the sort type
 
 Finish the method call using the global variable. I would recommend using the global variables instead
-of hardcoding the values because it is more readable. If you encounter a var unset error, call
-`Container_SetConstants()` at any point prior to your usage of the global variables.
+of hardcoding the values because it is more readable. If your code encounters a var unset error, call
+`Container_SetConstants()` before using the variables.
 
 ```ahk
 ; ... continuing with our example
@@ -198,7 +198,8 @@ which compare values using subtraction.
 
 1. If the values will be compared as strings, call `Container.Prototype.SetCompareStringEx`.
 Your code can call it without any parameters if the default values are acceptable. A common flag
-you might want to use is `LINGUISTIC_IGNORECASE`, which you can pass as the global variable.
+you might want to use is `LINGUISTIC_IGNORECASE`, which you can pass as the global variable. If your
+code encounters a var unset error, call `Container_SetConstants()` before using the variables.
     ```ahk
     ; ... continuing with our example
 
@@ -228,6 +229,8 @@ for more information.
       , "elephant"
       , "kale"
     )
+
+    c.SetSortType(CONTAINER_SORTTYPE_MISC)
 
     c.SetCallbackCompare(CallbackCompare)
     ```
