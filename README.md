@@ -108,7 +108,7 @@ object" or `ContainerObj`.
 class Container extends Array
 ```
 
-`Container` inherits from `Array` and exposes **over 95** additional methods to perform common actions
+`Container` inherits from `Array` and exposes **over 100** additional methods to perform common actions
 such as sorting and finding values.
 
 The class methods can be divided into three categories:
