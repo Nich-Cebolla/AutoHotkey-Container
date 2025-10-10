@@ -1427,8 +1427,10 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
     - `Container.Prototype.EnumRange`
     - `Container.Prototype.EnumRangeSparse`
     - `Container.Prototype.__Enum`
+    - test\test-EnumRange.ahk
   - Changed:
     - Removed value "CONTAINER_SORTTYPE_END" from `Container.SortTypeSymbolList`.
+    - Added `test_miscExamples.Enum`, `test_miscExamples.EnumRange`, and `test_miscExamples.EnumRangeSparse`.
 
 - **2025-10-07** - v1.0.4
   - Changed:
