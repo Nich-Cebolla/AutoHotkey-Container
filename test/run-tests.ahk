@@ -1,5 +1,6 @@
 ﻿
 #include test-DatePreprocess.ahk
+#include test-EnumRange.ahk
 #include test-example-HasValue.ahk
 #include test-example-SetCallbackValue.ahk
 #include test-Find.ahk
@@ -21,6 +22,8 @@ Container_RunTests(tooltips := false) {
         ot := CoordMode('ToolTip', 'Screen')
         ShowTooltip('Starting DatePreprocess')
         test_DatePreprocess()
+        ShowTooltip('Starting EnumRange')
+        test_EnumRange()
         ShowTooltip('Starting HasValue')
         test_HasValue()
         ShowTooltip('Starting SetCallbackValue')
@@ -46,6 +49,7 @@ Container_RunTests(tooltips := false) {
         CoordMode('ToolTip', ot)
     } else {
         test_DatePreprocess()
+        test_EnumRange()
         test_HasValue()
         test_SetCallbackValue()
         test_Find()
