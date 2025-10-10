@@ -112,7 +112,7 @@ class Container extends Array
 such as sorting and finding values.
 
 The class methods can be divided into three categories:
-1. Methods that sort the values in the container. - [Sort methods](#use-the-object---sort-the-container)
+1. Methods that sort the values in the container. - [sort methods](#use-the-object---sort-the-container)
 2. Methods that require the container to be sorted - [binary search methods](#instance-methods---binary-search-methods).
 3. Methods that do not require the container to be sorted - [iterative methods](#instance-methods---iterative-methods)
    and [general methods](#instance-methods---general-methods).
