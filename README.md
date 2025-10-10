@@ -1422,7 +1422,7 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
 
 # Changelog
 
-- **2025-10-07** - v1.0.5
+- **2025-10-10** - v1.0.5
   - Added methods:
     - `Container.Prototype.EnumRange`
     - `Container.Prototype.EnumRangeSparse`
