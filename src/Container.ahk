@@ -34,7 +34,6 @@ class Container extends Array {
           , 'CONTAINER_SORTTYPE_NUMBER'
           , 'CONTAINER_SORTTYPE_STRING'
           , 'CONTAINER_SORTTYPE_STRINGPTR'
-          , 'CONTAINER_SORTTYPE_END'
         ]
     }
     /**
@@ -1471,6 +1470,342 @@ class Container extends Array {
             return index
         } else {
             throw UnsetItemError('Value not found.', -1, IsObject(Value) ? '{ ' Type(Value) ' }' : Value)
+        }
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: no.
+     *
+     * Enumerates a subset of the items in the container.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.name
+     * }
+     * c := Container.CbString(CallbackValue)
+     * c.InsertList([
+     *     { name: "obj3" }
+     *   , { name: "obj2" }
+     *   , { name: "obj4" }
+     *   , { name: "obj1" }
+     *   , { name: "obj5" }
+     * ])
+     *
+     * for index, name, obj in c.EnumRange(3, "obj2", "obj4") {
+     *     OutputDebug(index ": " name " - " Type(obj) "`n")
+     * }
+     * @
+     *
+     * `ValueStart` and `ValueEnd` do not need to exist in the container.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.date
+     * }
+     * c := Container.CbDateStr(CallbackValue, "yyyy-MM-dd")
+     * c.InsertList([
+     *     { date: "2025-05-02" }
+     *   , { date: "2025-05-06" }
+     *   , { date: "2025-04-19" }
+     *   , { date: "2025-05-19" }
+     *   , { date: "2025-04-30" }
+     *   , { date: "2025-06-02" }
+     * ])
+     * for index, date, obj in c.EnumRange(3, "2025-05-01", "2025-05-31") {
+     *     OutputDebug(index ": " date " - " Type(obj) "`n")
+     * }
+     * @
+     *
+     * For sort types CONTAINER_SORTTYPE_CB_DATE, CONTAINER_SORTTYPE_CB_DATESTR, CONTAINER_SORTTYPE_CB_NUMBER,
+     * CONTAINER_SORTTYPE_CB_STRING, CONTAINER_SORTTYPE_CB_STRINGPTR, and CONTAINER_SORTTYPE_DATEVALUE,
+     * the behavior of {@link Container.Prototype.EnumRange} is different than the others.
+     * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
+     * - When called in a 2-variable `for` loop, the first variable receives the value returned by
+     *   `ContainerObj.CallbackValue` for the current item, and the second variable receives the
+     *   item, similar to a map object's key and value.
+     * - When called in a 3-variable `for` loop, the first variable receives the index, the second
+     *   variable receives the value returned by `ContainerObj.CallbackValue` for the current item,
+     *   and the third variable receives the item.
+     *
+     * For all other sort types:
+     * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
+     * - When called in a 2-variable `for` loop, the first variable receives the index and the
+     *   second variable receives the item.
+     * - When called in a 3-variable `for` loop, a `ValueError` is thrown.
+     *
+     * @param {Integer} [VarCout = 1] - One of the following:
+     * - 1 : Use when calling {@link Container.Prototype.EnumRange} in a 1-variable `for` loop.
+     * - 2 : Use when calling {@link Container.Prototype.EnumRange} in a 2-variable `for` loop.
+     * - 3 : Use when calling {@link Container.Prototype.EnumRange} in a 3-variable `for` loop.
+     *
+     * @param {*} [ValueStart] - The value which will be passed to {@link Container.Prototype.FindInequality}
+     * to evaluate the start index. If unset, the start index is 1.
+     *
+     * @param {*} [ValueEnd] - The value which will be passed to {@link Container.Prototype.FindInequality}
+     * to evaluate the end index. If unset, the end index is the value of `this.Length`.
+     *
+     * @returns {Func} - The enumerator function.
+     *
+     * @throws {ValueError} - "The start index must be less than the end index."
+     *
+     * @throws {ValueError} - "This container's sort type cannot use a three-variable `for` loop."
+     */
+    EnumRange(VarCount := 1, ValueStart?, ValueEnd?) {
+        if IsSet(ValueStart) {
+            if start := this.FindInequality(ValueStart) {
+                start--
+            }
+        } else {
+            start := 0
+        }
+        if IsSet(ValueEnd) {
+            end := this.FindInequality(ValueEnd, , '<=') || this.Length
+        } else {
+            end := this.Length
+        }
+        if start >= end {
+            ; 1 is subtracted from `start`, or `start == 0`, so `start == end` really means `start + 1 == end`.
+            throw ValueError('The start index must be less than the end index.', , 'Start: ' (start + 1) '; end: ' end)
+        }
+        if VarCount == 1 {
+            return _Enum1
+        } else if VarCount == 2 {
+            switch this.SortType, 0 {
+                case CONTAINER_SORTTYPE_CB_DATE
+                , CONTAINER_SORTTYPE_CB_DATESTR
+                , CONTAINER_SORTTYPE_CB_NUMBER
+                , CONTAINER_SORTTYPE_CB_STRING
+                , CONTAINER_SORTTYPE_CB_STRINGPTR
+                , CONTAINER_SORTTYPE_DATEVALUE:
+                    callbackValue := this.CallbackValue
+                    return _EnumCb2
+                default: return _Enum2
+            }
+        } else {
+            switch this.SortType, 0 {
+                case CONTAINER_SORTTYPE_CB_DATE
+                , CONTAINER_SORTTYPE_CB_DATESTR
+                , CONTAINER_SORTTYPE_CB_NUMBER
+                , CONTAINER_SORTTYPE_CB_STRING
+                , CONTAINER_SORTTYPE_CB_STRINGPTR
+                , CONTAINER_SORTTYPE_DATEVALUE:
+                    callbackValue := this.CallbackValue
+                    return _EnumCb3
+                default: throw ValueError('This container`'s sort type cannot use a three-variable ``for`` loop.', , Container_IndexToSymbol(this.SortType).symbol)
+            }
+        }
+
+        _Enum1(&value) {
+            if ++start > end {
+                return 0
+            }
+            value := this[start]
+            return 1
+        }
+        _Enum2(&index, &value) {
+            if ++start > end {
+                return 0
+            }
+            index := start
+            value := this[start]
+            return 1
+        }
+        _EnumCb2(&key, &value) {
+            if ++start > end {
+                return 0
+            }
+            key := callbackValue(this[start])
+            value := this[start]
+            return 1
+        }
+        _EnumCb3(&index, &key, &value) {
+            if ++start > end {
+                return 0
+            }
+            index := start
+            key := callbackValue(this[start])
+            value := this[start]
+            return 1
+        }
+    }
+    /**
+     * Requires a sorted container: yes.
+     *
+     * Allows unset indices: yes. When unset indices are encountered, the variable that receives the
+     * item and the variable that receives the item's sort value are both unset.
+     *
+     * Enumerates a subset of the items in the container.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.name
+     * }
+     * c := Container.CbString(CallbackValue)
+     * c.InsertList([
+     *     { name: "obj3" }
+     *   , { name: "obj2" }
+     *   , { name: "obj4" }
+     *   , { name: "obj1" }
+     *   , { name: "obj5" }
+     * ])
+     * c.DeleteValue("obj4")
+     *
+     * for index, name, obj in c.EnumRangeSparse(3, "obj2", "obj5") {
+     *     if IsSet(obj) {
+     *          OutputDebug(index ": " name " - " Type(obj) "`n")
+     *     } else {
+     *          OutputDebug(index ": unset`n")
+     *     }
+     * }
+     * @
+     *
+     * `ValueStart` and `ValueEnd` do not need to exist in the container.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.date
+     * }
+     * c := Container.CbDateStr(CallbackValue, "yyyy-MM-dd")
+     * c.InsertList([
+     *     { date: "2025-05-02" }
+     *   , { date: "2025-05-06" }
+     *   , { date: "2025-04-19" }
+     *   , { date: "2025-05-19" }
+     *   , { date: "2025-04-30" }
+     *   , { date: "2025-06-02" }
+     * ])
+     * for index, date, obj in c.EnumRangeSparse(3, "2025-05-01", "2025-05-31") {
+     *     OutputDebug(index ": " date " - " Type(obj) "`n")
+     * }
+     * @
+     *
+     * For sort types CONTAINER_SORTTYPE_CB_DATE, CONTAINER_SORTTYPE_CB_DATESTR, CONTAINER_SORTTYPE_CB_NUMBER,
+     * CONTAINER_SORTTYPE_CB_STRING, CONTAINER_SORTTYPE_CB_STRINGPTR, and CONTAINER_SORTTYPE_DATEVALUE,
+     * the behavior of {@link Container.Prototype.EnumRangeSparse} is different than the others.
+     * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
+     * - When called in a 2-variable `for` loop, the first variable receives the value returned by
+     *   `ContainerObj.CallbackValue` for the current item, and the second variable receives the
+     *   item, similar to a map object's key and value.
+     * - When called in a 3-variable `for` loop, the first variable receives the index, the second
+     *   variable receives the value returned by `ContainerObj.CallbackValue` for the current item,
+     *   and the third variable receives the item.
+     *
+     * For all other sort types:
+     * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
+     * - When called in a 2-variable `for` loop, the first variable receives the index and the
+     *   second variable receives the item.
+     * - When called in a 3-variable `for` loop, a `ValueError` is thrown.
+     *
+     * @param {Integer} [VarCout = 1] - One of the following:
+     * - 1 : Use when calling {@link Container.Prototype.EnumRangeSparse} in a 1-variable `for` loop.
+     * - 2 : Use when calling {@link Container.Prototype.EnumRangeSparse} in a 2-variable `for` loop.
+     * - 3 : Use when calling {@link Container.Prototype.EnumRangeSparse} in a 3-variable `for` loop.
+     *
+     * @param {*} [ValueStart] - The value which will be passed to {@link Container.Prototype.FindInequalitySparse}
+     * to evaluate the start index. If unset, the start index is 1.
+     *
+     * @param {*} [ValueEnd] - The value which will be passed to {@link Container.Prototype.FindInequalitySparse}
+     * to evaluate the end index. If unset, the end index is the value of `this.Length`.
+     *
+     * @returns {Func} - The enumerator function.
+     *
+     * @throws {ValueError} - "The start index must be less than the end index."
+     *
+     * @throws {ValueError} - "This container's sort type cannot use a three-variable `for` loop."
+     */
+    EnumRangeSparse(VarCount := 1, ValueStart?, ValueEnd?) {
+        if IsSet(ValueStart) {
+            if start := this.FindInequalitySparse(ValueStart) {
+                start--
+            }
+        } else {
+            start := 0
+        }
+        if IsSet(ValueEnd) {
+            end := this.FindInequalitySparse(ValueEnd, , '<=') || this.Length
+        } else {
+            end := this.Length
+        }
+        if start >= end {
+            ; 1 is subtracted from `start`, or `start == 0`, so `start == end` really means `start + 1 == end`.
+            throw ValueError('The start index must be less than the end index.', , 'Start: ' (start + 1) '; end: ' end)
+        }
+        if VarCount == 1 {
+            return _Enum1
+        } else if VarCount == 2 {
+            switch this.SortType, 0 {
+                case CONTAINER_SORTTYPE_CB_DATE
+                , CONTAINER_SORTTYPE_CB_DATESTR
+                , CONTAINER_SORTTYPE_CB_NUMBER
+                , CONTAINER_SORTTYPE_CB_STRING
+                , CONTAINER_SORTTYPE_CB_STRINGPTR
+                , CONTAINER_SORTTYPE_DATEVALUE:
+                    callbackValue := this.CallbackValue
+                    return _EnumCb2
+                default: return _Enum2
+            }
+        } else {
+            switch this.SortType, 0 {
+                case CONTAINER_SORTTYPE_CB_DATE
+                , CONTAINER_SORTTYPE_CB_DATESTR
+                , CONTAINER_SORTTYPE_CB_NUMBER
+                , CONTAINER_SORTTYPE_CB_STRING
+                , CONTAINER_SORTTYPE_CB_STRINGPTR
+                , CONTAINER_SORTTYPE_DATEVALUE:
+                    callbackValue := this.CallbackValue
+                    return _EnumCb3
+                default: throw ValueError('This container`'s sort type cannot use a three-variable ``for`` loop.', , Container_IndexToSymbol(this.SortType).symbol)
+            }
+        }
+
+        _Enum1(&value) {
+            if ++start > end {
+                return 0
+            }
+            if this.Has(start) {
+                value := this[start]
+            } else {
+                value := unset
+            }
+            return 1
+        }
+        _Enum2(&index, &value) {
+            if ++start > end {
+                return 0
+            }
+            index := start
+            if this.Has(start) {
+                value := this[start]
+            } else {
+                value := unset
+            }
+            return 1
+        }
+        _EnumCb2(&key, &value) {
+            if ++start > end {
+                return 0
+            }
+            if this.Has(start) {
+                key := callbackValue(this[start])
+                value := this[start]
+            } else {
+                key := value := unset
+            }
+            return 1
+        }
+        _EnumCb3(&index, &key, &value) {
+            if ++start > end {
+                return 0
+            }
+            index := start
+            if this.Has(start) {
+                key := callbackValue(this[start])
+                value := this[start]
+            } else {
+                key := value := unset
+            }
+            return 1
         }
     }
     /**
@@ -6822,6 +7157,104 @@ class Container extends Array {
 
         _Throw(i) {
             throw Error('Values out of order.', -1, 'Index: ' i ' - ' (i + 1))
+        }
+    }
+    /**
+     * Requires a sorted container: no.
+     *
+     * Allows unset indices: yes. When unset indices are encountered, the variable that receives the
+     * item and the variable that receives the item's sort value are both unset.
+     *
+     * For sort types CONTAINER_SORTTYPE_CB_DATE, CONTAINER_SORTTYPE_CB_DATESTR, CONTAINER_SORTTYPE_CB_NUMBER,
+     * CONTAINER_SORTTYPE_CB_STRING, CONTAINER_SORTTYPE_CB_STRINGPTR, and CONTAINER_SORTTYPE_DATEVALUE,
+     * the behavior of {@link Container.Prototype.__Enum} is different than the others.
+     * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
+     * - When called in a 2-variable `for` loop, the first variable receives the value returned by
+     *   `ContainerObj.CallbackValue` for the current item, and the second variable receives the
+     *   item, similar to a map object's key and value.
+     * - When called in a 3-variable `for` loop, the first variable receives the index, the second
+     *   variable receives the value returned by `ContainerObj.CallbackValue` for the current item,
+     *   and the third variable receives the item.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.name
+     * }
+     * c := Container.CbString(CallbackValue)
+     * c.InsertList([
+     *     { name: "obj3" }
+     *   , { name: "obj2" }
+     *   , { name: "obj4" }
+     * ])
+     *
+     * for index, name, obj in c {
+     *     OutputDebug(index ": " name " - " Type(obj) "`n")
+     * }
+     * @
+     *
+     * For all other sort types, the behavior of {@link Container.Prototype.__Enum} is the same
+     * as for standad arrays:
+     * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
+     * - When called in a 2-variable `for` loop, the first variable receives the index and the
+     *   second variable receives the item.
+     */
+    __Enum(VarCount := 1) {
+        if VarCount == 1 {
+            return Array.Prototype.__Enum.Call(this, VarCount)
+        } else if VarCount == 2 {
+            switch this.SortType, 0 {
+                case CONTAINER_SORTTYPE_CB_DATE
+                , CONTAINER_SORTTYPE_CB_DATESTR
+                , CONTAINER_SORTTYPE_CB_NUMBER
+                , CONTAINER_SORTTYPE_CB_STRING
+                , CONTAINER_SORTTYPE_CB_STRINGPTR
+                , CONTAINER_SORTTYPE_DATEVALUE:
+                    callbackValue := this.CallbackValue
+                    end := this.Length
+                    start := 0
+                    return _Enum2
+                default: return Array.Prototype.__Enum.Call(this, VarCount)
+            }
+        } else {
+            switch this.SortType, 0 {
+                case CONTAINER_SORTTYPE_CB_DATE
+                , CONTAINER_SORTTYPE_CB_DATESTR
+                , CONTAINER_SORTTYPE_CB_NUMBER
+                , CONTAINER_SORTTYPE_CB_STRING
+                , CONTAINER_SORTTYPE_CB_STRINGPTR
+                , CONTAINER_SORTTYPE_DATEVALUE:
+                    callbackValue := this.CallbackValue
+                    end := this.Length
+                    start := 0
+                    return _Enum3
+                default: return Array.Prototype.__Enum.Call(this, VarCount)
+            }
+        }
+
+        _Enum2(&key, &value) {
+            if ++start > end {
+                return 0
+            }
+            if this.Has(start) {
+                key := callbackValue(this[start])
+                value := this[start]
+            } else {
+                key := value := unset
+            }
+            return 1
+        }
+        _Enum3(&index, &key, &value) {
+            if ++start > end {
+                return 0
+            }
+            index := start
+            if this.Has(start) {
+                key := callbackValue(this[start])
+                value := this[start]
+            } else {
+                key := value := unset
+            }
+            return 1
         }
     }
 

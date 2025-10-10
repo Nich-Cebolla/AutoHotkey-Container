@@ -1,5 +1,5 @@
 
-# AutoHotkey-Container - v1.0.4
+# AutoHotkey-Container - v1.0.5
 
 The last AutoHotkey (AHK) array class you will ever need.
 
@@ -478,6 +478,13 @@ The following is a list of methods that are analagous to `Map` instance methods.
     ```ahk
     if c.InsertIfAbsent({ Name: "obj1" }) {
         ; do something
+    }
+    ```
+- `Map.Prototype.__Enum` -
+  - Use `Container.Prototype.__Enum`, `Container.Prototype.EnumRange`, or `Container.Prototype.EnumRangeSparse`.
+    ```ahk
+    for index, name, obj in c.EnumRange(3, "obj2", "obj4") {
+        OutputDebug(index ": " name " - " Type(obj) "`n")
     }
     ```
 
@@ -1093,6 +1100,8 @@ In addition to the methods inherited from `Array`, `Container` has the following
 - `Container.Prototype.DeleteValueIf`
 - `Container.Prototype.DeleteValueIfSparse`
 - `Container.Prototype.DeleteValueSparse`
+- `Container.Prototype.EnumRange`
+- `Container.Prototype.EnumRangeSparse`
 - `Container.Prototype.Every`
 - `Container.Prototype.EverySparse`
 - `Container.Prototype.Find`
@@ -1161,6 +1170,7 @@ In addition to the methods inherited from `Array`, `Container` has the following
 - `Container.Prototype.ToString`
 - `Container.Prototype.ToStringPtr`
 - `Container.Prototype.ValidateSort`
+- `Container.Prototype.__Enum`
 
 ## Instance methods - Categorized list
 
@@ -1193,6 +1203,8 @@ Methods that implement a binary search.
 
 Methods that use a binary search to find a value / values in the container.
 
+- `Container.Prototype.EnumRange`
+- `Container.Prototype.EnumRangeSparse`
 - `Container.Prototype.Find`
 - `Container.Prototype.FindAll`
 - `Container.Prototype.FindAllSparse`
@@ -1312,6 +1324,7 @@ Methods that iterate the values in the container, performing some action on them
 - `Container.Prototype.PushEx`
 - `Container.Prototype.Slice`
 - `Container.Prototype.ValidateSort`
+- `Container.Prototype.__Enum`
 
 ## Instance properties - Alphabetized list
 
@@ -1408,6 +1421,14 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
 (Ctrl+Shift+P > Preferences: Open Keyboard Shortcuts) and searching "Trigger parameter hints".
 
 # Changelog
+
+- **2025-10-07** - v1.0.5
+  - Added:
+    - `Container.Prototype.EnumRange`
+    - `Container.Prototype.EnumRangeSparse`
+    - `Container.Prototype.__Enum`
+  - Changed:
+    - Removed value "CONTAINER_SORTTYPE_END" from `Container.SortTypeSymbolList`.
 
 - **2025-10-07** - v1.0.4
   - Changed:
