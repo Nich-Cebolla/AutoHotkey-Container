@@ -101,8 +101,8 @@ c.ForEachSparse(Callback, 0)
 ; Example 5: Using a class method that is not bound, and the method refers to `this`, and `this`
 ; refers to the class.
 
-; We must pass the object `Test6` because `this` is referenced within the function, and that
-; reference is intended to refer to `Test6`.
+; We must pass the object `Test5` because `this` is referenced within the function, and that
+; reference is intended to refer to `Test5`.
 
 class Test5 {
     static Call(Item?, *) {
