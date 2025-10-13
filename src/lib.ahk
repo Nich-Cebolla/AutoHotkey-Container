@@ -25,7 +25,7 @@ Container_SetConstants(force := false) {
     if IsSet(container_flag_constants_set) && !force {
         return
     }
-    g_proc_kernel32_CompareStringEx := DllCall('GetProcAddress', 'Ptr', DllCall('GetModuleHandle', 'Str', 'kernel32', 'Ptr'), 'AStr', 'CompareStringEx', 'Ptr')
+    g_kernel32_CompareStringEx := DllCall('GetProcAddress', 'Ptr', DllCall('GetModuleHandle', 'Str', 'kernel32', 'Ptr'), 'AStr', 'CompareStringEx', 'Ptr')
 
     if !IsSet(PTR_EMPTY_STRING) {
         PTR_EMPTY_STRING := StrPtr('')
@@ -68,7 +68,7 @@ Container_SetConstants(force := false) {
 
 Container_CompareStringEx(LocaleName, Flags, NlsVersionInfo, Ptr1, Ptr2) {
     if result := DllCall(
-        g_proc_kernel32_CompareStringEx
+        g_kernel32_CompareStringEx
       , 'ptr', LocaleName
       , 'uint', Flags
       , 'ptr', Ptr1
