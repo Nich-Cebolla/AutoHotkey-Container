@@ -1,7 +1,7 @@
 ﻿
 #include Container_Test.ahk
 
-if A_LineFile == A_ScriptFullPath {
+if !A_IsCompiled && A_LineFile == A_ScriptFullPath {
     test_miscExamples()
 }
 
@@ -35,7 +35,7 @@ class test_miscExamples {
           , { name: "obj4" }
         ])
 
-        for name, obj in c {
+        for name, obj in c.Enum(2) {
             OutputDebug(name " - " Type(obj) "`n")
             if name != "obj" (A_Index + 1) {
                 throw Error('Invalid name in ``for`` loop.', , name)
@@ -45,7 +45,7 @@ class test_miscExamples {
             }
         }
 
-        for index, name, obj in c {
+        for index, name, obj in c.Enum(3) {
             OutputDebug(index ": " name " - " Type(obj) "`n")
             if name != "obj" (A_Index + 1) {
                 throw Error('Invalid name in ``for`` loop.', , name)

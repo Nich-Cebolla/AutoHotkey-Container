@@ -1422,6 +1422,23 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
 
 # Changelog
 
+- **2025-11-06** - v1.0.6
+  - **BREAKING CHANGES**
+    - Renamed `Container.Prototype.__Enum` to `Container.Prototype.Enum`. The reason for the change
+      is because overriding `Array.Prototype.__Enum` caused the debugger vscode-autohotkey-debug
+      to fail to display the container's items as child tree-view nodes beneath the container's
+      tree-view node. I don't have the time to commit to figuring out how to adjust the debugger's
+      code to work around this, so instead I renamed the method. Any code that calls
+      `Container.Prototype.__Enum` and that also expects to receive one of the custom enumerators
+      will need to instead call `Container.Prototype.Enum`.
+  - Changed:
+    - `Container_DateParser` objects now have a property "DateFormat" which contains the string date
+      format that was passed to the first parameter of `Container_DateParser.Prototype.__New`.
+    - `if A_LineFile == A_ScriptFullPath` to `if !A_IsCompiled && A_LineFile == A_ScriptFullPath` in
+      test files.
+  - Fixed:
+    - `#include *i NlsVersionInfo.ahk` to use the correct file name.
+
 - **2025-10-10** - v1.0.5
   - Added methods:
     - `Container.Prototype.EnumRange`

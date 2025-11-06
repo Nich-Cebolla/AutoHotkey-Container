@@ -25,7 +25,7 @@
  */
 
 
-if A_LineFile == A_ScriptFullPath {
+if !A_IsCompiled && A_LineFile == A_ScriptFullPath {
 
     CoordMode('Tooltip', 'Screen')
     CoordMode('Mouse', 'Screen')

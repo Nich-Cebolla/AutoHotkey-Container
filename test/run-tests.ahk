@@ -12,7 +12,7 @@
 #include test-SetSortType-examples.ahk
 #include test-Sort.ahk
 
-if A_LineFile == A_ScriptFullPath {
+if !A_IsCompiled && A_LineFile == A_ScriptFullPath {
     Container_RunTests(true)
 }
 

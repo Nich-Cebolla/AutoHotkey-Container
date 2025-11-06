@@ -1,7 +1,7 @@
 ﻿
 #include ..\src\Container.ahk
 
-if A_LineFile == A_ScriptFullPath {
+if !A_IsCompiled && A_LineFile == A_ScriptFullPath {
     test_ReadmeExamples()
 }
 

@@ -1473,6 +1473,104 @@ class Container extends Array {
         }
     }
     /**
+     * Requires a sorted container: no.
+     *
+     * Allows unset indices: yes. When unset indices are encountered, the variable that receives the
+     * item and the variable that receives the item's sort value are both unset.
+     *
+     * For sort types CONTAINER_SORTTYPE_CB_DATE, CONTAINER_SORTTYPE_CB_DATESTR, CONTAINER_SORTTYPE_CB_NUMBER,
+     * CONTAINER_SORTTYPE_CB_STRING, CONTAINER_SORTTYPE_CB_STRINGPTR, and CONTAINER_SORTTYPE_DATEVALUE,
+     * the behavior of {@link Container.Prototype.__Enum} is different than the others.
+     * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
+     * - When called in a 2-variable `for` loop, the first variable receives the value returned by
+     *   `ContainerObj.CallbackValue` for the current item, and the second variable receives the
+     *   item, similar to a map object's key and value.
+     * - When called in a 3-variable `for` loop, the first variable receives the index, the second
+     *   variable receives the value returned by `ContainerObj.CallbackValue` for the current item,
+     *   and the third variable receives the item.
+     *
+     * @example
+     * CallbackValue(value) {
+     *     return value.name
+     * }
+     * c := Container.CbString(CallbackValue)
+     * c.InsertList([
+     *     { name: "obj3" }
+     *   , { name: "obj2" }
+     *   , { name: "obj4" }
+     * ])
+     *
+     * for index, name, obj in c {
+     *     OutputDebug(index ": " name " - " Type(obj) "`n")
+     * }
+     * @
+     *
+     * For all other sort types, the behavior of {@link Container.Prototype.__Enum} is the same
+     * as for standad arrays:
+     * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
+     * - When called in a 2-variable `for` loop, the first variable receives the index and the
+     *   second variable receives the item.
+     */
+    Enum(VarCount := 1) {
+        if VarCount == 1 {
+            return Array.Prototype.__Enum.Call(this, VarCount)
+        } else if VarCount == 2 {
+            switch this.SortType, 0 {
+                case CONTAINER_SORTTYPE_CB_DATE
+                , CONTAINER_SORTTYPE_CB_DATESTR
+                , CONTAINER_SORTTYPE_CB_NUMBER
+                , CONTAINER_SORTTYPE_CB_STRING
+                , CONTAINER_SORTTYPE_CB_STRINGPTR
+                , CONTAINER_SORTTYPE_DATEVALUE:
+                    callbackValue := this.CallbackValue
+                    end := this.Length
+                    start := 0
+                    return _Enum2
+                default: return Array.Prototype.__Enum.Call(this, VarCount)
+            }
+        } else {
+            switch this.SortType, 0 {
+                case CONTAINER_SORTTYPE_CB_DATE
+                , CONTAINER_SORTTYPE_CB_DATESTR
+                , CONTAINER_SORTTYPE_CB_NUMBER
+                , CONTAINER_SORTTYPE_CB_STRING
+                , CONTAINER_SORTTYPE_CB_STRINGPTR
+                , CONTAINER_SORTTYPE_DATEVALUE:
+                    callbackValue := this.CallbackValue
+                    end := this.Length
+                    start := 0
+                    return _Enum3
+                default: return Array.Prototype.__Enum.Call(this, VarCount)
+            }
+        }
+
+        _Enum2(&key, &value) {
+            if ++start > end {
+                return 0
+            }
+            if this.Has(start) {
+                key := callbackValue(this[start])
+                value := this[start]
+            } else {
+                key := value := unset
+            }
+            return 1
+        }
+        _Enum3(&index, &key, &value) {
+            if ++start > end {
+                return 0
+            }
+            index := start
+            if this.Has(start) {
+                key := callbackValue(this[start])
+                value := this[start]
+            } else {
+                key := value := unset
+            }
+            return 1
+        }
+    }
+    /**
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -7157,104 +7255,6 @@ class Container extends Array {
 
         _Throw(i) {
             throw Error('Values out of order.', -1, 'Index: ' i ' - ' (i + 1))
-        }
-    }
-    /**
-     * Requires a sorted container: no.
-     *
-     * Allows unset indices: yes. When unset indices are encountered, the variable that receives the
-     * item and the variable that receives the item's sort value are both unset.
-     *
-     * For sort types CONTAINER_SORTTYPE_CB_DATE, CONTAINER_SORTTYPE_CB_DATESTR, CONTAINER_SORTTYPE_CB_NUMBER,
-     * CONTAINER_SORTTYPE_CB_STRING, CONTAINER_SORTTYPE_CB_STRINGPTR, and CONTAINER_SORTTYPE_DATEVALUE,
-     * the behavior of {@link Container.Prototype.__Enum} is different than the others.
-     * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
-     * - When called in a 2-variable `for` loop, the first variable receives the value returned by
-     *   `ContainerObj.CallbackValue` for the current item, and the second variable receives the
-     *   item, similar to a map object's key and value.
-     * - When called in a 3-variable `for` loop, the first variable receives the index, the second
-     *   variable receives the value returned by `ContainerObj.CallbackValue` for the current item,
-     *   and the third variable receives the item.
-     *
-     * @example
-     * CallbackValue(value) {
-     *     return value.name
-     * }
-     * c := Container.CbString(CallbackValue)
-     * c.InsertList([
-     *     { name: "obj3" }
-     *   , { name: "obj2" }
-     *   , { name: "obj4" }
-     * ])
-     *
-     * for index, name, obj in c {
-     *     OutputDebug(index ": " name " - " Type(obj) "`n")
-     * }
-     * @
-     *
-     * For all other sort types, the behavior of {@link Container.Prototype.__Enum} is the same
-     * as for standad arrays:
-     * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
-     * - When called in a 2-variable `for` loop, the first variable receives the index and the
-     *   second variable receives the item.
-     */
-    __Enum(VarCount := 1) {
-        if VarCount == 1 {
-            return Array.Prototype.__Enum.Call(this, VarCount)
-        } else if VarCount == 2 {
-            switch this.SortType, 0 {
-                case CONTAINER_SORTTYPE_CB_DATE
-                , CONTAINER_SORTTYPE_CB_DATESTR
-                , CONTAINER_SORTTYPE_CB_NUMBER
-                , CONTAINER_SORTTYPE_CB_STRING
-                , CONTAINER_SORTTYPE_CB_STRINGPTR
-                , CONTAINER_SORTTYPE_DATEVALUE:
-                    callbackValue := this.CallbackValue
-                    end := this.Length
-                    start := 0
-                    return _Enum2
-                default: return Array.Prototype.__Enum.Call(this, VarCount)
-            }
-        } else {
-            switch this.SortType, 0 {
-                case CONTAINER_SORTTYPE_CB_DATE
-                , CONTAINER_SORTTYPE_CB_DATESTR
-                , CONTAINER_SORTTYPE_CB_NUMBER
-                , CONTAINER_SORTTYPE_CB_STRING
-                , CONTAINER_SORTTYPE_CB_STRINGPTR
-                , CONTAINER_SORTTYPE_DATEVALUE:
-                    callbackValue := this.CallbackValue
-                    end := this.Length
-                    start := 0
-                    return _Enum3
-                default: return Array.Prototype.__Enum.Call(this, VarCount)
-            }
-        }
-
-        _Enum2(&key, &value) {
-            if ++start > end {
-                return 0
-            }
-            if this.Has(start) {
-                key := callbackValue(this[start])
-                value := this[start]
-            } else {
-                key := value := unset
-            }
-            return 1
-        }
-        _Enum3(&index, &key, &value) {
-            if ++start > end {
-                return 0
-            }
-            index := start
-            if this.Has(start) {
-                key := callbackValue(this[start])
-                value := this[start]
-            } else {
-                key := value := unset
-            }
-            return 1
         }
     }
 
