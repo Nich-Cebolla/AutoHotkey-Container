@@ -6,7 +6,7 @@
 */
 
 ; Only needed if using the NlsVersionInfoEx class.
-#include *i NlsVersionInfoEx.ahk
+#include *i NlsVersionInfo.ahk
 
 #include Container_Date.ahk
 #include lib.ahk
