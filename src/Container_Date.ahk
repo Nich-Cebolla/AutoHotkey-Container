@@ -737,6 +737,7 @@ class Container_DateParser {
      * @returns {Container_DateParser} - The `Container_DateParser` object.
      */
     __New(DateFormat, RegExOptions := '', SubcaptureGroup := true) {
+        this.DateFormat := DateFormat
         rc := Chr(0xFFFD) ; replacement character
         replacement := []
         replacement.Capacity := 20
