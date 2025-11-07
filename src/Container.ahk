@@ -1531,7 +1531,7 @@ class Container extends Array {
      * - When called in a 2-variable `for` loop, the first variable receives the index and the
      *   second variable receives the item.
      *
-     * @returns {Func}
+     * @returns {Func|Enumerator}
      */
     Enum(VarCount) {
         if VarCount == 1 {
