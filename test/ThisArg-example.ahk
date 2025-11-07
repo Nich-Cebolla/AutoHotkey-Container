@@ -36,7 +36,7 @@ are some considerations when deciding what value your code should pass to `ThisA
 - If you want to modify what `this` refers to within the function's scope (for example, during
   testing), pass an object to `ThisArg` that has the same properties as the object that is referenced
   within the function. This allows you to test different values without modifying the class object or
-  making other changes. See example 7 for an example of this usage.
+  making other changes. See example 6 for an example of this usage.
 */
 
 ; Example 1: Standard usage.
