@@ -1530,6 +1530,8 @@ class Container extends Array {
      * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
      * - When called in a 2-variable `for` loop, the first variable receives the index and the
      *   second variable receives the item.
+     *
+     * @returns {Func}
      */
     Enum(VarCount) {
         if VarCount == 1 {
