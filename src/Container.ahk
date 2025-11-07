@@ -1478,17 +1478,17 @@ class Container extends Array {
      * Allows unset indices: yes. When unset indices are encountered, the variable that receives the
      * item and the variable that receives the item's sort value are both unset.
      *
+     * @param {Integer} VarCount - The number of variables in the for-loop.
+     *
      * For sort types CONTAINER_SORTTYPE_CB_DATE, CONTAINER_SORTTYPE_CB_DATESTR, CONTAINER_SORTTYPE_CB_NUMBER,
      * CONTAINER_SORTTYPE_CB_STRING, CONTAINER_SORTTYPE_CB_STRINGPTR, and CONTAINER_SORTTYPE_DATEVALUE,
-     * the behavior of {@link Container.Prototype.Enum} is different than the others.
-     * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
-     * - When called in a 2-variable `for` loop, the first variable receives the value returned by
-     *   `ContainerObj.CallbackValue` for the current item, and the second variable receives the
-     *   item, similar to a map object's key and value.
-     * - When called in a 3-variable `for` loop, the first variable receives the index, the second
-     *   variable receives the value returned by `ContainerObj.CallbackValue` for the current item,
-     *   and the third variable receives the item.
-     *
+     * the behavior of {@link Container.Prototype.Enum} can different than the others.
+     * - When called in a 1-variable `for` loop, e.g. `for value in ContainerObj.Enum(1) { ... }`,
+     *   the variable receives each item consecutively, same as the standard `Array.Prototype.__Enum`.
+     * - When called in a 2-variable `for` loop, e.g. `for name, value in ContainerObj.Enum(2) { ... }`,
+     *   the first variable receives the value returned by {@link Container#CallbackValue} for the
+     *   current item, and the second variable receives the item, similar to a map object's key and
+     *   value.
      * @example
      * CallbackValue(value) {
      *     return value.name
@@ -1500,7 +1500,27 @@ class Container extends Array {
      *   , { name: "obj4" }
      * ])
      *
-     * for index, name, obj in c {
+     * for name, obj in c.Enum(2) {
+     *     OutputDebug(name " - " Type(obj) "`n")
+     * }
+     * @
+     *
+     * - When called in a 3-variable `for` loop, e.g.
+     *   `for index, name, value in ContainerObj.Enum(2) { ... }`, the first variable receives the
+     *   index, the second variable receives the value returned by `ContainerObj.CallbackValue` for
+     *   the current item, and the third variable receives the item.
+     * @example
+     * CallbackValue(value) {
+     *     return value.name
+     * }
+     * c := Container.CbString(CallbackValue)
+     * c.InsertList([
+     *     { name: "obj3" }
+     *   , { name: "obj2" }
+     *   , { name: "obj4" }
+     * ])
+     *
+     * for index, name, obj in c.Enum(3) {
      *     OutputDebug(index ": " name " - " Type(obj) "`n")
      * }
      * @
@@ -1511,7 +1531,7 @@ class Container extends Array {
      * - When called in a 2-variable `for` loop, the first variable receives the index and the
      *   second variable receives the item.
      */
-    Enum(VarCount := 1) {
+    Enum(VarCount) {
         if VarCount == 1 {
             return Array.Prototype.__Enum.Call(this, VarCount)
         } else if VarCount == 2 {
