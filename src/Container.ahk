@@ -1480,7 +1480,7 @@ class Container extends Array {
      *
      * For sort types CONTAINER_SORTTYPE_CB_DATE, CONTAINER_SORTTYPE_CB_DATESTR, CONTAINER_SORTTYPE_CB_NUMBER,
      * CONTAINER_SORTTYPE_CB_STRING, CONTAINER_SORTTYPE_CB_STRINGPTR, and CONTAINER_SORTTYPE_DATEVALUE,
-     * the behavior of {@link Container.Prototype.__Enum} is different than the others.
+     * the behavior of {@link Container.Prototype.Enum} is different than the others.
      * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
      * - When called in a 2-variable `for` loop, the first variable receives the value returned by
      *   `ContainerObj.CallbackValue` for the current item, and the second variable receives the
@@ -1505,7 +1505,7 @@ class Container extends Array {
      * }
      * @
      *
-     * For all other sort types, the behavior of {@link Container.Prototype.__Enum} is the same
+     * For all other sort types, the behavior of {@link Container.Prototype.Enum} is the same
      * as for standad arrays:
      * - When called in a 1-variable `for` loop, the variable receives each item consecutively.
      * - When called in a 2-variable `for` loop, the first variable receives the index and the

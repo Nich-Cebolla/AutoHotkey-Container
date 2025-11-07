@@ -481,7 +481,7 @@ The following is a list of methods that are analagous to `Map` instance methods.
     }
     ```
 - `Map.Prototype.__Enum` -
-  - Use `Container.Prototype.__Enum`, `Container.Prototype.EnumRange`, or `Container.Prototype.EnumRangeSparse`.
+  - Use `Container.Prototype.Enum`, `Container.Prototype.EnumRange`, or `Container.Prototype.EnumRangeSparse`.
     ```ahk
     for index, name, obj in c.EnumRange(3, "obj2", "obj4") {
         OutputDebug(index ": " name " - " Type(obj) "`n")
@@ -1100,6 +1100,7 @@ In addition to the methods inherited from `Array`, `Container` has the following
 - `Container.Prototype.DeleteValueIf`
 - `Container.Prototype.DeleteValueIfSparse`
 - `Container.Prototype.DeleteValueSparse`
+- `Container.Prototype.Enum`
 - `Container.Prototype.EnumRange`
 - `Container.Prototype.EnumRangeSparse`
 - `Container.Prototype.Every`
@@ -1170,7 +1171,6 @@ In addition to the methods inherited from `Array`, `Container` has the following
 - `Container.Prototype.ToString`
 - `Container.Prototype.ToStringPtr`
 - `Container.Prototype.ValidateSort`
-- `Container.Prototype.__Enum`
 
 ## Instance methods - Categorized list
 
@@ -1321,10 +1321,10 @@ Methods that iterate the values in the container, performing some action on them
 - `Container.Prototype.Compare`
 - `Container.Prototype.Copy`
 - `Container.Prototype.DeepClone`
+- `Container.Prototype.Enum`
 - `Container.Prototype.PushEx`
 - `Container.Prototype.Slice`
 - `Container.Prototype.ValidateSort`
-- `Container.Prototype.__Enum`
 
 ## Instance properties - Alphabetized list
 
