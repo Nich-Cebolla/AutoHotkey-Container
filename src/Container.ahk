@@ -1482,7 +1482,7 @@ class Container extends Array {
      *
      * For sort types CONTAINER_SORTTYPE_CB_DATE, CONTAINER_SORTTYPE_CB_DATESTR, CONTAINER_SORTTYPE_CB_NUMBER,
      * CONTAINER_SORTTYPE_CB_STRING, CONTAINER_SORTTYPE_CB_STRINGPTR, and CONTAINER_SORTTYPE_DATEVALUE,
-     * the behavior of {@link Container.Prototype.Enum} can different than the others.
+     * the behavior of {@link Container.Prototype.Enum} can be different than the others.
      * - When called in a 1-variable `for` loop, e.g. `for value in ContainerObj.Enum(1) { ... }`,
      *   the variable receives each item consecutively, same as the standard `Array.Prototype.__Enum`.
      * - When called in a 2-variable `for` loop, e.g. `for name, value in ContainerObj.Enum(2) { ... }`,
