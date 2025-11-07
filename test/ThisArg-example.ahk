@@ -10,8 +10,11 @@ This file explains the purpose and usage of the parameter named `ThisArg`.
 
 The following {@link Container} methods have a parameter `ThisArg`:
 - {@link Container.Prototype.Every}
+- {@link Container.Prototype.EverySparse}
+- {@link Container.Prototype.ForEach}
 - {@link Container.Prototype.ForEachSparse}
 - {@link Container.Prototype.Map}
+- {@link Container.Prototype.MapSparse}
 
 To use these effectively, you should understand AutoHokey's implementation of `this`, when `ThisArg`
 should be used with these methods, and when it should be excluded. Here is the main considerations,
