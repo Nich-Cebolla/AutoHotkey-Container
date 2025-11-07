@@ -1507,7 +1507,7 @@ class Container extends Array {
      *
      * - When called in a 3-variable `for` loop, e.g.
      *   `for index, name, value in ContainerObj.Enum(2) { ... }`, the first variable receives the
-     *   index, the second variable receives the value returned by `ContainerObj.CallbackValue` for
+     *   index, the second variable receives the value returned by {@link Container#CallbackValue} for
      *   the current item, and the third variable receives the item.
      * @example
      * CallbackValue(value) {
