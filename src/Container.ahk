@@ -5928,7 +5928,7 @@ class Container extends Array {
      * limitation: "If DateTime contains an invalid timestamp or a year prior to 1601, a ValueError
      * is thrown."
      *
-     * If false, {@link Container_CompareDateEx} is used which will perform more quickly but cannot
+     * If false, {@link Container_CompareDate} is used which will perform more quickly but cannot
      * handle dates prior to year 1601.
      */
     SetCompareDate(UseCompareDateEx := false) {
