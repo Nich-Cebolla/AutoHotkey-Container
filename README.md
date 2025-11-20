@@ -847,7 +847,7 @@ property values, the value on the template will be the same object as the one on
 ## `Container.Prototype.DeepClone`
 
 `Container.Prototype.DeepClone` is adapted from my
-[`Object.Prototype.DeepClone`](https://github.com/Nich-Cebolla/AutoHotkey-Object.Prototype.DeepClone).
+[`Object.Prototype.DeepClone`](https://github.com/Nich-Cebolla/AutoHotkey-ObjDeepClone).
 It will deep clone the `Container` object, its own properties, and its items. The return value is a
 `Container` object with the same base, deep cloned own properties, and deep cloned items. It does
 **not** deep clone inherited property values that are objects.
