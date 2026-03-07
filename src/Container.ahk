@@ -37,6 +37,7 @@ class Container extends Array {
         ]
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a string in the format yyyyMMddHHmmss.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDate}.
      *
@@ -79,6 +80,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a date string in any format recognized by the
      * {@link Container_DateParser} set to {@link Container#DateParser}.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDateStr}.
@@ -136,6 +138,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
      * by the {@link Container_DateParser} set to {@link Container#DateParser}.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetDateParser}.
@@ -190,6 +193,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a number.
      * - **CallbackCompare**: Not used.
      *
@@ -220,6 +224,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a string.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
      *
@@ -269,6 +274,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a pointer to a null-terminated string.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
      *
@@ -330,6 +336,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * - **CallbackValue**: Not used.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDate}.
      *
@@ -364,6 +371,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * - **CallbackValue**: Not used.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDateStr}.
      *
@@ -412,6 +420,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
      * by the {@link Container_DateParser} set to {@link Container#DateParser}.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetDateParser}.
@@ -462,6 +471,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
      * by the {@link Container_DateParser} set to {@link Container#DateParser}.
      * - **CallbackCompare**: This calls {@link Container.Prototype.DatePreprocess}.
@@ -521,6 +531,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * Converts an existing `Array` object into a `Container` object.
      *
      * @param {Array} Arr - The `Array` object to convert.
@@ -532,6 +543,7 @@ class Container extends Array {
         return Arr
     }
     /**
+     * @desc -
      * - **CallbackValue**: Not used.
      * - **CallbackCompare**: Provided by your code and implements custom logic to return the comparison
      * value.
@@ -575,6 +587,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * - **CallbackValue**: Not used.
      * - **CallbackCompare**: Not used.
      *
@@ -597,6 +610,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * - **CallbackValue**: Not used.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
      *
@@ -638,6 +652,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * - **CallbackValue**: Not used.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
      *
@@ -689,6 +704,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * Calls {@link https://www.autohotkey.com/docs/v2/lib/StrSplit.htm StrSplit} and converts
      * the return value to a {@link Container}. Calls {@link Container.Prototype.ToString} from
      * the new container.
@@ -729,6 +745,7 @@ class Container extends Array {
         return split
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -836,6 +853,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -851,6 +869,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -870,6 +889,7 @@ class Container extends Array {
         return c
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -901,6 +921,7 @@ class Container extends Array {
         throw Error(A_ThisFunc ' must be overridden by ``Container.Prototype.DatePreprocess``.')
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -938,6 +959,7 @@ class Container extends Array {
         throw Error(A_ThisFunc ' must be overridden by ``Container.Prototype.DatePreprocess``.')
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -954,6 +976,7 @@ class Container extends Array {
         return this.Insert(Value)
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -970,6 +993,7 @@ class Container extends Array {
         return this.InsertIfAbsent(Value)
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -986,6 +1010,7 @@ class Container extends Array {
         return this.InsertIfAbsentSparse(Value)
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -1007,6 +1032,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -1030,6 +1056,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -1046,6 +1073,7 @@ class Container extends Array {
         return this.InsertSparse(Value)
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -1148,6 +1176,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -1289,6 +1318,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -1332,6 +1362,7 @@ class Container extends Array {
         return 0
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -1379,6 +1410,7 @@ class Container extends Array {
         return 0
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -1404,6 +1436,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -1426,6 +1459,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -1448,6 +1482,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -1473,6 +1508,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes. When unset indices are encountered, the variable that receives the
@@ -1593,6 +1629,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -1750,6 +1787,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes. When unset indices are encountered, the variable that receives the
@@ -1929,6 +1967,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -1978,6 +2017,7 @@ class Container extends Array {
         return 0
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -2037,6 +2077,7 @@ class Container extends Array {
         return 0
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -2204,6 +2245,7 @@ class Container extends Array {
         _CompareValue() => CallbackCompare(Value, this[i])
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -2404,6 +2446,7 @@ class Container extends Array {
         _CompareValue() => CallbackCompare(Value, this[i])
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -2623,6 +2666,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -3292,6 +3336,7 @@ class Container extends Array {
         ;@endregion
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -4021,6 +4066,7 @@ class Container extends Array {
         ;@endregion
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -4207,6 +4253,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no. Unset indices are skipped; all indices in the output container are
@@ -4279,6 +4326,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -4316,6 +4364,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -4363,6 +4412,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -4394,6 +4444,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -4425,6 +4476,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -4470,6 +4522,7 @@ class Container extends Array {
         return 0
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -4515,6 +4568,7 @@ class Container extends Array {
         return 0
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -4543,6 +4597,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -4574,6 +4629,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -4636,6 +4692,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -4654,6 +4711,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -4674,6 +4732,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -4733,6 +4792,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -4826,6 +4886,7 @@ class Container extends Array {
         _CompareValue2(a) => Callbackcompare(a, b)
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -4851,6 +4912,7 @@ class Container extends Array {
         return s ? SubStr(s, 1, -1 * StrLen(Delimiter)) : ''
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -4899,6 +4961,7 @@ class Container extends Array {
         return s ? SubStr(s, 1, -1 * StrLen(Delimiter)) : ''
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -4944,6 +5007,7 @@ class Container extends Array {
         return Result
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -4994,6 +5058,7 @@ class Container extends Array {
         return Result
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -5030,6 +5095,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -5078,6 +5144,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -5113,6 +5180,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -5362,6 +5430,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -5393,6 +5462,7 @@ class Container extends Array {
         return Accumulator
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -5429,6 +5499,7 @@ class Container extends Array {
         return Accumulator
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -5453,6 +5524,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -5496,6 +5568,7 @@ class Container extends Array {
         return 0
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -5543,6 +5616,7 @@ class Container extends Array {
         return 0
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: no.
@@ -5565,6 +5639,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -5587,6 +5662,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: yes.
      *
      * Allows unset indices: yes.
@@ -5611,6 +5687,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -5629,6 +5706,7 @@ class Container extends Array {
         return Result
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -5649,6 +5727,7 @@ class Container extends Array {
         return Result
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -5684,6 +5763,7 @@ class Container extends Array {
         return 0
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -5733,6 +5813,7 @@ class Container extends Array {
         return result
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes. Unset indices are skipped.
@@ -5782,6 +5863,7 @@ class Container extends Array {
         return result
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes. Unset indices are skipped.
@@ -5817,6 +5899,7 @@ class Container extends Array {
         return 0
     }
     /**
+     * @desc -
      * Defines the comparator for sorting operations. Sets the property
      * {@link Container#CallbackCompare}.
      *
@@ -5850,6 +5933,7 @@ class Container extends Array {
         this.CallbackCompare := CallbackCompare
     }
     /**
+     * @desc -
      * Defines the function used to associate a value in the container with a value used for
      * sorting. Sets the function to property {@link Container#CallbackValue}.
      *
@@ -5879,6 +5963,7 @@ class Container extends Array {
         this.CallbackValue := CallbackValue
     }
     /**
+     * @desc -
      * Defines the comparator for string sort operations.
      * See {@link https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex}.
      * Sets the function to property {@link Container#CallbackCompare}.
@@ -5914,6 +5999,7 @@ class Container extends Array {
         this.CallbackCompare := Container_CompareStringEx.Bind(LocaleName, Flags, NlsVersionInfo)
     }
     /**
+     * @desc -
      * Defines the comparator for string date operations. This is only valid when dates are formatted
      * as yyyyMMddHHmmss time strings. The entire time string is not necessary, the minimum is
      * just the year, but the values must be in that order and values cannot be skipped.
@@ -5935,6 +6021,7 @@ class Container extends Array {
         this.CallbackCompare := UseCompareDateEx ? Container_CompareDateEx : Container_CompareDate
     }
     /**
+     * @desc -
      * Defines the comparator for date sort operations. This permits sorting dates with any format
      * of date string that can be interpeted using {@link Container_Date}. This requires that the
      * file Container_Date.ahk is included with an `#include` statement, which is already
@@ -5973,6 +6060,7 @@ class Container extends Array {
         this.SetDateParser(Container_DateParser(DateFormat, RegExOptions), Century ?? unset)
     }
     /**
+     * @desc -
      * This method is called by {@link Container.Prototype.SetCompareDateStr}, but if you already
      * have an instance of {@link Container_DateParser} to use, you can call
      * {@link Container.Prototype.SetDateParser} directly.
@@ -6029,6 +6117,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Sets the sort type.
      *
      * ### CONTAINER_SORTTYPE_CB_DATE
@@ -6301,6 +6390,7 @@ class Container extends Array {
         }
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: yes.
@@ -6325,6 +6415,7 @@ class Container extends Array {
         return result
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -6510,6 +6601,7 @@ class Container extends Array {
         _CompareValue2(a) => Callbackcompare(a, b)
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a string in the format yyyyMMddHHmmss.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDate}.
      *
@@ -6555,6 +6647,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a date string in any format recognized by the
      * {@link Container_DateParser} set to {@link Container#DateParser}.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDateStr}.
@@ -6615,6 +6708,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
      * by the {@link Container_DateParser} set to {@link Container#DateParser}.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetDateParser}.
@@ -6672,6 +6766,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a number.
      * - **CallbackCompare**: Not used.
      *
@@ -6705,6 +6800,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a string.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
      *
@@ -6757,6 +6853,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a pointer to a null-terminated string.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
      *
@@ -6821,6 +6918,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Not used.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDate}.
      *
@@ -6858,6 +6956,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Not used.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDateStr}.
      *
@@ -6909,6 +7008,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
      * by the {@link Container_DateParser} set to {@link Container#DateParser}.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetDateParser}.
@@ -6962,6 +7062,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
      * by the {@link Container_DateParser} set to {@link Container#DateParser}.
      * - **CallbackCompare**: This calls {@link Container.Prototype.DatePreprocess}.
@@ -7020,6 +7121,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Not used.
      * - **CallbackCompare**: Provided by your code and implements custom logic to return the comparison
      * value.
@@ -7065,6 +7167,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Not used.
      * - **CallbackCompare**: Not used.
      *
@@ -7090,6 +7193,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Not used.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
      *
@@ -7134,6 +7238,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * - **CallbackValue**: Not used.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
      *
@@ -7188,6 +7293,7 @@ class Container extends Array {
         return this
     }
     /**
+     * @desc -
      * Requires a sorted container: no.
      *
      * Allows unset indices: no.
@@ -7281,6 +7387,7 @@ class Container extends Array {
     }
 
     /**
+     * @desc -
      * @memberof Container
      * @instance
      * @type {Container_DateParser}
