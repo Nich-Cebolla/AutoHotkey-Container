@@ -2857,9 +2857,9 @@ class Container extends Array {
                     }
                     Result := (BaseDirection) => BaseDirection == 1 ? IndexStart : IndexEnd
             }
-            ; `Value` satisfies the condition at this point. If `IndexEnd == IndexStart`, then there is only
+            ; `Value` satisfies the condition at this point. If `IndexEnd = IndexStart`, then there is only
             ; one set index and we can return that.
-            if IndexEnd == IndexStart {
+            if IndexEnd = IndexStart {
                 OutValue := this[IndexStart]
                 return IndexStart
             }
@@ -3542,9 +3542,9 @@ class Container extends Array {
                     }
                     Result := (BaseDirection) => BaseDirection == 1 ? left : right
             }
-            ; `Value` satisfies the condition at this point. If `right == left`, then there is only
+            ; `Value` satisfies the condition at this point. If `right = left`, then there is only
             ; one set index and we can return that.
-            if right == left {
+            if right = left {
                 OutValue := this[left]
                 return left
             }
@@ -4077,6 +4077,8 @@ class Container extends Array {
      * the first index from left-to-right that contains the input value.
      *
      * @param {*} Value - The value to find.
+     *
+     * @param {VarRef} [OutValue] - A variable that will receive the value, if found.
      *
      * @param {Number} [IndexStart = 1] - The index to start the search at.
      *
