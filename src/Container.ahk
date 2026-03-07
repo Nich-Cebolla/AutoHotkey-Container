@@ -1506,7 +1506,7 @@ class Container extends Array {
      * @
      *
      * - When called in a 3-variable `for` loop, e.g.
-     *   `for index, name, value in ContainerObj.Enum(2) { ... }`, the first variable receives the
+     *   `for index, name, value in ContainerObj.Enum(3) { ... }`, the first variable receives the
      *   index, the second variable receives the value returned by {@link Container#CallbackValue} for
      *   the current item, and the third variable receives the item.
      * @example
@@ -1654,7 +1654,7 @@ class Container extends Array {
      *   second variable receives the item.
      * - When called in a 3-variable `for` loop, a `ValueError` is thrown.
      *
-     * @param {Integer} [VarCout = 1] - One of the following:
+     * @param {Integer} [VarCount = 1] - One of the following:
      * - 1 : Use when calling {@link Container.Prototype.EnumRange} in a 1-variable `for` loop.
      * - 2 : Use when calling {@link Container.Prototype.EnumRange} in a 2-variable `for` loop.
      * - 3 : Use when calling {@link Container.Prototype.EnumRange} in a 3-variable `for` loop.
