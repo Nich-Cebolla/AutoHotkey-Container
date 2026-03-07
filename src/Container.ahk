@@ -2143,7 +2143,7 @@ class Container extends Array {
                         Value := StrPtr(_value)
                     } else {
                         _value := Value
-                        Value := StrPtr(Value)
+                        Value := StrPtr(_value)
                     }
                 }
             case CONTAINER_SORTTYPE_CB_STRINGPTR:
@@ -2321,7 +2321,7 @@ class Container extends Array {
                         Value := StrPtr(_value)
                     } else {
                         _value := Value
-                        Value := StrPtr(Value)
+                        Value := StrPtr(_value)
                     }
                 }
             case CONTAINER_SORTTYPE_CB_STRINGPTR:
@@ -2521,7 +2521,7 @@ class Container extends Array {
                         Value := StrPtr(_value)
                     } else {
                         _value := Value
-                        Value := StrPtr(Value)
+                        Value := StrPtr(_value)
                     }
                 }
             case CONTAINER_SORTTYPE_CB_STRINGPTR:
@@ -2751,7 +2751,7 @@ class Container extends Array {
                         Value := StrPtr(_value)
                     } else {
                         _value := Value
-                        Value := StrPtr(Value)
+                        Value := StrPtr(_value)
                     }
                 }
             case CONTAINER_SORTTYPE_CB_STRINGPTR:
@@ -3421,7 +3421,7 @@ class Container extends Array {
                         Value := StrPtr(_value)
                     } else {
                         _value := Value
-                        Value := StrPtr(Value)
+                        Value := StrPtr(_value)
                     }
                 }
             case CONTAINER_SORTTYPE_CB_STRINGPTR:
@@ -4136,7 +4136,7 @@ class Container extends Array {
                         Value := StrPtr(_value)
                     } else {
                         _value := Value
-                        Value := StrPtr(Value)
+                        Value := StrPtr(_value)
                     }
                 }
             case CONTAINER_SORTTYPE_CB_STRINGPTR:
