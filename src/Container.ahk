@@ -2087,6 +2087,8 @@ class Container extends Array {
      *
      * @param {*} Value - The value to find.
      *
+     * @param {VarRef} [OutValue] - A variable that will receive the value, if found.
+     *
      * @param {Number} [IndexStart = 1] - The index to start the search at.
      *
      * @param {Number} [IndexEnd = this.Length] - The index to end the search at.
