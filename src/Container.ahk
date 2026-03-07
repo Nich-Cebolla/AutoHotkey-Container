@@ -2682,10 +2682,10 @@ class Container extends Array {
      *
      * @param {String} [Condition='>='] - The inequality symbol indicating what condition satisfies
      * the search. Valid values are:
-     * - ">": `QuickFind` returns the index of the first value greater than the input value.
-     * - ">=": `QuickFind` returns the index of the first value greater than or equal to the input value.
-     * - "<": `QuickFind` returns the index of the first value less than the input value.
-     * - "<=": `QuickFind` returns the index of the first value less than or equal to the input value.
+     * - ">": `FindInequality` returns the index of the first value greater than the input value.
+     * - ">=": `FindInequality` returns the index of the first value greater than or equal to the input value.
+     * - "<": `FindInequality` returns the index of the first value less than the input value.
+     * - "<=": `FindInequality` returns the index of the first value less than or equal to the input value.
      *
      * @param {Number} [IndexStart = 1] - The index to start the search at.
      *
@@ -3352,10 +3352,10 @@ class Container extends Array {
      *
      * @param {String} [Condition='>='] - The inequality symbol indicating what condition satisfies
      * the search. Valid values are:
-     * - ">": `QuickFind` returns the index of the first value greater than the input value.
-     * - ">=": `QuickFind` returns the index of the first value greater than or equal to the input value.
-     * - "<": `QuickFind` returns the index of the first value less than the input value.
-     * - "<=": `QuickFind` returns the index of the first value less than or equal to the input value.
+     * - ">": `FindInequalitySparse` returns the index of the first value greater than the input value.
+     * - ">=": `FindInequalitySparse` returns the index of the first value greater than or equal to the input value.
+     * - "<": `FindInequalitySparse` returns the index of the first value less than the input value.
+     * - "<=": `FindInequalitySparse` returns the index of the first value less than or equal to the input value.
      *
      * @param {Number} [IndexStart = 1] - The index to start the search at.
      *
