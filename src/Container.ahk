@@ -849,7 +849,7 @@ class Container extends Array {
                     Value := this.DateConvert(Value)
                 }
                 return Value - this[Index].__Container_DateValue
-            default: throw ValueError('Invalid SortType.', -1, this.SortType)
+            default: throw ValueError('Invalid SortType.', , this.SortType)
         }
     }
     /**
@@ -1432,7 +1432,7 @@ class Container extends Array {
             this.Delete(index)
             return index
         } else {
-            throw UnsetItemError('Value not found.', -1, IsObject(Value) ? '{ ' Type(Value) ' }' : Value)
+            throw UnsetItemError('Value not found.', , IsObject(Value) ? '{ ' Type(Value) ' }' : Value)
         }
     }
     /**
@@ -1504,7 +1504,7 @@ class Container extends Array {
             this.Delete(index)
             return index
         } else {
-            throw UnsetItemError('Value not found.', -1, IsObject(Value) ? '{ ' Type(Value) ' }' : Value)
+            throw UnsetItemError('Value not found.', , IsObject(Value) ? '{ ' Type(Value) ' }' : Value)
         }
     }
     /**
@@ -2205,7 +2205,7 @@ class Container extends Array {
                     _value := Value
                     Value := StrPtr(_value)
                 }
-            default: throw ValueError('Invalid SortType.', -1, this.SortType)
+            default: throw ValueError('Invalid SortType.', , this.SortType)
         }
         while IndexEnd - IndexStart > 4 {
             i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)
@@ -2382,7 +2382,7 @@ class Container extends Array {
                     Value := this.DateConvert(Value)
                 }
                 Compare := _CompareDateValue
-            default: throw ValueError('Invalid SortType.', -1, this.SortType)
+            default: throw ValueError('Invalid SortType.', , this.SortType)
         }
         while IndexEnd - IndexStart > 4 {
             i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)
@@ -2582,7 +2582,7 @@ class Container extends Array {
                     Value := this.DateConvert(Value)
                 }
                 Compare := _CompareDateValue
-            default: throw ValueError('Invalid SortType.', -1, this.SortType)
+            default: throw ValueError('Invalid SortType.', , this.SortType)
         }
         while IndexEnd - IndexStart > 4 {
             if !this.Has(i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)) {
@@ -2818,7 +2818,7 @@ class Container extends Array {
                 }
                 Compare1 := _CompareDateValue1
                 Compare2 := _CompareDateValue2
-            default: throw ValueError('Invalid SortType.', -1, this.SortType)
+            default: throw ValueError('Invalid SortType.', , this.SortType)
         }
 
         ;@region 1 Unique val
@@ -3012,7 +3012,7 @@ class Container extends Array {
                 }
             ;@endregion
 
-            default: throw ValueError('Invalid condition.', -1, Condition)
+            default: throw ValueError('Invalid condition.', , Condition)
         }
         ;@endregion
 
@@ -3488,7 +3488,7 @@ class Container extends Array {
                 }
                 Compare1 := _CompareDateValue1
                 Compare2 := _CompareDateValue2
-            default: throw ValueError('Invalid SortType.', -1, this.SortType)
+            default: throw ValueError('Invalid SortType.', , this.SortType)
         }
 
         ;@region Get left-right
@@ -3497,7 +3497,7 @@ class Container extends Array {
         i := IndexStart
         ; No return value indicates the array had no set indices between IndexStart and IndexEnd.
         if !_GetNearest_L2R() {
-            throw Error('The indices within the input range are all unset.', -1)
+            throw Error('The indices within the input range are all unset.')
         }
         left := i
         i := IndexEnd
@@ -3695,7 +3695,7 @@ class Container extends Array {
                 }
             ;@endregion
 
-            default: throw ValueError('Invalid condition.', -1, Condition)
+            default: throw ValueError('Invalid condition.', , Condition)
         }
         ;@endregion
 
@@ -4199,7 +4199,7 @@ class Container extends Array {
                     Value := this.DateConvert(Value)
                 }
                 Compare := _CompareDateValue
-            default: throw ValueError('Invalid SortType.', -1, this.SortType)
+            default: throw ValueError('Invalid SortType.', , this.SortType)
         }
         while IndexEnd - IndexStart > 4 {
             if !this.Has(i := IndexEnd - Ceil((IndexEnd - IndexStart) * 0.5)) {
@@ -4806,7 +4806,7 @@ class Container extends Array {
      */
     InsertionSort() {
         if !this.Length {
-            throw Error('The ``Container`` is empty.', -1)
+            throw Error('The ``Container`` is empty.')
         }
         if this.Length == 1 {
             return this
@@ -4848,7 +4848,7 @@ class Container extends Array {
             case CONTAINER_SORTTYPE_DATEVALUE:
                 Compare1 := _CompareDateValue1
                 Compare2 := _CompareDateValue2
-            default: throw ValueError('Invalid SortType.', -1, this.SortType)
+            default: throw ValueError('Invalid SortType.', , this.SortType)
         }
         if this.Length == 2 {
             if Compare1(this[1], this[2]) > 0 {
@@ -5211,7 +5211,7 @@ class Container extends Array {
      */
     QuickSort(arrSizeThreshold := 8) {
         if !this.Length {
-            throw Error('The ``Container`` is empty.', -1)
+            throw Error('The ``Container`` is empty.')
         }
         if this.Length == 1 {
             return this.Clone()
@@ -5253,7 +5253,7 @@ class Container extends Array {
             case CONTAINER_SORTTYPE_DATEVALUE:
                 Compare1 := _CompareDateValue1
                 Compare2 := _CompareDateValue2
-            default: throw ValueError('Invalid SortType.', -1, this.SortType)
+            default: throw ValueError('Invalid SortType.', , this.SortType)
         }
         n := this.Length
         if n == 2 {
@@ -5524,7 +5524,7 @@ class Container extends Array {
             this.RemoveAt(index)
             return index
         } else {
-            throw UnsetItemError('Value not found.', -1, IsObject(Value) ? '{ ' Type(Value) ' }' : Value)
+            throw UnsetItemError('Value not found.', , IsObject(Value) ? '{ ' Type(Value) ' }' : Value)
         }
     }
     /**
@@ -5687,7 +5687,7 @@ class Container extends Array {
             this.RemoveAt(index)
             return index
         } else {
-            throw UnsetItemError('Value not found.', -1, IsObject(Value) ? '{ ' Type(Value) ' }' : Value)
+            throw UnsetItemError('Value not found.', , IsObject(Value) ? '{ ' Type(Value) ' }' : Value)
         }
     }
     /**
@@ -6390,7 +6390,7 @@ class Container extends Array {
               , CONTAINER_SORTTYPE_STRINGPTR
               , CONTAINER_SORTTYPE_DATEVALUE:
                 this.SortType := Value
-            default: throw ValueError('Invalid SortType.', -1, Value)
+            default: throw ValueError('Invalid SortType.', , Value)
         }
     }
     /**
@@ -6436,7 +6436,7 @@ class Container extends Array {
      */
     Sort() {
         if !this.Length {
-            throw Error('The ``Container`` is empty.', -1)
+            throw Error('The ``Container`` is empty.')
         }
         if this.Length == 1 {
             return this
@@ -6478,7 +6478,7 @@ class Container extends Array {
             case CONTAINER_SORTTYPE_DATEVALUE:
                 Compare1 := _CompareDateValue1
                 Compare2 := _CompareDateValue2
-            default: throw ValueError('Invalid SortType.', -1, this.SortType)
+            default: throw ValueError('Invalid SortType.', , this.SortType)
         }
         n := this.Length
         if n == 2 {
@@ -7382,11 +7382,11 @@ class Container extends Array {
                         _Throw(A_Index)
                     }
                 }
-            default: throw ValueError('Invalid SortType.', -1, this.SortType)
+            default: throw ValueError('Invalid SortType.', , this.SortType)
         }
 
         _Throw(i) {
-            throw Error('Values out of order.', -1, 'Index: ' i ' - ' (i + 1))
+            throw Error('Values out of order.', , 'Index: ' i ' - ' (i + 1))
         }
     }
 
