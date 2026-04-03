@@ -37,9 +37,7 @@ class Container extends Array {
         ]
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Provided by your code and returns a string in the format yyyyMMddHHmmss.
-     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDate}.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_CB_DATE}.
      *
      * @example
      * CallbackValue(value) {
@@ -80,10 +78,7 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Provided by your code and returns a date string in any format recognized by the
-     * {@link Container_DateParser} set to {@link Container#DateParser}.
-     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDateStr}.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_CB_DATESTR}.
      *
      * @example
      * CallbackValue(value) {
@@ -138,10 +133,9 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
-     * by the {@link Container_DateParser} set to {@link Container#DateParser}.
-     * - **CallbackCompare**: This calls {@link Container.Prototype.SetDateParser}.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_CB_DATESTR}.
+     * Your code supplies a {@link Container_DateParser} object with which to instantiate
+     * the {@link Container}.
      *
      * @example
      * CallbackValue(value) {
@@ -193,9 +187,7 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Provided by your code and returns a number.
-     * - **CallbackCompare**: Not used.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_CB_NUMBER}.
      *
      * @example
      * CallbackValue(value) {
@@ -224,9 +216,7 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Provided by your code and returns a string.
-     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_CB_STRING}.
      *
      * @example
      * CallbackValue(value) {
@@ -274,9 +264,7 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Provided by your code and returns a pointer to a null-terminated string.
-     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_CB_STRINGPTR}.
      *
      * If you know your code will be used for a lot of sorting and finding operations, you can
      * improve performance by storing the name / key in a buffer.
@@ -336,9 +324,7 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Not used.
-     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDate}.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_DATE}.
      *
      * @example
      * c := Container.Date()
@@ -371,9 +357,7 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Not used.
-     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDateStr}.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_DATESTR}.
      *
      * @example
      * c := Container.DateStr("yyyy-MM-dd HH:mm:ss")
@@ -420,10 +404,9 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
-     * by the {@link Container_DateParser} set to {@link Container#DateParser}.
-     * - **CallbackCompare**: This calls {@link Container.Prototype.SetDateParser}.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_DATESTR}.
+     * Your code supplies a {@link Container_DateParser} object with which to instantiate
+     * the {@link Container}.
      *
      * @example
      * CallbackValue(value) {
@@ -471,10 +454,7 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Provided by your code and returns a date string in any format recognized
-     * by the {@link Container_DateParser} set to {@link Container#DateParser}.
-     * - **CallbackCompare**: This calls {@link Container.Prototype.DatePreprocess}.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_DATEVALUE}.
      *
      * @example
      * CallbackValue(value) {
@@ -531,8 +511,7 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * Converts an existing `Array` object into a `Container` object.
+     * @desc - Converts an existing `Array` object into a `Container` object.
      *
      * @param {Array} Arr - The `Array` object to convert.
      *
@@ -543,10 +522,7 @@ class Container extends Array {
         return Arr
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Not used.
-     * - **CallbackCompare**: Provided by your code and implements custom logic to return the comparison
-     * value.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_MISC}.
      *
      * @example
      * CallbackCompare(value1, value2) {
@@ -587,9 +563,7 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Not used.
-     * - **CallbackCompare**: Not used.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_NUMBER}.
      *
      * @example
      * c := Container.Number()
@@ -610,9 +584,7 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Not used.
-     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_STRING}.
      *
      * @example
      * c := Container.String()
@@ -652,9 +624,7 @@ class Container extends Array {
         return c
     }
     /**
-     * @desc -
-     * - **CallbackValue**: Not used.
-     * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareStringEx}.
+     * @desc - Creates a {@link Container} object of type {@link CONTAINER_SORTTYPE_STRINGPTR}.
      *
      * @example
      * StrBuf(str) {
