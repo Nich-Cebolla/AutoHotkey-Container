@@ -11,6 +11,7 @@
 #include test-readme-examples.ahk
 #include test-SetSortType-examples.ahk
 #include test-Sort.ahk
+#include test-SortStable.ahk
 
 if !A_IsCompiled && A_LineFile == A_ScriptFullPath {
     Container_RunTests(true)
@@ -44,6 +45,8 @@ Container_RunTests(tooltips := false) {
         test_SetSortTypeExamples()
         ShowTooltip('Starting Sort')
         test_Sort()
+        ShowTooltip('Starting SortStable')
+        test_SortStable()
         ShowTooltip('Done')
         CoordMode('Mouse', om)
         CoordMode('ToolTip', ot)
@@ -60,6 +63,7 @@ Container_RunTests(tooltips := false) {
         test_ReadmeExamples()
         test_SetSortTypeExamples()
         test_Sort()
+        test_SortStable()
     }
 
     ShowTooltip(Str) {
