@@ -2218,6 +2218,7 @@ class Container extends Array {
                         return i + 1
                     }
                 }
+                OutValue := this[i]
                 return i
             }
         }
@@ -4216,6 +4217,7 @@ class Container extends Array {
                         return i + 1
                     }
                 }
+                OutValue := this[i]
                 return i
             }
         }
