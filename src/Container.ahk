@@ -754,7 +754,9 @@ class Container extends Array {
      *     }
      * }
      * @
+     *
      * @param {*} Value - Any value to compare to one of the values in the container.
+     *
      * @param {Integer} Index - The index of the value to compare with `Value`.
      *
      * @returns {Number} - Returns the value returned by {@link Container#CallbackCompare} for the two
