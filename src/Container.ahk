@@ -706,6 +706,26 @@ class Container extends Array {
      * split a maximum of MaxParts-1 times and the remainder of the string is returned in the last
      * substring (excluding any leading or trailing OmitChars).
      *
+     * @param {String|Integer} [LocaleName = LOCALE_NAME_USER_DEFAULT] - Pointer to a locale name,
+     * or one of the following predefined values. If `LocaleName` is a string, a buffer object
+     * will be created to store the string value. The buffer object is set to property
+     * {@link Container#CompareStringLocaleName}.
+     * - LOCALE_NAME_INVARIANT
+     * - LOCALE_NAME_SYSTEM_DEFAULT
+     * - LOCALE_NAME_USER_DEFAULT
+     *
+     * @param {Integer} [Flag = 0] - See the description of the flags on
+     * {@link https://learn.microsoft.com/en-us/windows/win32/api/stringapiset/nf-stringapiset-comparestringex}.
+     * The flags each exist as global variables by the same name as indicated in the documentation. To
+     * combine flags, use the bitwise "or" ( | ), e.g. `LINGUISTIC_IGNORECASE | NORM_IGNORENONSPACE`.
+     *
+     * @param {Integer|NlsVersionInfoEx|Buffer} [NlsVersionInfo = 0] - Either a pointer to a
+     * NLSVERSIONINFOEX structure, or an {@link NlsVersionInfoEx} object, or a buffer containing an
+     * NLSVERSIONINFOEX structure. If `NlsVersionInfo` is an object, the object is set to
+     * property {@link Container#CompareStringNlsVersionInfo}.
+     *
+     * @param {...*} [Values] - Zero or more values to instantiate the container with.
+     *
      * @returns {Container}
      */
     static StrSplit(Str, Delimiters?, OmitChars?, MaxParts := -1, LocaleName := LOCALE_NAME_USER_DEFAULT, Flags := 0, NlsVersionInfo := 0) {
