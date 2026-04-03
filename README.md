@@ -1,5 +1,5 @@
 
-# AutoHotkey-Container - v1.0.5
+# AutoHotkey-Container - v1.1.0
 
 The last AutoHotkey (AHK) array class you will ever need.
 
@@ -1156,6 +1156,7 @@ In addition to the methods inherited from `Array`, `Container` has the following
 - `Container.Prototype.SetSortType`
 - `Container.Prototype.Slice`
 - `Container.Prototype.Sort`
+- `Container.Prototype.SortStable`
 - `Container.Prototype.ToCbDate`
 - `Container.Prototype.ToCbDateStr`
 - `Container.Prototype.ToCbDateStrFromParser`
@@ -1194,6 +1195,7 @@ Methods that sort the values in the container.
 - `Container.Prototype.InsertionSort`
 - `Container.Prototype.QuickSort`
 - `Container.Prototype.Sort`
+- `Container.Prototype.SortStable`
 
 ### Instance methods - Binary search methods
 
@@ -1421,6 +1423,18 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
 (Ctrl+Shift+P > Preferences: Open Keyboard Shortcuts) and searching "Trigger parameter hints".
 
 # Changelog
+
+- **2026-04-03** - v1.1.0
+  - Added method:
+    - `Container.Prototype.SortStable`
+  - Added file:
+    - test\test-SortStable.ahk
+  - Changed:
+    - Improved the description of most static methods.
+    - Improved the parameter hint for `Container.StrSplit` and `Container.Prototype.Compare`.
+  - Fix:
+    - `Container.Prototype.Find` and `Container.Prototype.FindSparse` to correctly set the `OutValue`
+      variable before returning.
 
 - **2025-11-06** - v1.0.6
   - **BREAKING CHANGES**
