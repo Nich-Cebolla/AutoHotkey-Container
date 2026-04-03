@@ -2886,7 +2886,7 @@ class Container extends Array {
 
             ;@region case >=
             case '>=':
-                Condition := _Compare_GTE
+                _Condition := _Compare_GTE
                 AltCondition := _Compare_LT
                 HandleEqualValues := _HandleEqualValues_EQ
                 EQ := true
@@ -2918,7 +2918,7 @@ class Container extends Array {
 
             ;@region case >
             case '>':
-                Condition := _Compare_GT
+                _Condition := _Compare_GT
                 AltCondition := _Compare_LTE
                 HandleEqualValues := _HandleEqualValues_NEQ
                 EQ := false
@@ -2950,7 +2950,7 @@ class Container extends Array {
 
             ;@region case <=
             case '<=':
-                Condition := _Compare_LTE
+                _Condition := _Compare_LTE
                 AltCondition := _Compare_GT
                 HandleEqualValues := _HandleEqualValues_EQ
                 EQ := true
@@ -2982,7 +2982,7 @@ class Container extends Array {
 
             ;@region case <
             case '<':
-                Condition := _Compare_LT
+                _Condition := _Compare_LT
                 AltCondition := _Compare_GTE
                 HandleEqualValues := _HandleEqualValues_NEQ
                 EQ := false
@@ -3087,7 +3087,7 @@ class Container extends Array {
             ; `Condition`.
             loop IndexEnd - i {
                 ++i
-                if Condition() {
+                if _Condition() {
                     OutValue := this[i]
                     return i
                 }
@@ -3105,7 +3105,7 @@ class Container extends Array {
             ; Same as above but in the opposite direction.
             loop i - IndexStart {
                 --i
-                if Condition() {
+                if _Condition() {
                     OutValue := this[i]
                     return i
                 }
@@ -3232,7 +3232,7 @@ class Container extends Array {
             ; direction of ascent until `Condition` returns true.
             loop i - IndexStart {
                 --i
-                if Condition() {
+                if _Condition() {
                     OutValue := this[i]
                     return i
                 }
@@ -3250,7 +3250,7 @@ class Container extends Array {
             ; Same as above but opposite direction.
             loop IndexEnd - i {
                 ++i
-                if Condition() {
+                if _Condition() {
                     OutValue := this[i]
                     return i
                 }
@@ -3581,7 +3581,7 @@ class Container extends Array {
 
             ;@region case >=
             case '>=':
-                Condition := _Compare_GTE
+                _Condition := _Compare_GTE
                 AltCondition := _Compare_LT
                 HandleEqualValues := _HandleEqualValues_EQ
                 EQ := true
@@ -3610,7 +3610,7 @@ class Container extends Array {
 
             ;@region case >
             case '>':
-                Condition := _Compare_GT
+                _Condition := _Compare_GT
                 AltCondition := _Compare_LTE
                 HandleEqualValues := _HandleEqualValues_NEQ
                 EQ := false
@@ -3639,7 +3639,7 @@ class Container extends Array {
 
             ;@region case <=
             case '<=':
-                Condition := _Compare_LTE
+                _Condition := _Compare_LTE
                 AltCondition := _Compare_GT
                 HandleEqualValues := _HandleEqualValues_EQ
                 EQ := true
@@ -3668,7 +3668,7 @@ class Container extends Array {
 
             ;@region case <
             case '<':
-                Condition := _Compare_LT
+                _Condition := _Compare_LT
                 AltCondition := _Compare_GTE
                 HandleEqualValues := _HandleEqualValues_NEQ
                 EQ := false
@@ -3787,7 +3787,7 @@ class Container extends Array {
             ; `Condition`.
             loop IndexEnd - i {
                 if this.Has(++i) {
-                    if Condition() {
+                    if _Condition() {
                         OutValue := this[i]
                         return i
                     }
@@ -3806,7 +3806,7 @@ class Container extends Array {
             ; Same as above but in the opposite direction.
             loop i - IndexStart {
                 if this.Has(--i) {
-                    if Condition() {
+                    if _Condition() {
                         OutValue := this[i]
                         return i
                     }
@@ -3938,7 +3938,7 @@ class Container extends Array {
             ; direction of ascent until `Condition` returns true.
             loop i - IndexStart {
                 if this.Has(--i) {
-                    if Condition() {
+                    if _Condition() {
                         OutValue := this[i]
                         return i
                     }
@@ -3957,7 +3957,7 @@ class Container extends Array {
             ; Same as above but opposite direction.
             loop IndexEnd - i {
                 if this.Has(++i) {
-                    if Condition() {
+                    if _Condition() {
                         OutValue := this[i]
                         return i
                     }
