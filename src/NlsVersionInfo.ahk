@@ -7,7 +7,7 @@ class NlsVersionInfoEx {
         this.DeleteProp('__New')
         proto := this.Prototype
         proto.cbSizeInstance :=
-        ; Size    Type       Symbol                  OffsetPadding
+        ; Size    Type       Symbol                  Offset Padding
         4 +       ; DWORD    dwNlsVersionInfoSize    0
         4 +       ; DWORD    dwNLSVersion            4
         4 +       ; DWORD    dwDefinedVersion        8
