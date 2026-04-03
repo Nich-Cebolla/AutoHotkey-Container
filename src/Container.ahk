@@ -6603,6 +6603,227 @@ class Container extends Array {
     }
     /**
      * @desc -
+     * Requires a sorted container: no.
+     *
+     * Allows unset indices: no.
+     *
+     * Characteristics of {@link Container.Prototype.SortStable}:
+     * - In-place sorting (mutates the input array).
+     * - Stable (preserves original order of equal values).
+     *
+     * @returns {Container} - The input array.
+     */
+    SortStable() {
+        if !this.Length {
+            throw Error('The ``Container`` is empty.')
+        }
+        if this.Length == 1 {
+            return this
+        }
+        switch this.SortType, 0 {
+            case CONTAINER_SORTTYPE_NUMBER:
+                Compare1 := _CompareNumber1
+                Compare2 := _CompareNumber2
+            case CONTAINER_SORTTYPE_STRING:
+                CallbackCompare := this.CallbackCompare
+                Compare1 := _CompareString1
+                Compare2 := _CompareString2
+            case CONTAINER_SORTTYPE_STRINGPTR:
+                CallbackCompare := this.CallbackCompare
+                Compare1 := _CompareValue1
+                Compare2 := _CompareValue2
+            case CONTAINER_SORTTYPE_CB_NUMBER:
+                CallbackValue := this.CallbackValue
+                Compare1 := _CompareCbNumber1
+                Compare2 := _CompareCbNumber2
+            case CONTAINER_SORTTYPE_CB_STRING:
+                CallbackCompare := this.CallbackCompare
+                CallbackValue := this.CallbackValue
+                Compare1 := _CompareCbString1
+                Compare2 := _CompareCbString2
+            case CONTAINER_SORTTYPE_CB_STRINGPTR
+            , CONTAINER_SORTTYPE_CB_DATE
+            , CONTAINER_SORTTYPE_CB_DATESTR:
+                CallbackCompare := this.CallbackCompare
+                CallbackValue := this.CallbackValue
+                Compare1 := _CompareCbValue1
+                Compare2 := _CompareCbValue2
+            case CONTAINER_SORTTYPE_MISC
+            , CONTAINER_SORTTYPE_DATE
+            , CONTAINER_SORTTYPE_DATESTR:
+                CallbackCompare := this.CallbackCompare
+                Compare1 := _CompareValue1
+                Compare2 := _CompareValue2
+            case CONTAINER_SORTTYPE_DATEVALUE:
+                Compare1 := _CompareDateValue1
+                Compare2 := _CompareDateValue2
+            default: throw ValueError('Invalid SortType.', , this.SortType)
+        }
+        n := this.length
+        ; create list of indices
+        indices := []
+        loop indices.length := n {
+            indices[A_Index] := A_Index
+        }
+        ; build heap
+        i := Floor(n / 2)
+        while i >= 1 {
+            b := this[i]
+            _b := indices[i]
+            k := i
+            if k * 2 <= n {
+                left  := k * 2
+                right := left + 1
+                j := left
+                if right <= n {
+                    if z := Compare1(this[right], this[left]) {
+                        if z > 0 {
+                            j := right
+                        }
+                    } else if indices[right] > indices[left] {
+                        j := right
+                    }
+                }
+                if z := Compare2(this[j]) {
+                    if z < 0 {
+                        i--
+                        continue
+                    }
+                } else if indices[j] < _b {
+                    i--
+                    continue
+                }
+            } else {
+                i--
+                continue
+            }
+
+            while k * 2 <= n {
+                j := k * 2
+                if j + 1 <= n {
+                    if z := Compare1(this[j + 1], this[j]) {
+                        if z > 0 {
+                            j++
+                        }
+                    } else if indices[j + 1] > indices[j] {
+                        j++
+                    }
+                }
+                this[k] := this[j]
+                indices[k] := indices[j]
+                k := j
+            }
+            while k > 1 {
+                p := Floor(k / 2)
+                if z := Compare2(this[p]) {
+                    if z > 0 {
+                        this[k] := b
+                        indices[k] := _b
+                        i--
+                        continue 2
+                    }
+                } else if indices[p] > _b {
+                    this[k] := b
+                    indices[k] := _b
+                    i--
+                    continue 2
+                }
+                this[k] := this[p]
+                indices[k] := indices[p]
+                k := p
+            }
+        }
+
+        ; Repeatedly move max to end
+        i := n
+        while i > 1 {
+            t := this[1]
+            _t := indices[1]
+            this[1] := this[i]
+            indices[1] := indices[i]
+            this[i] := t
+            indices[i] := _t
+            i--
+
+            b := this[1]
+            _b := indices[1]
+            k := 1
+            if k * 2 <= i {
+                left  := k * 2
+                right := left + 1
+                j := left
+                if right <= i {
+                    if z := Compare1(this[right], this[left]) {
+                        if z > 0 {
+                            j := right
+                        }
+                    } else if indices[right] > indices[left] {
+                        j := right
+                    }
+                }
+                if z := Compare2(this[j]) {
+                    if z < 0 {
+                        continue
+                    }
+                } else if indices[j] < _b {
+                    continue
+                }
+            } else {
+                continue
+            }
+
+            while k * 2 <= i {
+                j := k * 2
+                if j + 1 <= i {
+                    if z := Compare1(this[j + 1], this[j]) {
+                        if z > 0 {
+                            j++
+                        }
+                    } else if indices[j + 1] > indices[j] {
+                        j++
+                    }
+                }
+                this[k] := this[j]
+                indices[k] := indices[j]
+                k := j
+            }
+            while k > 1 {
+                p := Floor(k / 2)
+                if z := Compare2(this[p]) {
+                    if z > 0 {
+                        this[k] := b
+                        indices[k] := _b
+                        continue 2
+                    }
+                } else if indices[p] > _b {
+                    this[k] := b
+                    indices[k] := _b
+                    continue 2
+                }
+                this[k] := this[p]
+                indices[k] := indices[p]
+                k := p
+            }
+        }
+        return this
+
+        _CompareDateValue1(a, b) => a.__Container_DateValue - b.__Container_DateValue
+        _CompareNumber1(a, b) => a - b
+        _CompareString1(a, b) => CallbackCompare(StrPtr(a), StrPtr(b))
+        _CompareCbNumber1(a, b) => CallbackValue(a) - CallbackValue(b)
+        _CompareCbString1(a, b) => CallbackCompare(StrPtr(CallbackValue(a)), StrPtr(CallbackValue(b)))
+        _CompareCbValue1(a, b) => CallbackCompare(CallbackValue(a), CallbackValue(b))
+        _CompareValue1(a, b) => Callbackcompare(a, b)
+        _CompareDateValue2(a) => a.__Container_DateValue - b.__Container_DateValue
+        _CompareNumber2(a) => a - b
+        _CompareString2(a) => CallbackCompare(StrPtr(a), StrPtr(b))
+        _CompareCbNumber2(a) => CallbackValue(a) - CallbackValue(b)
+        _CompareCbString2(a) => CallbackCompare(StrPtr(CallbackValue(a)), StrPtr(CallbackValue(b)))
+        _CompareCbValue2(a) => CallbackCompare(CallbackValue(a), CallbackValue(b))
+        _CompareValue2(a) => Callbackcompare(a, b)
+    }
+    /**
+     * @desc -
      * - **CallbackValue**: Provided by your code and returns a string in the format yyyyMMddHHmmss.
      * - **CallbackCompare**: This calls {@link Container.Prototype.SetCompareDate}.
      *
