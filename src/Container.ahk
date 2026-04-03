@@ -676,8 +676,8 @@ class Container extends Array {
     /**
      * @desc -
      * Calls {@link https://www.autohotkey.com/docs/v2/lib/StrSplit.htm StrSplit} and converts
-     * the return value to a {@link Container}. Calls {@link Container.Prototype.ToString} from
-     * the new container.
+     * the return value to a {@link Container}. The new container will be type
+     * {@link CONTAINER_SORTTYPE_STRING}.
      *
      * @param {String} Str - The string to pass to {@link https://www.autohotkey.com/docs/v2/lib/StrSplit.htm StrSplit}.
      *
