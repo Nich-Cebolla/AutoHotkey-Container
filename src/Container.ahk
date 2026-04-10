@@ -1,7 +1,7 @@
 ﻿/*
     Github: https://github.com/Nich-Cebolla/AutoHotkey-Container/
     Author: Nich-Cebolla
-    Version: 1.1.0
+    Version: 1.1.1
     License: MIT
 */
 

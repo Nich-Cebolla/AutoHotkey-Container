@@ -1,5 +1,5 @@
 
-# AutoHotkey-Container - v1.1.0
+# AutoHotkey-Container - v1.1.1
 
 The last AutoHotkey (AHK) array class you will ever need.
 
@@ -1423,6 +1423,9 @@ hints". You can customize the keyboard shortcut for this by opening Keyboard Sho
 (Ctrl+Shift+P > Preferences: Open Keyboard Shortcuts) and searching "Trigger parameter hints".
 
 # Changelog
+
+- **2026-04-10** - v1.1.1
+  - Consolidated code into one file.
 
 - **2026-04-03** - v1.1.0
   - Added method:
